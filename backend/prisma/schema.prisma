@@ -1,0 +1,362 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String              @id @default(cuid())
+  email        String              @unique
+  name         String
+  role         String              // "Employee", "ProjectOwner", "CEO"
+  department   String?
+  avatarUrl    String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  memberships  ProjectMembership[]
+  ownedProjects Project[]          @relation("ProjectOwner")
+  tasks        Task[]              @relation("TaskAssignee")
+  qualityChecks QualityCheck[]     @relation("QualityCheckedBy")
+  issuesOwned  Issue[]             @relation("IssueOwner")
+  issuesRaised Issue[]             @relation("IssueRaiser")
+  risksOwned   Risk[]              @relation("RiskOwner")
+  allocations  Allocation[]
+  notifications Notification[]
+  statusOverrides StatusOverrideLog[]
+  chatMessages ChatMessage[]       @relation("ChatAuthor")
+  chatReadStates ChatReadState[]
+  approvalRequestsRequested ApprovalRequest[] @relation("ApprovalRequester")
+  approvalRequestsApproving ApprovalRequest[] @relation("ApprovalApprover")
+  documentsUploaded Document[]     @relation("DocUploader")
+  documentVersionsUploaded DocumentVersion[] @relation("DocVersionUploader")
+  reminders    Reminder[]
+}
+
+model Project {
+  id             String              @id @default(cuid())
+  name           String
+  goal           String
+  ownerId        String
+  owner          User                @relation("ProjectOwner", fields: [ownerId], references: [id])
+  sponsor        String
+  startDate      DateTime
+  endDate        DateTime
+  plannedBudget  Float               @default(0)
+  contingency    Float               @default(0)
+  spendToDate    Float               @default(0)
+  statusOverride String?             // "ON_TRACK", "AT_RISK", "OFF_TRACK"
+  baselineId     String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  memberships    ProjectMembership[]
+  phases         Phase[]
+  milestones     Milestone[]
+  issues         Issue[]
+  risks          Risk[]
+  allocations    Allocation[]
+  baselines      Baseline[]
+  changeLogs     ChangeLogEntry[]
+  statusLogs     StatusOverrideLog[]
+  chatMessages   ChatMessage[]
+  approvalRequests ApprovalRequest[]
+  documents      Document[]
+}
+
+model ProjectMembership {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      String   @default("Member") // "Owner", "Member", "Viewer"
+  createdAt DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+model Baseline {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  version     Int      @default(1)
+  approvedBy  String
+  approvedAt  DateTime @default(now())
+  dataSnapshot String  // JSON snapshot of baselined dates, budget, phases, milestones
+  createdAt   DateTime @default(now())
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Phase {
+  id           String   @id @default(cuid())
+  projectId    String
+  name         String
+  plannedStart DateTime
+  plannedEnd   DateTime
+  order        Int
+  plannedBudget Float   @default(0)
+  spendToDate  Float    @default(0)
+  isArchived   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks        Task[]
+
+  @@unique([projectId, name])
+}
+
+model Task {
+  id             String         @id @default(cuid())
+  phaseId        String
+  title          String
+  assigneeId     String?
+  priority       String         @default("Normal") // "Low", "Normal", "High"
+  plannedStart   DateTime
+  plannedEnd     DateTime
+  plannedHours   Int            @default(0)
+  actualHours    Int            @default(0)
+  state          String         @default("Not started") // "Not started", "In progress", "Blocked", "Completed"
+  dependsOn      String?        // Task ID of prerequisite task
+  isBaselined    Boolean        @default(false)
+  hasRiskFlag    Boolean        @default(false)
+  riskFlagReason String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  phase          Phase          @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  assignee       User?          @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  qualityChecks  QualityCheck[]
+  issues         Issue[]
+  risks          Risk[]
+}
+
+model QualityCheck {
+  id          String    @id @default(cuid())
+  taskId      String
+  label       String
+  mandatory   Boolean   @default(false)
+  checkedBy   String?
+  checkedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  checker     User?     @relation("QualityCheckedBy", fields: [checkedBy], references: [id])
+}
+
+model Milestone {
+  id           String    @id @default(cuid())
+  projectId    String
+  title        String
+  baselineDate DateTime
+  forecastDate DateTime
+  actualDate   DateTime?
+  isBaselined  Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Risk {
+  id             String    @id @default(cuid())
+  projectId      String
+  taskId         String?
+  description    String
+  severity       String    @default("Medium") // "Low", "Medium", "High"
+  mitigation     String?
+  ownerId        String
+  lastReviewedAt DateTime  @default(now())
+  closedAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  project        Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task           Task?     @relation(fields: [taskId], references: [id])
+  owner          User      @relation("RiskOwner", fields: [ownerId], references: [id])
+}
+
+model Issue {
+  id            String    @id @default(cuid())
+  projectId     String
+  taskId        String?
+  title         String
+  severity      String    // "Minor", "Major", "Critical"
+  state         String    @default("Open") // "Open", "In progress", "Closed"
+  ownerId       String
+  detail        String
+  raisedBy      String
+  raisedAt      DateTime  @default(now())
+  closedAt      DateTime?
+  reopenComment String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task          Task?     @relation(fields: [taskId], references: [id])
+  owner         User      @relation("IssueOwner", fields: [ownerId], references: [id])
+  raiser        User      @relation("IssueRaiser", fields: [raisedBy], references: [id])
+}
+
+model Allocation {
+  id             String   @id @default(cuid())
+  userId         String
+  projectId      String
+  weekStartDate  DateTime // Starting Monday of the week
+  allocatedHours Float    @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId, weekStartDate])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String?
+  title     String
+  message   String
+  type      String   // "chat_mention", "task_assignment", "task_blocked", "quality_check_assignment", "approval_awaiting", "approval_decision", "critical_issue", "high_risk", "budget_warning", "milestone_movement"
+  isRead    Boolean  @default(false)
+  isPush    Boolean  @default(false)
+  linkUrl   String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChangeLogEntry {
+  id         String   @id @default(cuid())
+  projectId  String
+  what       String?
+  fromValue  String?
+  toValue    String?
+  actorId    String?
+  at         DateTime @default(now())
+  sourceType String?  // "TASK_POST_BASELINE", "CHARTER", "BUDGET", "TIMELINE", "SCOPE", "STATUS_OVERRIDE", "BASELINE"
+  sourceId   String?
+  entityType String?  // backwards compat
+  entityId   String?  // backwards compat
+  action     String?  // backwards compat
+  details    String?  // backwards compat
+  changedBy  String?  // backwards compat
+  createdAt  DateTime @default(now())
+
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model StatusOverrideLog {
+  id          String   @id @default(cuid())
+  projectId   String
+  fromStatus  String
+  toStatus    String
+  reason      String
+  overriddenBy String
+  createdAt   DateTime @default(now())
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [overriddenBy], references: [id])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  projectId String
+  authorId  String
+  body      String
+  mentions  String   @default("[]") // JSON string array of mentioned user IDs
+  sentAt    DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author    User     @relation("ChatAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model ChatReadState {
+  id         String   @id @default(cuid())
+  projectId  String
+  userId     String
+  lastReadAt DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+model ApprovalRequest {
+  id               String    @id @default(cuid())
+  projectId        String
+  type             String    // "Budget", "Timeline", "Scope"
+  summary          String
+  detail           String
+  impact           String
+  requestedBy      String
+  requestedAt      DateTime  @default(now())
+  approverId       String
+  state            String    @default("Pending") // "Pending", "Approved", "Sent back"
+  decidedAt        DateTime?
+  decisionNote     String?
+  payload          String    // JSON data representing changes
+  version          Int       @default(1)
+  previousRequestId String?
+
+  project          Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requester        User      @relation("ApprovalRequester", fields: [requestedBy], references: [id], onDelete: Cascade)
+  approver         User?     @relation("ApprovalApprover", fields: [approverId], references: [id])
+}
+
+model Document {
+  id             String            @id @default(cuid())
+  projectId      String
+  title          String
+  description    String?
+  fileType       String            // "PDF", "XLSX", "DOCX", "DWG", "PNG", "JPG"
+  currentVersion Int               @default(1)
+  uploadedBy     String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  project        Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader       User              @relation("DocUploader", fields: [uploadedBy], references: [id])
+  versions       DocumentVersion[]
+}
+
+model DocumentVersion {
+  id          String   @id @default(cuid())
+  documentId  String
+  version     Int
+  fileName    String
+  fileSize    Int
+  mimeType    String
+  s3Key       String
+  s3Bucket    String
+  uploadedBy  String
+  uploadedAt  DateTime @default(now())
+  comment     String?
+
+  document    Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  uploader    User     @relation("DocVersionUploader", fields: [uploadedBy], references: [id])
+
+  @@unique([documentId, version])
+}
+
+model Reminder {
+  id           String   @id @default(cuid())
+  userId       String
+  title        String
+  description  String?
+  reminderDate DateTime
+  isCompleted  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

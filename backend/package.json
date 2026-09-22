@@ -1,0 +1,34 @@
+{
+  "name": "backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node ./node_modules/tsx/dist/cli.mjs watch server.ts",
+    "build": "node ./node_modules/esbuild/bin/esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "start": "node dist/server.cjs",
+    "db:push": "node ./node_modules/prisma/build/index.js db push --schema=prisma/schema.prisma",
+    "db:seed": "node ./node_modules/tsx/dist/cli.mjs prisma/seed.ts",
+    "db:create-ceo": "node ./node_modules/tsx/dist/cli.mjs prisma/create-ceo.ts",
+    "db:studio": "npx prisma studio --schema=prisma/schema.prisma",
+    "db:generate": "node ./node_modules/prisma/build/index.js generate --schema=prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1133.0",
+    "@prisma/client": "^5.22.0",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "multer": "^2.4.0",
+    "socket.io": "^4.8.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/multer": "^2.2.0",
+    "@types/node": "^22.14.0",
+    "esbuild": "^0.25.0",
+    "prisma": "^5.22.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.8.2"
+  }
+}
