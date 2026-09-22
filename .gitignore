@@ -1,8 +1,51 @@
+# Dependencies
 node_modules/
+
+# Environment variables / secrets
+.env
+.env.*
+!.env.example
+
+# Build output
 build/
 dist/
+
+# Test / coverage
 coverage/
-.DS_Store
+.nyc_output/
+
+# Logs
 *.log
-.env*
-!.env.example
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Vite
+.vite/
+
+# TypeScript generated files
+*.tsbuildinfo33
