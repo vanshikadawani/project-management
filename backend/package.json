@@ -7,6 +7,7 @@
     "dev": "node ./node_modules/tsx/dist/cli.mjs watch server.ts",
     "build": "node ./node_modules/esbuild/bin/esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
+    "postinstall": "prisma generate",
     "db:push": "node ./node_modules/prisma/build/index.js db push --schema=prisma/schema.prisma",
     "db:seed": "node ./node_modules/tsx/dist/cli.mjs prisma/seed.ts",
     "db:create-ceo": "node ./node_modules/tsx/dist/cli.mjs prisma/create-ceo.ts",
