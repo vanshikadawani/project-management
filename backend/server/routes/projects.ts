@@ -93,9 +93,12 @@ router.get('/', async (req: AuthRequest, res: Response) => {
         ],
       };
     } else {
-      // Employee sees ONLY projects where they are in ProjectMembership
+      // Employee sees projects where they are a member OR have any assigned task
       whereClause = {
-        memberships: { some: { userId: user.id } },
+        OR: [
+          { memberships: { some: { userId: user.id } } },
+          { phases: { some: { tasks: { some: { assigneeId: user.id } } } } },
+        ],
       };
     }
 
@@ -309,7 +312,11 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     // RBAC access check
     if (user.role === 'Employee') {
       const isMember = project.memberships.some((m) => m.userId === user.id);
-      if (!isMember) {
+      // Also allow access if the employee has a task assigned in this project (legacy safety net)
+      const hasAssignedTask =
+        !isMember &&
+        project.phases.some((ph: any) => ph.tasks?.some((t: any) => t.assigneeId === user.id));
+      if (!isMember && !hasAssignedTask) {
         return res.status(403).json({ error: 'Forbidden: You are not a member of this project' });
       }
     } else if (user.role === 'ProjectOwner') {

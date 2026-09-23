@@ -148,6 +148,24 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       });
     }
 
+    // If assigned to a user, ensure they have project membership so they can see the project
+    if (task.assigneeId) {
+      await prisma.projectMembership.upsert({
+        where: {
+          projectId_userId: {
+            projectId: phase.projectId,
+            userId: task.assigneeId,
+          },
+        },
+        update: {},
+        create: {
+          projectId: phase.projectId,
+          userId: task.assigneeId,
+          role: 'Member',
+        },
+      });
+    }
+
     // Send notification if assigned to another user
     if (task.assigneeId && task.assigneeId !== user.id) {
       await prisma.notification.create({
@@ -224,6 +242,24 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
         qualityChecks: true,
       },
     });
+
+    // If reassigned to a new user, ensure they have project membership so they can see the project
+    if (updated.assigneeId) {
+      await prisma.projectMembership.upsert({
+        where: {
+          projectId_userId: {
+            projectId: task.phase.project.id,
+            userId: updated.assigneeId,
+          },
+        },
+        update: {},
+        create: {
+          projectId: task.phase.project.id,
+          userId: updated.assigneeId,
+          role: 'Member',
+        },
+      });
+    }
 
     res.json(updated);
   } catch (error: any) {

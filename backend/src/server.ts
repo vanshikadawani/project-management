@@ -31,6 +31,7 @@ import budgetRouter from '../server/routes/budget.ts';
 import portfolioRouter from '../server/routes/portfolio.ts';
 import documentsRouter from '../server/routes/documents.ts';
 import calendarRouter from '../server/routes/calendar.ts';
+import usersRouter from '../server/routes/users.ts';
 
 const app = express();
 
@@ -105,6 +106,7 @@ app.use('/api/milestones', milestonesRouter);
 app.use('/api/alerts', alertsRouter);
 app.use('/api/workload', workloadRouter);
 app.use('/api/calendar', calendarRouter);
+app.use('/api/users', usersRouter);
 
 // Phase 2 Routers
 app.use('/api/notifications', notificationsRouter);
