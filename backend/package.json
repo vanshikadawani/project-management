@@ -4,15 +4,15 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node ./node_modules/tsx/dist/cli.mjs watch server.ts",
-    "build": "node ./node_modules/esbuild/bin/esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "dev": "tsx watch server.ts",
+    "build": "esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "postinstall": "prisma generate",
-    "db:push": "node ./node_modules/prisma/build/index.js db push --schema=prisma/schema.prisma",
-    "db:seed": "node ./node_modules/tsx/dist/cli.mjs prisma/seed.ts",
-    "db:create-ceo": "node ./node_modules/tsx/dist/cli.mjs prisma/create-ceo.ts",
-    "db:studio": "npx prisma studio --schema=prisma/schema.prisma",
-    "db:generate": "node ./node_modules/prisma/build/index.js generate --schema=prisma/schema.prisma"
+    "db:push": "prisma db push --schema=prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:create-ceo": "tsx prisma/create-ceo.ts",
+    "db:studio": "prisma studio --schema=prisma/schema.prisma",
+    "db:generate": "prisma generate --schema=prisma/schema.prisma"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1133.0",
