@@ -10,27 +10,27 @@ import express from 'express';
 import http from 'http';
 import cors from 'cors';
 
-import { authenticate } from './server/auth.ts';
-import { initSocket } from './server/socket.ts';
+import { authenticate } from '../server/auth.ts';
+import { initSocket } from '../server/socket.ts';
 
-import authRouter from './server/routes/auth.ts';
-import projectsRouter from './server/routes/projects.ts';
-import phasesRouter from './server/routes/phases.ts';
-import tasksRouter from './server/routes/tasks.ts';
-import issuesRouter from './server/routes/issues.ts';
-import risksRouter from './server/routes/risks.ts';
-import milestonesRouter from './server/routes/milestones.ts';
-import alertsRouter from './server/routes/alerts.ts';
-import workloadRouter from './server/routes/workload.ts';
-import notificationsRouter from './server/routes/notifications.ts';
-import chatRouter from './server/routes/chat.ts';
-import approvalsRouter from './server/routes/approvals.ts';
-import baselinesRouter from './server/routes/baselines.ts';
-import changelogRouter from './server/routes/changelog.ts';
-import budgetRouter from './server/routes/budget.ts';
-import portfolioRouter from './server/routes/portfolio.ts';
-import documentsRouter from './server/routes/documents.ts';
-import calendarRouter from './server/routes/calendar.ts';
+import authRouter from '../server/routes/auth.ts';
+import projectsRouter from '../server/routes/projects.ts';
+import phasesRouter from '../server/routes/phases.ts';
+import tasksRouter from '../server/routes/tasks.ts';
+import issuesRouter from '../server/routes/issues.ts';
+import risksRouter from '../server/routes/risks.ts';
+import milestonesRouter from '../server/routes/milestones.ts';
+import alertsRouter from '../server/routes/alerts.ts';
+import workloadRouter from '../server/routes/workload.ts';
+import notificationsRouter from '../server/routes/notifications.ts';
+import chatRouter from '../server/routes/chat.ts';
+import approvalsRouter from '../server/routes/approvals.ts';
+import baselinesRouter from '../server/routes/baselines.ts';
+import changelogRouter from '../server/routes/changelog.ts';
+import budgetRouter from '../server/routes/budget.ts';
+import portfolioRouter from '../server/routes/portfolio.ts';
+import documentsRouter from '../server/routes/documents.ts';
+import calendarRouter from '../server/routes/calendar.ts';
 
 const app = express();
 
