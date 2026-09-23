@@ -1,6 +1,14 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+
+if (!process.env.DATABASE_URL || !process.env.APP_URL) {
+  dotenv.config({ path: path.join(process.cwd(), 'backend', '.env') });
+  dotenv.config({ path: path.join(process.cwd(), '.env') });
+}
+dotenv.config();
 import express from 'express';
 import http from 'http';
+import cors from 'cors';
 
 import { authenticate } from './server/auth.ts';
 import { initSocket } from './server/socket.ts';
@@ -30,6 +38,30 @@ const httpServer = http.createServer(app);
 
 // Initialize Socket.IO
 initSocket(httpServer);
+
+// CORS configuration for production & development
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like server-to-server, curl, mobile apps)
+      if (!origin) return callback(null, true);
+      const appUrl = process.env.APP_URL;
+      if (
+        !appUrl ||
+        origin === appUrl ||
+        origin.endsWith('.vercel.app') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'Cookie'],
+  })
+);
 
 // Middleware
 app.use(express.json());
@@ -99,4 +131,5 @@ if (!process.env.VERCEL) {
 }
 
 // Export for Vercel
-export default httpServer;
+export default app;
+export { app, httpServer };

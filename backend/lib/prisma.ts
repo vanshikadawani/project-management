@@ -1,5 +1,12 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
 import { PrismaClient } from '@prisma/client';
+
+if (!process.env.DATABASE_URL) {
+  dotenv.config({ path: path.join(process.cwd(), 'backend', '.env') });
+  dotenv.config({ path: path.join(process.cwd(), '.env') });
+}
+dotenv.config();
 
 declare global {
   // eslint-disable-next-line no-var

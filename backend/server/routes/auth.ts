@@ -47,9 +47,13 @@ router.post('/login', async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ error: 'Invalid credentials. User not found.' });
     }
 
+    const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    const sameSite = isProd ? 'None' : 'Lax';
+    const secureFlag = isProd ? ' Secure;' : '';
+
     res.setHeader(
       'Set-Cookie',
-      `ff_user_id=${encodeURIComponent(user.id)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000`
+      `ff_user_id=${encodeURIComponent(user.id)}; Path=/; HttpOnly; SameSite=${sameSite};${secureFlag} Max-Age=2592000`
     );
 
     res.json({
@@ -109,10 +113,14 @@ const handleRegister = async (req: AuthRequest, res: Response) => {
       },
     });
 
+    const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    const sameSite = isProd ? 'None' : 'Lax';
+    const secureFlag = isProd ? ' Secure;' : '';
+
     // Establish session cookie immediately
     res.setHeader(
       'Set-Cookie',
-      `ff_user_id=${encodeURIComponent(newUser.id)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000`
+      `ff_user_id=${encodeURIComponent(newUser.id)}; Path=/; HttpOnly; SameSite=${sameSite};${secureFlag} Max-Age=2592000`
     );
 
     res.status(201).json({
@@ -136,7 +144,11 @@ router.post('/signup', handleRegister);
 
 // POST /api/auth/logout — Destroy session and clear cookie
 router.post('/logout', (req: AuthRequest, res: Response) => {
-  res.setHeader('Set-Cookie', 'ff_user_id=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+  const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+  const sameSite = isProd ? 'None' : 'Lax';
+  const secureFlag = isProd ? ' Secure;' : '';
+
+  res.setHeader('Set-Cookie', `ff_user_id=; Path=/; HttpOnly; SameSite=${sameSite};${secureFlag} Max-Age=0`);
   res.json({ success: true, message: 'Logged out successfully' });
 });
 

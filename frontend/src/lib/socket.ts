@@ -4,7 +4,11 @@ let socket: Socket | null = null;
 
 export function getSocket(userId?: string): Socket {
   if (!socket) {
-    socket = io(window.location.origin, {
+    const socketUrl =
+      (import.meta as any).env?.VITE_API_URL ||
+      (typeof window !== 'undefined' && window.location?.origin) ||
+      '';
+    socket = io(socketUrl, {
       auth: { userId },
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 10,

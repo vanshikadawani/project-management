@@ -20,11 +20,18 @@ export const ALLOWED_MIME_TYPES = new Set([
   'image/pjpeg',
 ]);
 
-const LOCAL_S3_DIR = path.join(process.cwd(), 'storage', 's3');
+const isVercel = !!process.env.VERCEL;
+const LOCAL_S3_DIR = isVercel
+  ? path.join('/tmp', 'storage', 's3')
+  : path.join(process.cwd(), 'storage', 's3');
 
-// Ensure local storage directory exists
-if (!fs.existsSync(LOCAL_S3_DIR)) {
-  fs.mkdirSync(LOCAL_S3_DIR, { recursive: true });
+// Ensure local storage directory exists if using local filesystem fallback
+try {
+  if (!fs.existsSync(LOCAL_S3_DIR)) {
+    fs.mkdirSync(LOCAL_S3_DIR, { recursive: true });
+  }
+} catch {
+  // Silent fallback if filesystem is read-only and AWS S3 credentials are used
 }
 
 // Check if actual AWS S3 credentials exist
