@@ -22,8 +22,13 @@ export async function canAccessProjectChat(userId: string, userRole: string, pro
       projectId_userId: { projectId, userId },
     },
   });
+  if (membership) return true;
 
-  return !!membership;
+  // Also allow if they have an assigned task in this project
+  const hasTask = await prisma.task.findFirst({
+    where: { assigneeId: userId, phase: { projectId } },
+  });
+  return !!hasTask;
 }
 
 // GET /api/projects/:id/chat — Message history
@@ -211,6 +216,7 @@ router.get('/chat/unread-counts', requireAuth, async (req: AuthRequest, res: Res
         OR: [
           { ownerId: user.id },
           { memberships: { some: { userId: user.id } } },
+          { phases: { some: { tasks: { some: { assigneeId: user.id } } } } },
         ],
       },
       select: { id: true },

@@ -19,7 +19,10 @@ export async function getCalendarEvents(user: AuthenticatedUser, startDate: Date
     };
   } else {
     projectFilter = {
-      memberships: { some: { userId: user.id } },
+      OR: [
+        { memberships: { some: { userId: user.id } } },
+        { phases: { some: { tasks: { some: { assigneeId: user.id } } } } },
+      ],
     };
   }
 

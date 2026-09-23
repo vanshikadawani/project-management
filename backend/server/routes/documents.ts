@@ -33,8 +33,13 @@ async function canAccessDocuments(userId: string, userRole: string, projectId: s
   const membership = await prisma.projectMembership.findUnique({
     where: { projectId_userId: { projectId, userId } },
   });
+  if (membership) return true;
 
-  return !!membership;
+  // Also allow if they have an assigned task in this project
+  const hasTask = await prisma.task.findFirst({
+    where: { assigneeId: userId, phase: { projectId } },
+  });
+  return !!hasTask;
 }
 
 // GET /api/projects/:id/documents — List all documents with versions for a project

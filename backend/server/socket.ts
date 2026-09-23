@@ -72,7 +72,7 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
           return;
         }
 
-        // Check permission: CEO or Project Owner of this project or Project Member
+        // Check permission: CEO or Project Owner of this project or Project Member or task assignee
         if (user.role !== 'CEO') {
           const isOwner = await prisma.project.findFirst({
             where: { id: projectId, ownerId: user.id },
@@ -85,8 +85,11 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
               },
             },
           });
+          const hasTask = !isOwner && !member && await prisma.task.findFirst({
+            where: { assigneeId: user.id, phase: { projectId } },
+          });
 
-          if (!member && !isOwner) {
+          if (!member && !isOwner && !hasTask) {
             if (callback) callback({ error: 'Unauthorized to join project room' });
             return;
           }
