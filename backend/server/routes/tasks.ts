@@ -43,7 +43,8 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     // RBAC: Check project access for non-CEO
     if (user.role !== 'CEO') {
       const isOwner = task.phase.project.ownerId === user.id;
-      const isMember = await prisma.projectMembership.findUnique({
+      const isAssignee = task.assigneeId === user.id;
+      const isMember = !isOwner && !isAssignee && await prisma.projectMembership.findUnique({
         where: {
           projectId_userId: {
             projectId: task.phase.project.id,
@@ -52,7 +53,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
         },
       });
 
-      if (!isOwner && !isMember) {
+      if (!isOwner && !isAssignee && !isMember) {
         return res.status(403).json({ error: 'Forbidden: You do not have access to this task.' });
       }
     }

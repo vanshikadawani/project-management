@@ -203,13 +203,13 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
           <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Planned vs Actual</div>
           <div
             className={`text-xl font-serif font-bold mt-1 ${
-              budgetData.variance >= 0 ? 'text-[#526E55]' : 'text-[#991B1B]'
+              budgetData.variance <= 0 ? 'text-[#526E55]' : 'text-[#991B1B]'
             }`}
           >
             {budgetData.variance >= 0 ? `+£${budgetData.variance.toLocaleString()}` : `-£${Math.abs(budgetData.variance).toLocaleString()}`}
           </div>
           <div className="text-[11px] text-[#70685F] mt-1">
-            {budgetData.variance >= 0 ? 'Under expected spend' : 'Ahead of expected spend'}
+            {budgetData.variance <= 0 ? 'Under expected spend pace' : 'Over expected spend pace'}
           </div>
         </div>
       </div>

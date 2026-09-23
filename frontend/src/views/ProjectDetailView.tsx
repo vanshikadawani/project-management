@@ -105,6 +105,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const [assignableUsers, setAssignableUsers] = useState<Array<{ id: string; name: string; role: string }>>([]);
 
   const showToast = (type: 'error' | 'success', text: string) => {
     setToastMessage({ type, text });
@@ -792,6 +793,11 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                             onClick={() => {
                               setSelectedPhaseId(phase.id);
                               setShowNewTaskModal(true);
+                              // Fetch all assignable users when the modal opens
+                              apiFetch('/api/users')
+                                .then((r) => r.json())
+                                .then((users) => setAssignableUsers(users))
+                                .catch(() => setAssignableUsers([]));
                             }}
                             className="px-3 py-1.5 rounded-full bg-white border border-[#D5CCBC] hover:border-[#C85A32] text-xs font-medium text-[#231E1B] flex items-center gap-1 min-h-[38px] cursor-pointer"
                           >
@@ -1536,9 +1542,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                     className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
                   >
                     <option value="">Unassigned</option>
-                    {project.memberships?.map((m) => (
-                      <option key={m.user.id} value={m.user.id}>
-                        {m.user.name} ({m.user.role})
+                    {assignableUsers.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.name} ({u.role})
                       </option>
                     ))}
                   </select>

@@ -13,10 +13,13 @@ router.get('/:id/baselines', requireAuth, async (req: AuthRequest, res: Response
 
     if (user.role !== 'CEO') {
       const isOwner = await prisma.project.findFirst({ where: { id: projectId, ownerId: user.id } });
-      const isMember = await prisma.projectMembership.findUnique({
+      const isMember = !isOwner && await prisma.projectMembership.findUnique({
         where: { projectId_userId: { projectId, userId: user.id } },
       });
-      if (!isOwner && !isMember) {
+      const hasTask = !isOwner && !isMember && await prisma.task.findFirst({
+        where: { assigneeId: user.id, phase: { projectId } },
+      });
+      if (!isOwner && !isMember && !hasTask) {
         return res.status(403).json({ error: 'You do not have access to view baselines for this project.' });
       }
     }
@@ -192,10 +195,13 @@ router.get('/:id/baselines/compare', requireAuth, async (req: AuthRequest, res: 
 
     if (user.role !== 'CEO') {
       const isOwner = await prisma.project.findFirst({ where: { id: projectId, ownerId: user.id } });
-      const isMember = await prisma.projectMembership.findUnique({
+      const isMember = !isOwner && await prisma.projectMembership.findUnique({
         where: { projectId_userId: { projectId, userId: user.id } },
       });
-      if (!isOwner && !isMember) {
+      const hasTask = !isOwner && !isMember && await prisma.task.findFirst({
+        where: { assigneeId: user.id, phase: { projectId } },
+      });
+      if (!isOwner && !isMember && !hasTask) {
         return res.status(403).json({ error: 'You do not have access to view baseline comparison for this project.' });
       }
     }

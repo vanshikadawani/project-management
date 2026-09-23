@@ -19,7 +19,11 @@ router.get('/', requireAuth, async (req: AuthRequest, res: Response) => {
         const isMember = await prisma.projectMembership.findUnique({
           where: { projectId_userId: { projectId: pId, userId: user.id } },
         });
-        if (!isOwner && !isMember) {
+        // Also allow if they have an assigned task in this project
+        const hasTask = !isOwner && !isMember && await prisma.task.findFirst({
+          where: { assigneeId: user.id, phase: { projectId: pId } },
+        });
+        if (!isOwner && !isMember && !hasTask) {
           return res.status(403).json({ error: 'You do not have access to issues for this project.' });
         }
       }
@@ -30,6 +34,8 @@ router.get('/', requireAuth, async (req: AuthRequest, res: Response) => {
           OR: [
             { ownerId: user.id },
             { memberships: { some: { userId: user.id } } },
+            // Also include projects where employee has an assigned task (safety net)
+            { phases: { some: { tasks: { some: { assigneeId: user.id } } } } },
           ],
         };
       }
