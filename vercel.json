@@ -6,7 +6,8 @@
     },
     "backend": {
       "root": "backend/",
-      "framework": "express"
+      "framework": "express",
+      "entrypoint": "dist/server.js:app"
     }
   },
   "rewrites": [

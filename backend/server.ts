@@ -66,10 +66,7 @@ app.use(
 // Middleware
 app.use(express.json());
 
-// Global Auth Middleware
-app.use(authenticate);
-
-// Root endpoint
+// Public health check and root endpoints (zero authentication dependency)
 app.get('/', (req, res) => {
   res.json({
     service: 'Fern & Foley — Projects API',
@@ -78,7 +75,6 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -86,6 +82,9 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Global Auth Middleware
+app.use(authenticate);
 
 // Authentication
 app.use('/api/auth', authRouter);
