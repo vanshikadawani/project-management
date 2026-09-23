@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { apiFetch } from '../lib/api.ts';
 import { Issue, Project } from '../types.ts';
@@ -83,12 +83,18 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
     fetchData();
   }, [currentUser]);
 
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+
   const handleRaiseIssue = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !newDetail.trim() || !newProjectId) {
       showToast('error', 'All fields are required to raise an issue');
       return;
     }
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
 
     try {
       const res = await apiFetch('/api/issues', {
@@ -111,6 +117,9 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
       fetchData();
     } catch (err: any) {
       showToast('error', err.message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -131,6 +140,9 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
       showToast('error', 'A comment explaining the reason is strictly required when reopening an issue.');
       return;
     }
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
 
     try {
       const res = await apiFetch(`/api/issues/${reopenIssueId}/reopen`, {
@@ -148,6 +160,9 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
       fetchData();
     } catch (err: any) {
       showToast('error', err.message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 

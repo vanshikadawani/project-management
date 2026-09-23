@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FileCheck,
   Plus,
@@ -71,9 +71,13 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
     fetchApprovals();
   }, [projectId]);
 
+  const submittingRef = useRef(false);
+
   const handleSubmitNew = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!summary.trim() || !detail.trim()) return;
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
 
     try {
       setSubmitting(true);
@@ -106,6 +110,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
     } catch (err: any) {
       alert(err.message || 'Failed to submit request');
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };
@@ -113,6 +118,8 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
   const handleDecide = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!decidingRequest) return;
+    if (submittingRef.current || processingDecision) return;
+    submittingRef.current = true;
 
     try {
       setProcessingDecision(true);
@@ -136,6 +143,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
     } catch (err: any) {
       alert(err.message || 'Decision failed');
     } finally {
+      submittingRef.current = false;
       setProcessingDecision(false);
     }
   };
@@ -143,6 +151,8 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
   const handleResubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!revisingRequest) return;
+    if (submittingRef.current || processingRevision) return;
+    submittingRef.current = true;
 
     try {
       setProcessingRevision(true);
@@ -166,6 +176,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
     } catch (err: any) {
       alert(err.message || 'Resubmit failed');
     } finally {
+      submittingRef.current = false;
       setProcessingRevision(false);
     }
   };

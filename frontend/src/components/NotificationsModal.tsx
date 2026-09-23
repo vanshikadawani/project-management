@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bell, Check, CheckCheck, X, ExternalLink, MessageSquare, AlertCircle, FileCheck, DollarSign } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { getSocket } from '../lib/socket.ts';
@@ -63,7 +63,11 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
     };
   }, [currentUser]);
 
+  const pendingReadSetRef = useRef(new Set<string>());
+
   const markAsRead = async (id: string) => {
+    if (pendingReadSetRef.current.has(id)) return;
+    pendingReadSetRef.current.add(id);
     try {
       const res = await apiFetch(`/api/notifications/${id}/read`, { method: 'POST' });
       if (res.ok) {
@@ -75,10 +79,14 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
       }
     } catch (err) {
       console.error('Failed to mark notification read:', err);
+    } finally {
+      pendingReadSetRef.current.delete(id);
     }
   };
 
   const markAllRead = async () => {
+    if (pendingReadSetRef.current.has('ALL')) return;
+    pendingReadSetRef.current.add('ALL');
     try {
       const res = await apiFetch('/api/notifications/read-all', { method: 'POST' });
       if (res.ok) {
@@ -87,6 +95,8 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
       }
     } catch (err) {
       console.error('Failed to mark all read:', err);
+    } finally {
+      pendingReadSetRef.current.delete('ALL');
     }
   };
 

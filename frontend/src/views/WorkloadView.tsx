@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { apiFetch } from '../lib/api.ts';
 import { WorkloadMember, Project } from '../types.ts';
@@ -68,9 +68,15 @@ export const WorkloadView: React.FC = () => {
     fetchWorkload();
   }, [currentUser]);
 
+  const [allocating, setAllocating] = useState(false);
+  const submittingRef = useRef(false);
+
   const handleAllocateSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUser || !allocateProjectId) return;
+    if (submittingRef.current || allocating) return;
+    submittingRef.current = true;
+    setAllocating(true);
 
     try {
       const res = await apiFetch('/api/workload/allocate', {
@@ -91,6 +97,9 @@ export const WorkloadView: React.FC = () => {
     } catch (err: any) {
       setToast(err.message);
       setTimeout(() => setToast(null), 4000);
+    } finally {
+      submittingRef.current = false;
+      setAllocating(false);
     }
   };
 

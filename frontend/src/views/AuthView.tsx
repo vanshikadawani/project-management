@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { Shield, Lock, UserPlus, LogIn, AlertCircle, Building2, UserCheck } from 'lucide-react';
 
@@ -18,10 +18,13 @@ export const AuthView: React.FC = () => {
   const [signupRole, setSignupRole] = useState<'Employee' | 'ProjectOwner'>('Employee');
 
   const [loading, setLoading] = useState<boolean>(false);
+  const submittingRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current || loading) return;
+    submittingRef.current = true;
     setError(null);
     setLoading(true);
 
@@ -38,12 +41,14 @@ export const AuthView: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Failed to sign in');
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current || loading) return;
     setError(null);
 
     if (!signupName.trim() || !signupEmail.trim()) {
@@ -51,6 +56,7 @@ export const AuthView: React.FC = () => {
       return;
     }
 
+    submittingRef.current = true;
     setLoading(true);
     try {
       const res = await signup({
@@ -66,6 +72,7 @@ export const AuthView: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Failed to create account');
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };

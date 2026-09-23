@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { Project } from '../types.ts';
 import { StatusBadge } from '../components/StatusBadge.tsx';
@@ -34,6 +34,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
   const [viewMode, setViewMode] = useState<'list' | 'ceo_portfolio'>('list');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -67,6 +68,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingRef.current || createLoading) return;
+    isSubmittingRef.current = true;
     setCreateLoading(true);
     setCreateError(null);
 
@@ -110,6 +113,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
       setCreateError(err.message || 'Failed to create project');
     } finally {
       setCreateLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 

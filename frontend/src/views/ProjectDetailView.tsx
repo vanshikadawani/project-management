@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { apiFetch } from '../lib/api.ts';
 import { Project, Phase, Task, Issue, Risk, Milestone, QualityCheck } from '../types.ts';
@@ -103,6 +103,8 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   const [newMilestoneForecast, setNewMilestoneForecast] = useState('');
 
   const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
 
   const showToast = (type: 'error' | 'success', text: string) => {
     setToastMessage({ type, text });
@@ -184,6 +186,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       showToast('error', 'Phase name is required');
       return;
     }
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
       const res = await apiFetch(`/api/projects/${projectId}/phases`, {
         method: 'POST',
@@ -202,6 +207,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       fetchProject();
     } catch (err: any) {
       showToast('error', err.message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -237,6 +245,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       showToast('error', 'Task title is required');
       return;
     }
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
       const res = await apiFetch('/api/tasks', {
         method: 'POST',
@@ -259,6 +270,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       fetchProject();
     } catch (err: any) {
       showToast('error', err.message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -343,6 +357,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       showToast('error', 'Issue title and detail are required');
       return;
     }
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
       const res = await apiFetch('/api/issues', {
         method: 'POST',
@@ -363,6 +380,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       fetchProject();
     } catch (err: any) {
       showToast('error', err.message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -385,6 +405,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       showToast('error', 'A comment is strictly required to reopen an issue.');
       return;
     }
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
       const res = await apiFetch(`/api/issues/${reopenIssueId}/reopen`, {
         method: 'POST',
@@ -400,6 +423,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       fetchProject();
     } catch (err: any) {
       showToast('error', err.message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -410,6 +436,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       showToast('error', 'Risk description is required');
       return;
     }
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
       const res = await apiFetch('/api/risks', {
         method: 'POST',
@@ -430,6 +459,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       fetchProject();
     } catch (err: any) {
       showToast('error', err.message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -452,6 +484,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       showToast('error', 'All milestone fields are required');
       return;
     }
+    if (submittingRef.current || submitting) return;
+    submittingRef.current = true;
+    setSubmitting(true);
     try {
       const res = await apiFetch('/api/milestones', {
         method: 'POST',
@@ -471,6 +506,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       fetchProject();
     } catch (err: any) {
       showToast('error', err.message);
+    } finally {
+      submittingRef.current = false;
+      setSubmitting(false);
     }
   };
 

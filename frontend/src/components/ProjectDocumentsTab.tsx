@@ -97,9 +97,13 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
     }
   };
 
+  const submittingRef = useRef(false);
+
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) return;
+    if (submittingRef.current || uploading) return;
+    submittingRef.current = true;
 
     try {
       setUploading(true);
@@ -140,6 +144,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
     } catch (err: any) {
       setUploadError(err.message || 'Upload failed. Please retry.');
     } finally {
+      submittingRef.current = false;
       setUploading(false);
     }
   };
@@ -147,6 +152,8 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
   const handleVersionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetDoc || !versionFile) return;
+    if (submittingRef.current || uploadingVersion) return;
+    submittingRef.current = true;
 
     try {
       setUploadingVersion(true);
@@ -173,6 +180,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
     } catch (err: any) {
       setVersionError(err.message || 'Version upload failed');
     } finally {
+      submittingRef.current = false;
       setUploadingVersion(false);
     }
   };

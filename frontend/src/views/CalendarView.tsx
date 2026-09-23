@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { apiFetch } from '../lib/api.ts';
 import { Calendar, Plus, X, Edit2, Trash2, Check, ArrowLeft } from 'lucide-react';
@@ -127,7 +127,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
     }
   };
 
+  const [submittingReminder, setSubmittingReminder] = useState(false);
+  const submittingReminderRef = useRef(false);
+
   const handleCreateReminder = async () => {
+    if (submittingReminderRef.current || submittingReminder) return;
+    submittingReminderRef.current = true;
+    setSubmittingReminder(true);
     try {
       const res = await apiFetch('/api/calendar/reminders', {
         method: 'POST',
@@ -146,6 +152,9 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
       fetchEvents(); // Refresh events
     } catch (err: any) {
       setError(err.message || 'Error creating reminder');
+    } finally {
+      submittingReminderRef.current = false;
+      setSubmittingReminder(false);
     }
   };
 

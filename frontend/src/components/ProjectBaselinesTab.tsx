@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   History,
   CheckCircle2,
@@ -60,8 +60,12 @@ export const ProjectBaselinesTab: React.FC<ProjectBaselinesTabProps> = ({ projec
     fetchBaselinesAndComparison(selectedVersion || undefined);
   }, [projectId, selectedVersion]);
 
+  const submittingRef = useRef(false);
+
   const handleCreateBaseline = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current || creating) return;
+    submittingRef.current = true;
     try {
       setCreating(true);
       const res = await apiFetch(`/api/projects/${projectId}/baselines`, {
@@ -81,6 +85,7 @@ export const ProjectBaselinesTab: React.FC<ProjectBaselinesTabProps> = ({ projec
     } catch (err: any) {
       alert(err.message || 'Error establishing baseline');
     } finally {
+      submittingRef.current = false;
       setCreating(false);
     }
   };

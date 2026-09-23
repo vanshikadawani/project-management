@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   DollarSign,
   AlertTriangle,
@@ -58,6 +58,8 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
     fetchBudget();
   }, [projectId, currentUser]);
 
+  const submittingRef = useRef(false);
+
   const handleRecordSpend = async (e: React.FormEvent) => {
     e.preventDefault();
     const amountNum = parseFloat(spendAmount);
@@ -65,6 +67,8 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
       alert('Please enter a valid positive spend amount');
       return;
     }
+    if (submittingRef.current || submittingSpend) return;
+    submittingRef.current = true;
 
     try {
       setSubmittingSpend(true);
@@ -91,6 +95,7 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
     } catch (err: any) {
       alert(err.message || 'Failed to record spend');
     } finally {
+      submittingRef.current = false;
       setSubmittingSpend(false);
     }
   };

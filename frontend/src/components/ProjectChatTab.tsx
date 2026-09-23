@@ -138,9 +138,12 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
     }, 50);
   };
 
+  const sendingRef = useRef(false);
+
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!inputText.trim() || sending) return;
+    if (!inputText.trim() || sending || sendingRef.current) return;
+    sendingRef.current = true;
 
     try {
       setSending(true);
@@ -165,6 +168,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
     } catch (err: any) {
       alert(err.message || 'Failed to send message');
     } finally {
+      sendingRef.current = false;
       setSending(false);
     }
   };
