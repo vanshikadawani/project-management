@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { Calendar, Plus, X, Edit2, Trash2, Check, ArrowLeft } from 'lucide-react';
 
 interface CalendarEvent {
@@ -74,7 +75,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
         end.setHours(23, 59, 59, 999);
       }
       
-      const res = await fetch(`/api/calendar?start=${start.toISOString()}&end=${end.toISOString()}`);
+      const res = await apiFetch(`/api/calendar?start=${start.toISOString()}&end=${end.toISOString()}`);
       if (!res.ok) throw new Error('Failed to load calendar events');
       const data = await res.json();
       setEvents(data);
@@ -128,7 +129,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
 
   const handleCreateReminder = async () => {
     try {
-      const res = await fetch('/api/calendar/reminders', {
+      const res = await apiFetch('/api/calendar/reminders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reminderForm),
@@ -152,7 +153,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
     if (!confirm('Are you sure you want to delete this reminder?')) return;
     
     try {
-      const res = await fetch(`/api/calendar/reminders/${reminderId}`, {
+      const res = await apiFetch(`/api/calendar/reminders/${reminderId}`, {
         method: 'DELETE',
       });
       
@@ -166,7 +167,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
 
   const handleCompleteReminder = async (reminderId: string) => {
     try {
-      const res = await fetch(`/api/calendar/reminders/${reminderId}`, {
+      const res = await apiFetch(`/api/calendar/reminders/${reminderId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isCompleted: true }),

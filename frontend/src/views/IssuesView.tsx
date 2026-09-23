@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { Issue, Project } from '../types.ts';
 import { SeverityBadge } from '../components/StatusBadge.tsx';
 import {
@@ -55,8 +56,8 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
       setError(null);
 
       const [issuesRes, projectsRes] = await Promise.all([
-        fetch('/api/issues'),
-        fetch('/api/projects'),
+        apiFetch('/api/issues'),
+        apiFetch('/api/projects'),
       ]);
 
       if (!issuesRes.ok || !projectsRes.ok) {
@@ -90,7 +91,7 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
     }
 
     try {
-      const res = await fetch('/api/issues', {
+      const res = await apiFetch('/api/issues', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -115,7 +116,7 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
 
   const handleCloseIssue = async (issueId: string) => {
     try {
-      const res = await fetch(`/api/issues/${issueId}/close`, { method: 'POST' });
+      const res = await apiFetch(`/api/issues/${issueId}/close`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to close issue');
       showToast('success', 'Issue closed.');
       fetchData();
@@ -132,7 +133,7 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
     }
 
     try {
-      const res = await fetch(`/api/issues/${reopenIssueId}/reopen`, {
+      const res = await apiFetch(`/api/issues/${reopenIssueId}/reopen`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ comment: reopenComment.trim() }),

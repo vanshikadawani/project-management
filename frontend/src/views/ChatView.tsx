@@ -3,6 +3,7 @@ import { MessageSquare, FolderKanban, ChevronRight, Hash, Users } from 'lucide-r
 import { ProjectChatTab } from '../components/ProjectChatTab.tsx';
 import { StatusBadge } from '../components/StatusBadge.tsx';
 import { Project } from '../types.ts';
+import { apiFetch } from '../lib/api.ts';
 
 export const ChatView: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -13,7 +14,7 @@ export const ChatView: React.FC = () => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/projects');
+        const res = await apiFetch('/api/projects');
         if (res.ok) {
           const data = await res.json();
           setProjects(data || []);

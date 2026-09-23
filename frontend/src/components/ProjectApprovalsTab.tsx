@@ -13,6 +13,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { ApprovalRequest } from '../types.ts';
 
 interface ProjectApprovalsTabProps {
@@ -53,7 +54,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/approvals/project/${projectId}`);
+      const res = await apiFetch(`/api/approvals/project/${projectId}`);
       if (!res.ok) {
         throw new Error('Failed to load approvals');
       }
@@ -76,7 +77,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
 
     try {
       setSubmitting(true);
-      const res = await fetch('/api/approvals', {
+      const res = await apiFetch('/api/approvals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -115,7 +116,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
 
     try {
       setProcessingDecision(true);
-      const res = await fetch(`/api/approvals/${decidingRequest.id}/decide`, {
+      const res = await apiFetch(`/api/approvals/${decidingRequest.id}/decide`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -145,7 +146,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
 
     try {
       setProcessingRevision(true);
-      const res = await fetch(`/api/approvals/${revisingRequest.id}/resubmit`, {
+      const res = await apiFetch(`/api/approvals/${revisingRequest.id}/resubmit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

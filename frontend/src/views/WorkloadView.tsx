@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { WorkloadMember, Project } from '../types.ts';
 import {
   Users,
@@ -43,8 +44,8 @@ export const WorkloadView: React.FC = () => {
       setLoading(true);
       setError(null);
       const [wRes, pRes] = await Promise.all([
-        fetch('/api/workload'),
-        fetch('/api/projects'),
+        apiFetch('/api/workload'),
+        apiFetch('/api/projects'),
       ]);
 
       if (!wRes.ok) throw new Error('Failed to load workload statistics');
@@ -72,7 +73,7 @@ export const WorkloadView: React.FC = () => {
     if (!selectedUser || !allocateProjectId) return;
 
     try {
-      const res = await fetch('/api/workload/allocate', {
+      const res = await apiFetch('/api/workload/allocate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

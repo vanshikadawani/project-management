@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { Project, Phase, Task, Issue, Risk, Milestone, QualityCheck } from '../types.ts';
 import { StatusBadge, PriorityBadge, SeverityBadge, TaskStateBadge } from '../components/StatusBadge.tsx';
 import { ProjectChatTab } from '../components/ProjectChatTab.tsx';
@@ -112,7 +113,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/projects/${projectId}`);
+      const res = await apiFetch(`/api/projects/${projectId}`);
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
         throw new Error(errJson.error || 'Failed to load project details');
@@ -147,7 +148,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       return;
     }
     try {
-      const res = await fetch(`/api/projects/${projectId}/status-override`, {
+      const res = await apiFetch(`/api/projects/${projectId}/status-override`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: overrideStatus, reason: overrideReason.trim() }),
@@ -166,7 +167,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   // REMOVE STATUS OVERRIDE
   const handleRemoveOverride = async () => {
     try {
-      const res = await fetch(`/api/projects/${projectId}/status-override`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/projects/${projectId}/status-override`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to reset override');
       showToast('success', 'Status override cleared. Project status restored to automatic calculation.');
       setShowOverrideModal(false);
@@ -184,7 +185,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       return;
     }
     try {
-      const res = await fetch(`/api/projects/${projectId}/phases`, {
+      const res = await apiFetch(`/api/projects/${projectId}/phases`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -207,7 +208,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   // ARCHIVE PHASE
   const handleArchivePhase = async (phaseId: string) => {
     try {
-      const res = await fetch(`/api/phases/${phaseId}/archive`, { method: 'POST' });
+      const res = await apiFetch(`/api/phases/${phaseId}/archive`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to archive phase');
       showToast('success', 'Phase archived successfully');
       fetchProject();
@@ -219,7 +220,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   // DELETE PHASE
   const handleDeletePhase = async (phaseId: string) => {
     try {
-      const res = await fetch(`/api/phases/${phaseId}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/phases/${phaseId}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Cannot delete phase');
       showToast('success', 'Empty phase deleted');
@@ -237,7 +238,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       return;
     }
     try {
-      const res = await fetch('/api/tasks', {
+      const res = await apiFetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -264,7 +265,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   // UPDATE TASK STATE (Strict completion rules!)
   const handleTaskStateChange = async (taskId: string, newState: string) => {
     try {
-      const res = await fetch(`/api/tasks/${taskId}/state`, {
+      const res = await apiFetch(`/api/tasks/${taskId}/state`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ state: newState }),
@@ -285,7 +286,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   // TOGGLE QUALITY CHECK
   const handleToggleQualityCheck = async (checkId: string) => {
     try {
-      const res = await fetch(`/api/tasks/quality-checks/${checkId}/toggle`, {
+      const res = await apiFetch(`/api/tasks/quality-checks/${checkId}/toggle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -300,7 +301,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   // ADD QUALITY CHECK TO TASK
   const handleAddQualityCheck = async (taskId: string, label: string, mandatory: boolean) => {
     try {
-      const res = await fetch(`/api/tasks/${taskId}/quality-checks`, {
+      const res = await apiFetch(`/api/tasks/${taskId}/quality-checks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ label, mandatory }),
@@ -318,11 +319,11 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   const handleToggleRiskFlag = async (task: Task) => {
     try {
       if (task.hasRiskFlag) {
-        await fetch(`/api/tasks/${task.id}/risk-flag`, { method: 'DELETE' });
+        await apiFetch(`/api/tasks/${task.id}/risk-flag`, { method: 'DELETE' });
         showToast('success', 'Task risk flag cleared');
       } else {
         const reason = window.prompt('Provide reason for flagging risk on this task:') || 'Execution risk noted';
-        await fetch(`/api/tasks/${task.id}/risk-flag`, {
+        await apiFetch(`/api/tasks/${task.id}/risk-flag`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason }),
@@ -343,7 +344,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       return;
     }
     try {
-      const res = await fetch('/api/issues', {
+      const res = await apiFetch('/api/issues', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -368,7 +369,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   // CLOSE ISSUE
   const handleCloseIssue = async (issueId: string) => {
     try {
-      const res = await fetch(`/api/issues/${issueId}/close`, { method: 'POST' });
+      const res = await apiFetch(`/api/issues/${issueId}/close`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to close issue');
       showToast('success', 'Issue marked closed');
       fetchProject();
@@ -385,7 +386,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       return;
     }
     try {
-      const res = await fetch(`/api/issues/${reopenIssueId}/reopen`, {
+      const res = await apiFetch(`/api/issues/${reopenIssueId}/reopen`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ comment: reopenComment.trim() }),
@@ -410,7 +411,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       return;
     }
     try {
-      const res = await fetch('/api/risks', {
+      const res = await apiFetch('/api/risks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -435,7 +436,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
   // CLOSE RISK
   const handleCloseRisk = async (riskId: string) => {
     try {
-      const res = await fetch(`/api/risks/${riskId}/close`, { method: 'POST' });
+      const res = await apiFetch(`/api/risks/${riskId}/close`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to close risk');
       showToast('success', 'Risk closed');
       fetchProject();
@@ -452,7 +453,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       return;
     }
     try {
-      const res = await fetch('/api/milestones', {
+      const res = await apiFetch('/api/milestones', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

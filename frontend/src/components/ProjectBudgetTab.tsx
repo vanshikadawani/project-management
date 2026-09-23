@@ -11,6 +11,7 @@ import {
   Lock,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { BudgetHealthData } from '../types.ts';
 
 interface ProjectBudgetTabProps {
@@ -39,7 +40,7 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/projects/${projectId}/budget`);
+      const res = await apiFetch(`/api/projects/${projectId}/budget`);
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
         throw new Error(errJson.error || 'Failed to load budget');
@@ -67,7 +68,7 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
 
     try {
       setSubmittingSpend(true);
-      const res = await fetch(`/api/projects/${projectId}/budget/spend`, {
+      const res = await apiFetch(`/api/projects/${projectId}/budget/spend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

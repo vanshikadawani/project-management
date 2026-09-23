@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { AlertItem } from '../types.ts';
 import { StatusBadge, SeverityBadge } from '../components/StatusBadge.tsx';
 import {
@@ -40,7 +41,7 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/alerts');
+      const res = await apiFetch('/api/alerts');
       if (!res.ok) throw new Error('Failed to load attention stream');
       const json = await res.json();
       setData(json);
@@ -54,7 +55,7 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
   const fetchTodayEvents = async () => {
     try {
       setTodayEventsLoading(true);
-      const res = await fetch('/api/calendar/today');
+      const res = await apiFetch('/api/calendar/today');
       if (res.ok) {
         const events = await res.json();
         setTodayEvents(events);

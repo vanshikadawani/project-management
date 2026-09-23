@@ -12,6 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch, apiUrl } from '../lib/api.ts';
 import { DocumentItem } from '../types.ts';
 
 interface ProjectDocumentsTabProps {
@@ -52,7 +53,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/projects/${projectId}/documents`);
+      const res = await apiFetch(`/api/projects/${projectId}/documents`);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to load project documents');
@@ -116,7 +117,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
         setUploadProgress((p) => (p < 85 ? p + 20 : p));
       }, 150);
 
-      const res = await fetch(`/api/projects/${projectId}/documents`, {
+      const res = await apiFetch(`/api/projects/${projectId}/documents`, {
         method: 'POST',
         body: formData,
       });
@@ -155,7 +156,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
       formData.append('file', versionFile);
       formData.append('comment', versionComment.trim() || `Revision v${targetDoc.currentVersion + 1}`);
 
-      const res = await fetch(`/api/documents/${targetDoc.id}/versions`, {
+      const res = await apiFetch(`/api/documents/${targetDoc.id}/versions`, {
         method: 'POST',
         body: formData,
       });
@@ -267,7 +268,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                 <div className="pt-2 border-t border-[#F0EBE0] flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <a
-                      href={`/api/documents/${doc.id}/download`}
+                      href={apiUrl(`/api/documents/${doc.id}/download`)}
                       download
                       className="px-3 py-1.5 rounded-xl bg-[#F5F1E8] hover:bg-[#EDE7DC] text-[#231E1B] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                       title="Download latest version"
@@ -558,7 +559,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                   </div>
 
                   <a
-                    href={`/api/documents/${viewingHistoryDoc.id}/download?version=${v.version}`}
+                    href={apiUrl(`/api/documents/${viewingHistoryDoc.id}/download?version=${v.version}`)}
                     download
                     className="px-3 py-1.5 rounded-lg bg-[#F5F1E8] hover:bg-[#EDE7DC] text-xs font-semibold flex items-center gap-1 text-[#231E1B] shrink-0"
                   >

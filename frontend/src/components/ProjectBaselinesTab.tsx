@@ -11,6 +11,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { Baseline, BaselineComparison } from '../types.ts';
 
 interface ProjectBaselinesTabProps {
@@ -37,7 +38,7 @@ export const ProjectBaselinesTab: React.FC<ProjectBaselinesTabProps> = ({ projec
       setError(null);
 
       // Fetch baselines
-      const blRes = await fetch(`/api/projects/${projectId}/baselines`);
+      const blRes = await apiFetch(`/api/projects/${projectId}/baselines`);
       const blData = await blRes.json();
       setBaselines(blData || []);
 
@@ -45,7 +46,7 @@ export const ProjectBaselinesTab: React.FC<ProjectBaselinesTabProps> = ({ projec
       const compUrl = version
         ? `/api/projects/${projectId}/baselines/compare?version=${version}`
         : `/api/projects/${projectId}/baselines/compare`;
-      const compRes = await fetch(compUrl);
+      const compRes = await apiFetch(compUrl);
       const compData = await compRes.json();
       setComparison(compData);
     } catch (err: any) {
@@ -63,7 +64,7 @@ export const ProjectBaselinesTab: React.FC<ProjectBaselinesTabProps> = ({ projec
     e.preventDefault();
     try {
       setCreating(true);
-      const res = await fetch(`/api/projects/${projectId}/baselines`, {
+      const res = await apiFetch(`/api/projects/${projectId}/baselines`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: baselineName.trim() || undefined }),

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { History, Filter, ArrowRight, UserCheck, Clock, ShieldCheck, Tag } from 'lucide-react';
 import { ChangeLogItem } from '../types.ts';
+import { apiFetch } from '../lib/api.ts';
 
 interface ProjectChangeLogTabProps {
   projectId: string;
@@ -17,7 +18,7 @@ export const ProjectChangeLogTab: React.FC<ProjectChangeLogTabProps> = ({ projec
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/projects/${projectId}/changelog`);
+      const res = await apiFetch(`/api/projects/${projectId}/changelog`);
       if (!res.ok) {
         throw new Error('Failed to load project changelog');
       }

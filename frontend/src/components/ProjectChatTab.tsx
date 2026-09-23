@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, AtSign, Users, Smile, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { getSocket } from '../lib/socket.ts';
+import { apiFetch } from '../lib/api.ts';
 import { ChatMessage, User } from '../types.ts';
 
 interface ProjectChatTabProps {
@@ -38,7 +39,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`/api/projects/${projectId}/chat`);
+      const res = await apiFetch(`/api/projects/${projectId}/chat`);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to load project chat');
@@ -148,7 +149,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
         socket.emit('typing:stop', { projectId, userName: currentUser.name });
       }
 
-      const res = await fetch(`/api/projects/${projectId}/chat`, {
+      const res = await apiFetch(`/api/projects/${projectId}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ body: inputText.trim() }),

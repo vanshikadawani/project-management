@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Bell, Check, CheckCheck, X, ExternalLink, MessageSquare, AlertCircle, FileCheck, DollarSign } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { getSocket } from '../lib/socket.ts';
+import { apiFetch } from '../lib/api.ts';
 import { NotificationItem } from '../types.ts';
 
 interface NotificationsModalProps {
@@ -26,7 +27,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
     if (!currentUser) return;
     try {
       setLoading(true);
-      const res = await fetch('/api/notifications');
+      const res = await apiFetch('/api/notifications');
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications || []);
@@ -64,7 +65,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
 
   const markAsRead = async (id: string) => {
     try {
-      const res = await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+      const res = await apiFetch(`/api/notifications/${id}/read`, { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
         setNotifications((prev) =>
@@ -79,7 +80,7 @@ export const NotificationsModal: React.FC<NotificationsModalProps> = ({
 
   const markAllRead = async () => {
     try {
-      const res = await fetch('/api/notifications/read-all', { method: 'POST' });
+      const res = await apiFetch('/api/notifications/read-all', { method: 'POST' });
       if (res.ok) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
         setUnreadCount(0);

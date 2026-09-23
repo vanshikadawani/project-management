@@ -17,6 +17,7 @@ import { WorkloadView } from './views/WorkloadView.tsx';
 import { ChatView } from './views/ChatView.tsx';
 import { CalendarView } from './views/CalendarView.tsx';
 import { getSocket } from './lib/socket.ts';
+import { apiFetch } from './lib/api.ts';
 
 function MainApp() {
   const { currentUser, isLoading } = useAuth();
@@ -33,7 +34,7 @@ function MainApp() {
   const fetchNotificationCount = async () => {
     if (!currentUser) return;
     try {
-      const res = await fetch('/api/notifications');
+      const res = await apiFetch('/api/notifications');
       if (res.ok) {
         const data = await res.json();
         setUnreadNotificationsCount(data.unreadCount || 0);
@@ -68,7 +69,7 @@ function MainApp() {
     if (!currentUser) return;
     const fetchBadges = async () => {
       try {
-        const res = await fetch('/api/alerts');
+        const res = await apiFetch('/api/alerts');
         if (res.ok) {
           const data = await res.json();
           setAlertsBadge(data.alerts?.length || 0);

@@ -12,6 +12,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
+import { apiFetch } from '../lib/api.ts';
 import { StatusBadge } from '../components/StatusBadge.tsx';
 import { CEOPortfolioKPIs, CEOPortfolioProject } from '../types.ts';
 
@@ -31,7 +32,7 @@ export const CEOPortfolioView: React.FC<CEOPortfolioViewProps> = ({ onSelectProj
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/portfolio/ceo');
+      const res = await apiFetch('/api/portfolio/ceo');
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to load CEO portfolio');

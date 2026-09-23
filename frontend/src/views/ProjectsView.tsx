@@ -18,6 +18,7 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
+import { apiFetch } from '../lib/api.ts';
 
 interface ProjectsViewProps {
   onSelectProject: (projectId: string) => void;
@@ -49,7 +50,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/projects');
+      const res = await apiFetch('/api/projects');
       if (!res.ok) throw new Error('Failed to load projects');
       const data = await res.json();
       setProjects(data);
@@ -81,7 +82,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
         ...(isCEO && formData.ownerId ? { ownerId: formData.ownerId } : {}),
       };
 
-      const res = await fetch('/api/projects', {
+      const res = await apiFetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
