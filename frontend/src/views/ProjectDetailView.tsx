@@ -112,9 +112,11 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
     setTimeout(() => setToastMessage(null), 5000);
   };
 
-  const fetchProject = async () => {
+  const fetchProject = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       setError(null);
       const res = await apiFetch(`/api/projects/${projectId}`);
       if (!res.ok) {
@@ -124,7 +126,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       const data = await res.json();
       setProject(data);
       // default phase start/end to project dates
-      if (data) {
+      if (data && showLoading) {
         setNewPhaseStart(data.startDate.slice(0, 10));
         setNewPhaseEnd(data.endDate.slice(0, 10));
         setNewTaskPlannedStart(data.startDate.slice(0, 10));
@@ -133,14 +135,18 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         setNewMilestoneForecast(data.startDate.slice(0, 10));
       }
     } catch (err: any) {
-      setError(err.message || 'Error fetching project');
+      if (showLoading) {
+        setError(err.message || 'Error fetching project');
+      }
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchProject();
+    fetchProject(true);
   }, [projectId, currentUser]);
 
   // STATUS OVERRIDE SUBMISSION
@@ -158,10 +164,27 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to override status');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          statusOverride: overrideStatus,
+          metrics: prev.metrics
+            ? {
+                ...prev.metrics,
+                status: overrideStatus as any,
+                isOverridden: true,
+              }
+            : prev.metrics,
+        };
+      });
+
       showToast('success', `Status overridden to ${overrideStatus}`);
       setShowOverrideModal(false);
       setOverrideReason('');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -172,9 +195,25 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
     try {
       const res = await apiFetch(`/api/projects/${projectId}/status-override`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to reset override');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          statusOverride: null,
+          metrics: prev.metrics
+            ? {
+                ...prev.metrics,
+                isOverridden: false,
+              }
+            : prev.metrics,
+        };
+      });
+
       showToast('success', 'Status override cleared. Project status restored to automatic calculation.');
       setShowOverrideModal(false);
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -202,10 +241,28 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to create phase');
+
+      // Immediate local state update with API response
+      const createdPhase: Phase = {
+        ...data,
+        tasks: data.tasks || [],
+      };
+      setProject((prev) => {
+        if (!prev) return prev;
+        const exists = (prev.phases || []).some((ph) => ph.id === createdPhase.id);
+        const updatedPhases = exists
+          ? prev.phases
+          : [...(prev.phases || []), createdPhase].sort((a, b) => (a.order || 0) - (b.order || 0));
+        return {
+          ...prev,
+          phases: updatedPhases,
+        };
+      });
+
       showToast('success', `Phase "${newPhaseName}" created`);
       setShowNewPhaseModal(false);
       setNewPhaseName('');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     } finally {
@@ -219,8 +276,20 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
     try {
       const res = await apiFetch(`/api/phases/${phaseId}/archive`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to archive phase');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          phases: (prev.phases || []).map((ph) =>
+            ph.id === phaseId ? { ...ph, isArchived: true } : ph
+          ),
+        };
+      });
+
       showToast('success', 'Phase archived successfully');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -232,8 +301,18 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       const res = await apiFetch(`/api/phases/${phaseId}`, { method: 'DELETE' });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Cannot delete phase');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          phases: (prev.phases || []).filter((ph) => ph.id !== phaseId),
+        };
+      });
+
       showToast('success', 'Empty phase deleted');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -265,10 +344,46 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to create task');
+
+      // Immediate local state update with API response
+      setProject((prev) => {
+        if (!prev) return prev;
+        const targetPhaseId = data.phaseId || selectedPhaseId;
+        const updatedPhases = prev.phases.map((ph) => {
+          if (ph.id === targetPhaseId) {
+            const exists = (ph.tasks || []).some((t) => t.id === data.id);
+            return {
+              ...ph,
+              tasks: exists ? ph.tasks : [...(ph.tasks || []), data],
+            };
+          }
+          return ph;
+        });
+
+        const allTasks = updatedPhases.flatMap((ph) => ph.tasks || []);
+        const completedTasks = allTasks.filter((t) => t.state === 'Completed').length;
+        const totalTasks = allTasks.length;
+        const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        return {
+          ...prev,
+          phases: updatedPhases,
+          metrics: prev.metrics
+            ? {
+                ...prev.metrics,
+                progress,
+                completedTasks,
+                totalTasks,
+              }
+            : prev.metrics,
+        };
+      });
+
       showToast('success', `Task "${newTaskTitle}" created`);
       setShowNewTaskModal(false);
       setNewTaskTitle('');
-      fetchProject();
+      setNewTaskAssigneeId('');
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     } finally {
@@ -291,8 +406,36 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         setExpandedTasks((prev) => ({ ...prev, [taskId]: true }));
         throw new Error(data.error || 'Failed to update task state');
       }
+
+      // Immediate local state update using API response
+      setProject((prev) => {
+        if (!prev) return prev;
+        const updatedPhases = prev.phases.map((ph) => ({
+          ...ph,
+          tasks: ph.tasks.map((t) => (t.id === taskId ? { ...t, ...data } : t)),
+        }));
+
+        const allTasks = updatedPhases.flatMap((ph) => ph.tasks || []);
+        const completedTasks = allTasks.filter((t) => t.state === 'Completed').length;
+        const totalTasks = allTasks.length;
+        const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        return {
+          ...prev,
+          phases: updatedPhases,
+          metrics: prev.metrics
+            ? {
+                ...prev.metrics,
+                progress,
+                completedTasks,
+                totalTasks,
+              }
+            : prev.metrics,
+        };
+      });
+
       showToast('success', `Task state updated to ${newState}`);
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -307,7 +450,25 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Failed to toggle check');
-      fetchProject();
+
+      // Immediate local state update for quality check
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          phases: prev.phases.map((ph) => ({
+            ...ph,
+            tasks: ph.tasks.map((t) => ({
+              ...t,
+              qualityChecks: (t.qualityChecks || []).map((qc) =>
+                qc.id === checkId ? { ...qc, ...data } : qc
+              ),
+            })),
+          })),
+        };
+      });
+
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -323,8 +484,25 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Failed to add check');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          phases: prev.phases.map((ph) => ({
+            ...ph,
+            tasks: ph.tasks.map((t) =>
+              t.id === taskId
+                ? { ...t, qualityChecks: [...(t.qualityChecks || []), data] }
+                : t
+            ),
+          })),
+        };
+      });
+
       showToast('success', 'Quality check added');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -335,6 +513,18 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
     try {
       if (task.hasRiskFlag) {
         await apiFetch(`/api/tasks/${task.id}/risk-flag`, { method: 'DELETE' });
+        setProject((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            phases: prev.phases.map((ph) => ({
+              ...ph,
+              tasks: ph.tasks.map((t) =>
+                t.id === task.id ? { ...t, hasRiskFlag: false, riskFlagReason: null } : t
+              ),
+            })),
+          };
+        });
         showToast('success', 'Task risk flag cleared');
       } else {
         const reason = window.prompt('Provide reason for flagging risk on this task:') || 'Execution risk noted';
@@ -343,9 +533,21 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reason }),
         });
+        setProject((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            phases: prev.phases.map((ph) => ({
+              ...ph,
+              tasks: ph.tasks.map((t) =>
+                t.id === task.id ? { ...t, hasRiskFlag: true, riskFlagReason: reason } : t
+              ),
+            })),
+          };
+        });
         showToast('success', 'Task risk flagged');
       }
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -374,11 +576,21 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to raise issue');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          issues: [data, ...(prev.issues || [])],
+        };
+      });
+
       showToast('success', `Issue "${newIssueTitle}" logged`);
       setShowNewIssueModal(false);
       setNewIssueTitle('');
       setNewIssueDetail('');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     } finally {
@@ -392,8 +604,20 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
     try {
       const res = await apiFetch(`/api/issues/${issueId}/close`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to close issue');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          issues: (prev.issues || []).map((i) =>
+            i.id === issueId ? { ...i, state: 'Closed' as any, closedAt: new Date().toISOString() } : i
+          ),
+        };
+      });
+
       showToast('success', 'Issue marked closed');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -417,11 +641,25 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to reopen issue');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          issues: (prev.issues || []).map((i) =>
+            i.id === reopenIssueId
+              ? { ...i, state: 'In progress' as any, closedAt: null, reopenComment: reopenComment.trim() }
+              : i
+          ),
+        };
+      });
+
       showToast('success', 'Issue reopened');
       setShowReopenModal(false);
       setReopenComment('');
       setReopenIssueId(null);
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     } finally {
@@ -453,11 +691,21 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to record risk');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          risks: [data, ...(prev.risks || [])],
+        };
+      });
+
       showToast('success', 'Risk recorded in register');
       setShowNewRiskModal(false);
       setNewRiskDesc('');
       setNewRiskMitigation('');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     } finally {
@@ -471,8 +719,20 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
     try {
       const res = await apiFetch(`/api/risks/${riskId}/close`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to close risk');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          risks: (prev.risks || []).map((r) =>
+            r.id === riskId ? { ...r, closedAt: new Date().toISOString() } : r
+          ),
+        };
+      });
+
       showToast('success', 'Risk closed');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     }
@@ -501,10 +761,22 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to create milestone');
+
+      // Immediate local state update
+      setProject((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          milestones: [...(prev.milestones || []), data].sort(
+            (a, b) => new Date(a.forecastDate).getTime() - new Date(b.forecastDate).getTime()
+          ),
+        };
+      });
+
       showToast('success', `Milestone "${newMilestoneTitle}" added`);
       setShowNewMilestoneModal(false);
       setNewMilestoneTitle('');
-      fetchProject();
+      fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
     } finally {

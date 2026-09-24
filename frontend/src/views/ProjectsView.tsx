@@ -47,23 +47,29 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
     contingency: 0,
   });
 
-  const fetchProjects = async () => {
+  const fetchProjects = async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       setError(null);
       const res = await apiFetch('/api/projects');
       if (!res.ok) throw new Error('Failed to load projects');
       const data = await res.json();
       setProjects(data);
     } catch (err: any) {
-      setError(err.message || 'Error fetching projects');
+      if (showLoading) {
+        setError(err.message || 'Error fetching projects');
+      }
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchProjects();
+    fetchProjects(true);
   }, [currentUser]);
 
   const handleCreateProject = async (e: React.FormEvent) => {
@@ -97,6 +103,14 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
         throw new Error(data.error || 'Failed to create project');
       }
 
+      // Immediate local state update
+      if (data && data.id) {
+        setProjects((prev) => {
+          const exists = prev.some((p) => p.id === data.id);
+          return exists ? prev : [data, ...prev];
+        });
+      }
+
       setShowCreateModal(false);
       setFormData({
         name: '',
@@ -108,7 +122,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
         plannedBudget: 0,
         contingency: 0,
       });
-      fetchProjects();
+      fetchProjects(false);
     } catch (err: any) {
       setCreateError(err.message || 'Failed to create project');
     } finally {
@@ -258,8 +272,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
         <div className="p-4 rounded-2xl bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] text-sm flex items-center justify-between">
           <span>{error}</span>
           <button
-            onClick={fetchProjects}
-            className="px-3 py-1 rounded-lg bg-white border border-[#F87171] text-xs font-semibold"
+            onClick={() => fetchProjects(true)}
+            className="px-3 py-1 rounded-lg bg-white border border-[#F87171] text-xs font-semibold cursor-pointer"
           >
             Retry
           </button>
