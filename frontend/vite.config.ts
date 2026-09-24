@@ -20,12 +20,22 @@ export default defineConfig(() => {
       port: 3000,
       proxy: {
         '/api': {
-          target: 'http://localhost:5000',
+          target: 'http://127.0.0.1:5000',
           changeOrigin: true,
         },
         '/socket.io': {
-          target: 'http://localhost:5000',
+          target: 'http://127.0.0.1:5000',
           ws: true,
+          changeOrigin: true,
+          configure: (proxy) => {
+            proxy.on('error', (err) => {
+              // Suppress noisy ECONNREFUSED logs during dev cycles/startups
+              if ((err as any)?.code === 'ECONNREFUSED' || (err as any)?.message?.includes('ECONNREFUSED')) {
+                return;
+              }
+              console.error('[vite ws proxy error]', err);
+            });
+          },
         },
       },
       hmr: process.env.DISABLE_HMR !== 'true',
