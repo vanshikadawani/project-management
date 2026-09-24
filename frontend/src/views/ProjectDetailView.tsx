@@ -112,9 +112,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
     setTimeout(() => setToastMessage(null), 5000);
   };
 
-  const fetchProject = async (showLoading = true) => {
+  const fetchProject = async (showLoading = false) => {
     try {
-      if (showLoading) {
+      if (showLoading && !project) {
         setLoading(true);
       }
       setError(null);
@@ -126,7 +126,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       const data = await res.json();
       setProject(data);
       // default phase start/end to project dates
-      if (data && showLoading) {
+      if (data && showLoading && !project) {
         setNewPhaseStart(data.startDate.slice(0, 10));
         setNewPhaseEnd(data.endDate.slice(0, 10));
         setNewTaskPlannedStart(data.startDate.slice(0, 10));
@@ -135,19 +135,19 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         setNewMilestoneForecast(data.startDate.slice(0, 10));
       }
     } catch (err: any) {
-      if (showLoading) {
+      if (!project) {
         setError(err.message || 'Error fetching project');
       }
     } finally {
-      if (showLoading) {
+      if (showLoading && !project) {
         setLoading(false);
       }
     }
   };
 
   useEffect(() => {
-    fetchProject(true);
-  }, [projectId, currentUser]);
+    fetchProject(!project);
+  }, [projectId, currentUser?.id]);
 
   // STATUS OVERRIDE SUBMISSION
   const handleStatusOverride = async (e: React.FormEvent) => {
@@ -156,6 +156,27 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       showToast('error', 'A justification reason is required for status override.');
       return;
     }
+
+    const previousOverride = project?.statusOverride;
+    const previousMetrics = project?.metrics;
+
+    // 1. Instant local state update FIRST
+    setProject((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        statusOverride: overrideStatus,
+        metrics: prev.metrics
+          ? {
+              ...prev.metrics,
+              status: overrideStatus as any,
+              isOverridden: true,
+            }
+          : prev.metrics,
+      };
+    });
+    setShowOverrideModal(false);
+
     try {
       const res = await apiFetch(`/api/projects/${projectId}/status-override`, {
         method: 'POST',
@@ -163,26 +184,20 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         body: JSON.stringify({ status: overrideStatus, reason: overrideReason.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to override status');
-
-      // Immediate local state update
-      setProject((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          statusOverride: overrideStatus,
-          metrics: prev.metrics
-            ? {
-                ...prev.metrics,
-                status: overrideStatus as any,
-                isOverridden: true,
-              }
-            : prev.metrics,
-        };
-      });
+      if (!res.ok) {
+        // Revert on error
+        setProject((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            statusOverride: previousOverride || null,
+            metrics: previousMetrics || prev.metrics,
+          };
+        });
+        throw new Error(data.error || 'Failed to override status');
+      }
 
       showToast('success', `Status overridden to ${overrideStatus}`);
-      setShowOverrideModal(false);
       setOverrideReason('');
       fetchProject(false);
     } catch (err: any) {
@@ -192,27 +207,40 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
   // REMOVE STATUS OVERRIDE
   const handleRemoveOverride = async () => {
+    const previousOverride = project?.statusOverride;
+    const previousMetrics = project?.metrics;
+
+    // Instant local state update
+    setProject((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        statusOverride: null,
+        metrics: prev.metrics
+          ? {
+              ...prev.metrics,
+              isOverridden: false,
+            }
+          : prev.metrics,
+      };
+    });
+    setShowOverrideModal(false);
+
     try {
       const res = await apiFetch(`/api/projects/${projectId}/status-override`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to reset override');
-
-      // Immediate local state update
-      setProject((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          statusOverride: null,
-          metrics: prev.metrics
-            ? {
-                ...prev.metrics,
-                isOverridden: false,
-              }
-            : prev.metrics,
-        };
-      });
+      if (!res.ok) {
+        setProject((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            statusOverride: previousOverride || null,
+            metrics: previousMetrics || prev.metrics,
+          };
+        });
+        throw new Error('Failed to reset override');
+      }
 
       showToast('success', 'Status override cleared. Project status restored to automatic calculation.');
-      setShowOverrideModal(false);
       fetchProject(false);
     } catch (err: any) {
       showToast('error', err.message);
@@ -394,6 +422,40 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
   // UPDATE TASK STATE (Strict completion rules!)
   const handleTaskStateChange = async (taskId: string, newState: string) => {
+    // 1. Instant optimistic local state update
+    let previousState: string = 'Not started';
+    setProject((prev) => {
+      if (!prev) return prev;
+      const updatedPhases = prev.phases.map((ph) => ({
+        ...ph,
+        tasks: ph.tasks.map((t) => {
+          if (t.id === taskId) {
+            previousState = t.state;
+            return { ...t, state: newState as any };
+          }
+          return t;
+        }),
+      }));
+
+      const allTasks = updatedPhases.flatMap((ph) => ph.tasks || []);
+      const completedTasks = allTasks.filter((t) => t.state === 'Completed').length;
+      const totalTasks = allTasks.length;
+      const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+      return {
+        ...prev,
+        phases: updatedPhases,
+        metrics: prev.metrics
+          ? {
+              ...prev.metrics,
+              progress,
+              completedTasks,
+              totalTasks,
+            }
+          : prev.metrics,
+      };
+    });
+
     try {
       const res = await apiFetch(`/api/tasks/${taskId}/state`, {
         method: 'POST',
@@ -402,12 +464,30 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       });
       const data = await res.json();
       if (!res.ok) {
-        // Business rule failure: expand task to reveal quality checks / blocker
+        // Business rule failure: revert state and expand task to reveal quality checks / blocker
         setExpandedTasks((prev) => ({ ...prev, [taskId]: true }));
+        setProject((prev) => {
+          if (!prev) return prev;
+          const updatedPhases = prev.phases.map((ph) => ({
+            ...ph,
+            tasks: ph.tasks.map((t) => (t.id === taskId ? { ...t, state: previousState as any } : t)),
+          }));
+          const allTasks = updatedPhases.flatMap((ph) => ph.tasks || []);
+          const completedTasks = allTasks.filter((t) => t.state === 'Completed').length;
+          const totalTasks = allTasks.length;
+          const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+          return {
+            ...prev,
+            phases: updatedPhases,
+            metrics: prev.metrics
+              ? { ...prev.metrics, progress, completedTasks, totalTasks }
+              : prev.metrics,
+          };
+        });
         throw new Error(data.error || 'Failed to update task state');
       }
 
-      // Immediate local state update using API response
+      // Merge verified server response into state
       setProject((prev) => {
         if (!prev) return prev;
         const updatedPhases = prev.phases.map((ph) => ({
