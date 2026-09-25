@@ -11,7 +11,7 @@ import http from 'http';
 import cors from 'cors';
 
 import { authenticate } from '../server/auth.ts';
-import { initSocket } from '../server/socket.ts';
+import { initSocket, getIO } from '../server/socket.ts';
 
 import authRouter from '../server/routes/auth.ts';
 import projectsRouter from '../server/routes/projects.ts';
@@ -63,6 +63,18 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization', 'x-user-id', 'Cookie'],
   })
 );
+
+// Route Socket.IO polling requests directly to Socket.IO engine (prior to JSON body parsing)
+app.use((req, res, next) => {
+  if (req.url.startsWith('/socket.io')) {
+    const ioInstance = getIO();
+    if (ioInstance) {
+      (ioInstance.engine as any).handleRequest(req, res);
+      return;
+    }
+  }
+  next();
+});
 
 // Middleware
 app.use(express.json());
@@ -118,8 +130,8 @@ app.use('/api/projects', budgetRouter);
 app.use('/api/portfolio', portfolioRouter);
 app.use('/api', documentsRouter);
 
-// Local development only
-if (!process.env.VERCEL) {
+// Local development only (skip auto-listen in test runner or on Vercel)
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
   const PORT = process.env.PORT
     ? parseInt(process.env.PORT, 10)
     : 5000;

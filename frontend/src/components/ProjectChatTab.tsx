@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, AtSign, Users, Smile, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
-import { getSocket } from '../lib/socket.ts';
+import { getSocket, joinProjectRoom, leaveProjectRoom } from '../lib/socket.ts';
 import { apiFetch } from '../lib/api.ts';
 import { ChatMessage, User } from '../types.ts';
 
@@ -64,12 +64,15 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
     if (!currentUser) return;
     const socket = getSocket(currentUser.id);
 
-    // Join project room
-    socket.emit('join:project', projectId);
+    // Join and track project room (auto-reconnect supported)
+    joinProjectRoom(projectId);
 
     const handleMessage = (msg: ChatMessage) => {
       if (msg.projectId === projectId) {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
         setTimeout(() => scrollToBottom(true), 100);
       }
     };
@@ -90,7 +93,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
     socket.on('chat:typing', handleTyping);
 
     return () => {
-      socket.emit('leave:project', projectId);
+      leaveProjectRoom(projectId);
       socket.off('chat:message', handleMessage);
       socket.off('chat:typing', handleTyping);
     };
@@ -162,6 +165,13 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to send message');
       }
+
+      const newMessage = await res.json();
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === newMessage.id)) return prev;
+        return [...prev, newMessage];
+      });
+      setTimeout(() => scrollToBottom(true), 100);
 
       setInputText('');
       setShowMentionSuggestions(false);

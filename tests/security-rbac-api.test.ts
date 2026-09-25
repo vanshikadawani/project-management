@@ -62,12 +62,32 @@ describe('Security, RBAC & API Enforcement Suite', () => {
       });
     });
 
-    // Lookup users
-    ceoUser = await prisma.user.findFirst({ where: { role: 'CEO' } });
-    poMarcus = await prisma.user.findFirst({ where: { email: 'marcus.vance@fernandfoley.internal' } });
-    poSarah = await prisma.user.findFirst({ where: { email: 'sarah.chen@fernandfoley.internal' } });
-    empDavid = await prisma.user.findFirst({ where: { email: 'david.ross@fernandfoley.internal' } });
-    empLiam = await prisma.user.findFirst({ where: { email: 'liam.thorne@fernandfoley.internal' } });
+    // Lookup or create test users
+    ceoUser = await prisma.user.upsert({
+      where: { email: 'eleanor.foley@fernandfoley.internal' },
+      update: {},
+      create: { name: 'Eleanor Foley', email: 'eleanor.foley@fernandfoley.internal', role: 'CEO', department: 'Executive' },
+    });
+    poMarcus = await prisma.user.upsert({
+      where: { email: 'marcus.vance@fernandfoley.internal' },
+      update: {},
+      create: { name: 'Marcus Vance', email: 'marcus.vance@fernandfoley.internal', role: 'ProjectOwner', department: 'Operations' },
+    });
+    poSarah = await prisma.user.upsert({
+      where: { email: 'sarah.chen@fernandfoley.internal' },
+      update: {},
+      create: { name: 'Sarah Chen', email: 'sarah.chen@fernandfoley.internal', role: 'ProjectOwner', department: 'Operations' },
+    });
+    empDavid = await prisma.user.upsert({
+      where: { email: 'david.ross@fernandfoley.internal' },
+      update: {},
+      create: { name: 'David Ross', email: 'david.ross@fernandfoley.internal', role: 'Employee', department: 'Engineering' },
+    });
+    empLiam = await prisma.user.upsert({
+      where: { email: 'liam.thorne@fernandfoley.internal' },
+      update: {},
+      create: { name: 'Liam Thorne', email: 'liam.thorne@fernandfoley.internal', role: 'Employee', department: 'Engineering' },
+    });
 
     // Create test project owned by Marcus Vance
     testProject = await prisma.project.create({

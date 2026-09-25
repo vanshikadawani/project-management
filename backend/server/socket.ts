@@ -4,24 +4,50 @@ import { prisma } from '../lib/prisma.ts';
 
 let io: SocketIOServer | null = null;
 
+// Helper to authenticate a socket with a given userId
+export async function authenticateSocket(socket: Socket, userId: string): Promise<boolean> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, name: true, email: true, role: true },
+    });
+
+    if (user) {
+      socket.data.user = user;
+      socket.join(`user:${user.id}`);
+      return true;
+    }
+  } catch (err) {
+    console.error('Socket user lookup error:', err);
+  }
+  return false;
+}
+
 export function initSocket(httpServer: HTTPServer): SocketIOServer {
   io = new SocketIOServer(httpServer, {
     cors: {
-      origin: '*',
+      origin: (origin, callback) => {
+        // Allow dynamic origin reflection for credentials compatibility across domains
+        callback(null, true);
+      },
       methods: ['GET', 'POST'],
       credentials: true,
     },
     pingInterval: 25000,
     pingTimeout: 20000,
+    transports: ['websocket', 'polling'],
+    allowEIO3: true,
   });
 
   // Socket Authentication Middleware
   io.use(async (socket: Socket, next) => {
     try {
-      // Check auth object or cookie
+      // Check auth object, query parameters, custom headers, or cookie
       const authUserId = socket.handshake.auth?.userId;
+      const queryUserId = socket.handshake.query?.userId as string | undefined;
+      const headerUserId = socket.handshake.headers['x-user-id'] as string | undefined;
       const cookieHeader = socket.handshake.headers.cookie;
-      let userId: string | null = authUserId || null;
+      let userId: string | null = authUserId || queryUserId || headerUserId || null;
 
       if (!userId && cookieHeader) {
         const match = cookieHeader.match(/ff_user_id=([^;]+)/);
@@ -30,18 +56,8 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
         }
       }
 
-      if (!userId) {
-        // Allow connection as guest/unauthenticated or reject if desired
-        return next();
-      }
-
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { id: true, name: true, email: true, role: true },
-      });
-
-      if (user) {
-        socket.data.user = user;
+      if (userId) {
+        await authenticateSocket(socket, userId);
       }
       next();
     } catch (err) {
@@ -51,12 +67,22 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
   });
 
   io.on('connection', (socket: Socket) => {
-    const user = socket.data?.user;
-
-    // If authenticated, join user's private room for direct notifications
-    if (user?.id) {
-      socket.join(`user:${user.id}`);
+    // If authenticated during handshake, join user's private room for direct notifications
+    if (socket.data?.user?.id) {
+      socket.join(`user:${socket.data.user.id}`);
     }
+
+    // Dynamic authentication event for post-handshake user identification
+    socket.on('authenticate', async ({ userId }: { userId: string }, callback?: (res: any) => void) => {
+      if (userId) {
+        const success = await authenticateSocket(socket, userId);
+        if (success) {
+          if (callback) callback({ success: true, user: socket.data.user });
+          return;
+        }
+      }
+      if (callback) callback({ error: 'Authentication failed' });
+    });
 
     // Join Project Room with membership check
     socket.on('join:project', async (projectId: string, callback?: (res: any) => void) => {
@@ -64,6 +90,16 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
         if (!projectId) {
           if (callback) callback({ error: 'Project ID is required' });
           return;
+        }
+
+        // Dynamically resolve user from socket.data or fallback handshake credentials
+        let user = socket.data?.user;
+        if (!user?.id) {
+          const fallbackUserId = socket.handshake.auth?.userId || socket.handshake.query?.userId;
+          if (fallbackUserId) {
+            await authenticateSocket(socket, fallbackUserId as string);
+            user = socket.data?.user;
+          }
         }
 
         // Must be authenticated
@@ -85,9 +121,9 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
               },
             },
           });
-          const hasTask = !isOwner && !member && await prisma.task.findFirst({
+          const hasTask = !isOwner && !member && (await prisma.task.findFirst({
             where: { assigneeId: user.id, phase: { projectId } },
-          });
+          }));
 
           if (!member && !isOwner && !hasTask) {
             if (callback) callback({ error: 'Unauthorized to join project room' });
@@ -123,7 +159,7 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
     });
 
     socket.on('disconnect', () => {
-      // Clean up if needed
+      // Clean up
     });
   });
 

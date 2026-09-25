@@ -51,7 +51,7 @@ function MainApp() {
   // Real-time notification updates
   useEffect(() => {
     if (!currentUser) return;
-    const socket = getSocket();
+    const socket = getSocket(currentUser.id);
 
     const handleNewNotification = () => {
       setUnreadNotificationsCount((prev) => prev + 1);

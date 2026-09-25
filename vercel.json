@@ -18,7 +18,7 @@
       }
     },
     {
-      "source": "/socket.io/(.*)",
+      "source": "/socket.io(.*)",
       "destination": {
         "service": "backend"
       }
