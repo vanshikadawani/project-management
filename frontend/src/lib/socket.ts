@@ -15,10 +15,15 @@ export function getSocket(userId?: string): Socket {
     (typeof window !== 'undefined' && window.location?.origin) ||
     '';
 
+  if (userId && (!currentUserId || currentUserId !== userId)) {
+    currentUserId = userId;
+  }
+
   if (!socket) {
-    currentUserId = userId || null;
     socket = io(socketUrl, {
-      auth: { userId: currentUserId || undefined },
+      auth: (cb) => {
+        cb({ userId: currentUserId || undefined });
+      },
       query: currentUserId ? { userId: currentUserId } : undefined,
       transports: ['websocket', 'polling'],
       withCredentials: true,
@@ -30,28 +35,28 @@ export function getSocket(userId?: string): Socket {
     });
 
     socket.on('connect', () => {
-      // Authenticate if we have a userId
+      console.log('[Socket] Connected to server, id:', socket?.id);
       if (currentUserId) {
         socket?.emit('authenticate', { userId: currentUserId });
       }
       // Re-join all active project rooms upon initial connect or reconnection
       activeProjectRooms.forEach((projectId) => {
-        socket?.emit('join:project', projectId);
+        console.log('[Socket] Re-joining project room on connect:', projectId);
+        socket?.emit('join:project', { projectId, userId: currentUserId }, (res: any) => {
+          console.log('[Socket] Room join response for', projectId, ':', res);
+        });
       });
     });
 
     socket.on('connect_error', (error) => {
-      // In production/dev, log connection errors without throwing
-      console.warn('Socket connection error:', error.message);
+      console.warn('[Socket] Connection error:', error.message);
     });
-  } else if (userId && currentUserId !== userId) {
-    currentUserId = userId;
+  } else if (userId && (socket.auth as any)?.userId !== userId) {
     socket.auth = { userId };
     if (socket.connected) {
       socket.emit('authenticate', { userId });
-      // Re-verify room memberships with new user identity
       activeProjectRooms.forEach((projectId) => {
-        socket?.emit('join:project', projectId);
+        socket?.emit('join:project', { projectId, userId });
       });
     } else {
       socket.connect();
@@ -64,13 +69,16 @@ export function getSocket(userId?: string): Socket {
 /**
  * Joins a project room and tracks it so it is automatically re-joined on reconnects.
  */
-export function joinProjectRoom(projectId: string, callback?: (res: any) => void) {
+export function joinProjectRoom(projectId: string, userId?: string, callback?: (res: any) => void) {
   if (!projectId) return;
   activeProjectRooms.add(projectId);
-  const s = getSocket();
-  if (s.connected) {
-    s.emit('join:project', projectId, callback);
-  }
+  if (userId) currentUserId = userId;
+  const s = getSocket(userId || currentUserId || undefined);
+  console.log('[Socket] Emitting join:project for room:', projectId, 'user:', userId || currentUserId);
+  s.emit('join:project', { projectId, userId: userId || currentUserId }, (res: any) => {
+    console.log('[Socket] join:project response:', res);
+    if (callback) callback(res);
+  });
 }
 
 /**
@@ -79,8 +87,9 @@ export function joinProjectRoom(projectId: string, callback?: (res: any) => void
 export function leaveProjectRoom(projectId: string) {
   if (!projectId) return;
   activeProjectRooms.delete(projectId);
-  if (socket && socket.connected) {
-    socket.emit('leave:project', projectId);
+  if (socket) {
+    socket.emit('leave:project', { projectId });
   }
 }
+
 

@@ -1,6 +1,7 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
 import { prisma } from '../lib/prisma.ts';
+import { canAccessProjectChat } from './routes/chat.ts';
 
 let io: SocketIOServer | null = null;
 
@@ -18,7 +19,7 @@ export async function authenticateSocket(socket: Socket, userId: string): Promis
       return true;
     }
   } catch (err) {
-    console.error('Socket user lookup error:', err);
+    console.error('[Socket] User lookup error:', err);
   }
   return false;
 }
@@ -61,7 +62,7 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
       }
       next();
     } catch (err) {
-      console.error('Socket authentication error:', err);
+      console.error('[Socket] Authentication middleware error:', err);
       next();
     }
   });
@@ -85,17 +86,20 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
     });
 
     // Join Project Room with membership check
-    socket.on('join:project', async (projectId: string, callback?: (res: any) => void) => {
+    socket.on('join:project', async (data: string | { projectId: string; userId?: string }, callback?: (res: any) => void) => {
       try {
+        const projectId = typeof data === 'string' ? data : data?.projectId;
+        const providedUserId = typeof data === 'object' ? data?.userId : undefined;
+
         if (!projectId) {
           if (callback) callback({ error: 'Project ID is required' });
           return;
         }
 
-        // Dynamically resolve user from socket.data or fallback handshake credentials
+        // Dynamically resolve user from socket.data or fallback credentials
         let user = socket.data?.user;
         if (!user?.id) {
-          const fallbackUserId = socket.handshake.auth?.userId || socket.handshake.query?.userId;
+          const fallbackUserId = providedUserId || socket.handshake.auth?.userId || socket.handshake.query?.userId;
           if (fallbackUserId) {
             await authenticateSocket(socket, fallbackUserId as string);
             user = socket.data?.user;
@@ -104,42 +108,31 @@ export function initSocket(httpServer: HTTPServer): SocketIOServer {
 
         // Must be authenticated
         if (!user?.id) {
+          console.warn(`[Socket] Unauthorized join:project for unauthenticated socket ${socket.id} on project ${projectId}`);
           if (callback) callback({ error: 'Unauthorized: Authentication required' });
           return;
         }
 
-        // Check permission: CEO or Project Owner of this project or Project Member or task assignee
-        if (user.role !== 'CEO') {
-          const isOwner = await prisma.project.findFirst({
-            where: { id: projectId, ownerId: user.id },
-          });
-          const member = await prisma.projectMembership.findUnique({
-            where: {
-              projectId_userId: {
-                projectId,
-                userId: user.id,
-              },
-            },
-          });
-          const hasTask = !isOwner && !member && (await prisma.task.findFirst({
-            where: { assigneeId: user.id, phase: { projectId } },
-          }));
-
-          if (!member && !isOwner && !hasTask) {
-            if (callback) callback({ error: 'Unauthorized to join project room' });
-            return;
-          }
+        // Check permission using unified canAccessProjectChat
+        const hasAccess = await canAccessProjectChat(user.id, user.role, projectId);
+        if (!hasAccess) {
+          console.warn(`[Socket] Access denied: User ${user.name} (${user.id}) cannot access project ${projectId}`);
+          if (callback) callback({ error: 'Unauthorized to join project room' });
+          return;
         }
 
         socket.join(`project:${projectId}`);
+        console.log(`[Socket] User ${user.name} (${user.id}) successfully joined project:${projectId}`);
         if (callback) callback({ success: true, room: `project:${projectId}` });
       } catch (err) {
+        console.error('[Socket] Failed to join project room:', err);
         if (callback) callback({ error: 'Failed to join room' });
       }
     });
 
     // Leave Project Room
-    socket.on('leave:project', (projectId: string) => {
+    socket.on('leave:project', (data: string | { projectId: string }) => {
+      const projectId = typeof data === 'string' ? data : data?.projectId;
       if (projectId) {
         socket.leave(`project:${projectId}`);
       }
@@ -178,6 +171,12 @@ export function emitToUser(userId: string, event: string, data: any) {
 
 export function emitToProject(projectId: string, event: string, data: any) {
   if (io) {
-    io.to(`project:${projectId}`).emit(event, data);
+    const room = `project:${projectId}`;
+    const socketsInRoom = io.sockets.adapter.rooms.get(room);
+    const count = socketsInRoom ? socketsInRoom.size : 0;
+    console.log(`[Socket] emitToProject -> room: ${room}, event: ${event}, subscribers: ${count}`);
+    io.to(room).emit(event, data);
+  } else {
+    console.warn('[Socket] emitToProject called before io is initialized');
   }
 }

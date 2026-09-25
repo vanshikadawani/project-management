@@ -64,10 +64,14 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
     if (!currentUser) return;
     const socket = getSocket(currentUser.id);
 
+    console.log('[ProjectChatTab] Initializing socket listener for project:', projectId, 'user:', currentUser.id);
     // Join and track project room (auto-reconnect supported)
-    joinProjectRoom(projectId);
+    joinProjectRoom(projectId, currentUser.id, (res) => {
+      console.log('[ProjectChatTab] joinProjectRoom response:', res);
+    });
 
     const handleMessage = (msg: ChatMessage) => {
+      console.log('[ProjectChatTab] Received chat:message event:', msg);
       if (msg.projectId === projectId) {
         setMessages((prev) => {
           if (prev.some((m) => m.id === msg.id)) return prev;
