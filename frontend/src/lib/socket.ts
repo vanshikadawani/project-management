@@ -8,9 +8,13 @@ const activeProjectRooms = new Set<string>();
 /**
  * Returns the singleton Socket.IO client instance.
  * Automatically authenticates and reconnects across route/view transitions.
+ * - In Production: Connects directly to backend VITE_API_URL (e.g. https://project-management-1zps.vercel.app)
+ * - In Development: Uses local proxy or relative origin (e.g. http://localhost:3000 -> http://127.0.0.1:5000)
  */
 export function getSocket(userId?: string): Socket {
+  const envUrl = ((import.meta as any).env?.VITE_API_URL || '').trim().replace(/\/$/, '');
   const socketUrl =
+    envUrl ||
     API_BASE_URL ||
     (typeof window !== 'undefined' && window.location?.origin) ||
     '';
@@ -20,6 +24,7 @@ export function getSocket(userId?: string): Socket {
   }
 
   if (!socket) {
+    console.log('[Socket] Initializing Socket.IO client pointing to:', socketUrl || '(same origin)');
     socket = io(socketUrl, {
       auth: (cb) => {
         cb({ userId: currentUserId || undefined });
