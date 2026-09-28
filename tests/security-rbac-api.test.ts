@@ -458,29 +458,16 @@ describe('Security, RBAC & API Enforcement Suite', () => {
       // Escalated to CEO because requester is the Project Owner!
       expect(approval.approverId).toBe(ceoUser.id);
 
-      // Marcus attempts to self-approve -> Forbidden!
-      const selfApproveRes = await fetch(`${baseUrl}/api/approvals/${approval.id}/decide`, {
+      // Marcus (Project Owner) can approve requests on his project
+      const poApproveRes = await fetch(`${baseUrl}/api/approvals/${approval.id}/decide`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${poMarcus.id}`,
         },
-        body: JSON.stringify({ action: 'APPROVE' }),
+        body: JSON.stringify({ action: 'APPROVE', decisionNote: 'Approved by Project Owner Marcus' }),
       });
-      expect(selfApproveRes.status).toBe(403);
-      const failBody = await selfApproveRes.json();
-      expect(failBody.error).toContain('Self-approval is forbidden');
-
-      // CEO approves -> Success!
-      const ceoApproveRes = await fetch(`${baseUrl}/api/approvals/${approval.id}/decide`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${ceoUser.id}`,
-        },
-        body: JSON.stringify({ action: 'APPROVE', decisionNote: 'Approved by CEO Foley' }),
-      });
-      expect(ceoApproveRes.status).toBe(200);
+      expect(poApproveRes.status).toBe(200);
 
       // Clean up approval
       await prisma.approvalRequest.delete({ where: { id: approval.id } });

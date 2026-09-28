@@ -66,7 +66,7 @@ app.use(
 
 // Route Socket.IO polling requests directly to Socket.IO engine (prior to JSON body parsing)
 app.use((req, res, next) => {
-  if (req.url.startsWith('/socket.io')) {
+  if (req.url.startsWith('/socket.io') && !res.headersSent) {
     const ioInstance = getIO();
     if (ioInstance) {
       (ioInstance.engine as any).handleRequest(req, res);

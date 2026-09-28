@@ -32,9 +32,10 @@ interface ReminderFormData {
 
 interface CalendarViewProps {
   onSelectProject: (projectId: string, initialTab?: string) => void;
+  onBack?: () => void;
 }
 
-export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) => {
+export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject, onBack }) => {
   const { currentUser } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -287,8 +288,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
           // Empty days before first day of month
           const prevMonthDay = new Date(year, month, 0 - (firstDayOfWeek - weekDay - 1));
           days.push(
-            <div key={`empty-${weekDay}`} className="h-32 p-1 border border-[#E8E2D5] bg-[#FAF7F2]">
-              <div className="text-xs text-[#A8A195] text-right">
+            <div key={`empty-${weekDay}`} className="h-20 sm:h-32 p-1 border border-[#E8E2D5] bg-[#FAF7F2]">
+              <div className="text-[10px] sm:text-xs text-[#A8A195] text-right">
                 {prevMonthDay.getDate()}
               </div>
             </div>
@@ -297,8 +298,8 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
           // Empty days after last day of month
           const nextMonthDay = new Date(year, month + 1, day - daysInMonth);
           days.push(
-            <div key={`empty-end-${weekDay}`} className="h-32 p-1 border border-[#E8E2D5] bg-[#FAF7F2]">
-              <div className="text-xs text-[#A8A195] text-right">
+            <div key={`empty-end-${weekDay}`} className="h-20 sm:h-32 p-1 border border-[#E8E2D5] bg-[#FAF7F2]">
+              <div className="text-[10px] sm:text-xs text-[#A8A195] text-right">
                 {nextMonthDay.getDate()}
               </div>
             </div>
@@ -318,35 +319,35 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
           days.push(
             <div 
               key={day} 
-              className={`h-32 p-1 border border-[#E8E2D5] ${isToday ? 'bg-[#FBECE6]' : 'bg-white'}`}
+              className={`h-20 sm:h-32 p-1 sm:p-1.5 border border-[#E8E2D5] ${isToday ? 'bg-[#FBECE6]' : 'bg-white'}`}
             >
-              <div className="flex justify-between items-center mb-1">
-                <span className={`text-xs font-medium ${isToday ? 'text-[#C85A32]' : 'text-[#70675D]'}`}>
-                  {currentDay.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
+              <div className="flex justify-between items-center mb-0.5 sm:mb-1">
+                <span className={`text-[9px] sm:text-xs font-semibold ${isToday ? 'text-[#C85A32]' : 'text-[#70675D]'}`}>
+                  {currentDay.toLocaleDateString('en-US', { weekday: 'narrow' })}
                 </span>
-                <span className={`text-sm font-bold ${isToday ? 'text-[#C85A32]' : 'text-[#231E1B]'}`}>
+                <span className={`text-xs sm:text-sm font-bold ${isToday ? 'text-[#C85A32]' : 'text-[#231E1B]'}`}>
                   {day}
                 </span>
               </div>
               
-              <div className="space-y-1 overflow-y-auto max-h-24">
-                {dayEvents.slice(0, 3).map((event, idx) => (
+              <div className="space-y-0.5 sm:space-y-1 overflow-y-auto max-h-12 sm:max-h-24 no-scrollbar">
+                {dayEvents.slice(0, 3).map((event) => (
                   <div
                     key={event.id}
                     onClick={() => handleEventClick(event)}
-                    className={`text-xs p-1.5 rounded-lg border cursor-pointer transition-colors hover:opacity-90 ${
+                    className={`text-[10px] sm:text-xs p-1 sm:p-1.5 rounded-md sm:rounded-lg border cursor-pointer transition-transform active:scale-95 hover:opacity-90 ${
                       getEventTypeColor(event.extendedProps.type)
                     }`}
                   >
-                    <div className="font-medium truncate">{event.title}</div>
-                    <div className="text-[10px] opacity-75 truncate">
+                    <div className="font-semibold truncate leading-tight">{event.title}</div>
+                    <div className="text-[9px] sm:text-[10px] opacity-75 truncate hidden sm:block">
                       {getEventTypeLabel(event.extendedProps.type)}
                       {event.extendedProps.projectName && ` • ${event.extendedProps.projectName}`}
                     </div>
                   </div>
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-xs text-[#70675D] px-1">
+                  <div className="text-[9px] sm:text-xs font-medium text-[#70675D] px-0.5">
                     +{dayEvents.length - 3} more
                   </div>
                 )}
@@ -391,22 +392,22 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
       const isToday = currentDay.toDateString() === new Date().toDateString();
       
       days.push(
-        <div key={i} className="flex-1 border border-[#E8E2D5]">
-          <div className={`p-3 border-b border-[#E8E2D5] ${isToday ? 'bg-[#FBECE6]' : 'bg-white'}`}>
-            <div className="text-xs font-medium text-[#70675D]">
-              {currentDay.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()}
+        <div key={i} className="min-w-[140px] sm:min-w-0 flex-1 border border-[#E8E2D5] bg-white">
+          <div className={`p-2.5 sm:p-3 border-b border-[#E8E2D5] ${isToday ? 'bg-[#FBECE6]' : 'bg-[#FAF7F2]'}`}>
+            <div className="text-[10px] sm:text-xs font-semibold text-[#70675D]">
+              {currentDay.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}
             </div>
-            <div className={`text-lg font-bold ${isToday ? 'text-[#C85A32]' : 'text-[#231E1B]'}`}>
+            <div className={`text-base sm:text-lg font-bold ${isToday ? 'text-[#C85A32]' : 'text-[#231E1B]'}`}>
               {currentDay.getDate()}
             </div>
-            <div className="text-xs text-[#70675D]">
+            <div className="text-[10px] sm:text-xs text-[#70675D]">
               {currentDay.toLocaleDateString('en-US', { month: 'short' })}
             </div>
           </div>
           
-          <div className="p-2 space-y-2 h-[calc(100vh-300px)] overflow-y-auto">
+          <div className="p-2 space-y-2 overflow-y-auto" style={{ height: 'min(calc(100dvh - 320px), 500px)', minHeight: '200px' }}>
             {dayEvents.length === 0 ? (
-              <div className="text-center py-8 text-sm text-[#A8A195]">
+              <div className="text-center py-6 text-xs text-[#A8A195]">
                 No events
               </div>
             ) : (
@@ -414,35 +415,35 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
                 <div
                   key={event.id}
                   onClick={() => handleEventClick(event)}
-                  className={`p-3 rounded-xl border cursor-pointer transition-colors hover:opacity-90 ${
+                  className={`p-2 sm:p-3 rounded-xl border cursor-pointer transition-transform active:scale-95 hover:opacity-90 ${
                     getEventTypeColor(event.extendedProps.type)
                   }`}
                 >
-                  <div className="font-medium text-sm mb-1">{event.title}</div>
-                  <div className="text-xs opacity-75 mb-2">
+                  <div className="font-semibold text-xs sm:text-sm mb-0.5 leading-tight">{event.title}</div>
+                  <div className="text-[10px] sm:text-xs opacity-75 mb-1.5">
                     {getEventTypeLabel(event.extendedProps.type)}
                     {event.extendedProps.projectName && ` • ${event.extendedProps.projectName}`}
                   </div>
                   {event.extendedProps.type === 'reminder' && (
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 pt-1">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCompleteReminder(event.extendedProps.reminderId);
                         }}
-                        className="text-xs px-2 py-1 rounded bg-white border border-green-200 text-green-700 hover:bg-green-50"
+                        className="text-[10px] px-2 py-1 rounded-lg bg-white border border-green-200 text-green-700 hover:bg-green-50 font-medium active:scale-95"
                       >
-                        <Check className="w-3 h-3 inline mr-1" />
-                        Complete
+                        <Check className="w-3 h-3 inline mr-0.5" />
+                        Done
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteReminder(event.extendedProps.reminderId);
                         }}
-                        className="text-xs px-2 py-1 rounded bg-white border border-red-200 text-red-700 hover:bg-red-50"
+                        className="text-[10px] px-2 py-1 rounded-lg bg-white border border-red-200 text-red-700 hover:bg-red-50 font-medium active:scale-95"
                       >
-                        <Trash2 className="w-3 h-3 inline mr-1" />
+                        <Trash2 className="w-3 h-3 inline mr-0.5" />
                         Delete
                       </button>
                     </div>
@@ -456,7 +457,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
     }
     
     return (
-      <div className="flex border border-[#E8E2D5] rounded-xl overflow-hidden">
+      <div className="flex border border-[#E8E2D5] rounded-2xl overflow-x-auto no-scrollbar">
         {days}
       </div>
     );
@@ -477,17 +478,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
     const hours = Array.from({ length: 24 }, (_, i) => i);
     
     return (
-      <div className="border border-[#E8E2D5] rounded-xl overflow-hidden">
-        <div className={`p-4 border-b border-[#E8E2D5] ${isToday ? 'bg-[#FBECE6]' : 'bg-white'}`}>
-          <div className="text-xs font-medium text-[#70675D]">
+      <div className="border border-[#E8E2D5] rounded-2xl overflow-hidden bg-white">
+        <div className={`p-4 border-b border-[#E8E2D5] ${isToday ? 'bg-[#FBECE6]' : 'bg-[#FAF7F2]'}`}>
+          <div className="text-xs font-semibold text-[#70675D]">
             {currentDay.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()}
           </div>
-          <div className="text-2xl font-bold text-[#231E1B]">
+          <div className="text-xl sm:text-2xl font-bold font-serif text-[#231E1B]">
             {currentDay.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
           </div>
         </div>
         
-        <div className="divide-y divide-[#E8E2D5] max-h-[calc(100vh-250px)] overflow-y-auto">
+        <div className="divide-y divide-[#E8E2D5] overflow-y-auto" style={{ maxHeight: 'calc(100dvh - 280px)' }}>
           {hours.map(hour => {
             const hourEvents = dayEvents.filter(event => {
               const eventDate = new Date(event.start);
@@ -495,21 +496,21 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
             });
             
             return (
-              <div key={hour} className="flex min-h-16">
-                <div className="w-16 p-3 border-r border-[#E8E2D5] bg-[#FAF7F2] text-sm text-[#70675D]">
+              <div key={hour} className="flex min-h-14 sm:min-h-16">
+                <div className="w-14 sm:w-16 p-2 sm:p-3 border-r border-[#E8E2D5] bg-[#FAF7F2] text-xs sm:text-sm font-medium text-[#70675D] shrink-0 text-center sm:text-left">
                   {hour === 0 ? '12 AM' : hour < 12 ? `${hour} AM` : hour === 12 ? '12 PM' : `${hour - 12} PM`}
                 </div>
-                <div className="flex-1 p-3">
+                <div className="flex-1 p-2 sm:p-3 space-y-1.5">
                   {hourEvents.map(event => (
                     <div
                       key={event.id}
                       onClick={() => handleEventClick(event)}
-                      className={`mb-2 p-3 rounded-xl border cursor-pointer transition-colors hover:opacity-90 ${
+                      className={`p-2.5 sm:p-3 rounded-xl border cursor-pointer transition-transform active:scale-95 hover:opacity-90 ${
                         getEventTypeColor(event.extendedProps.type)
                       }`}
                     >
-                      <div className="font-medium text-sm mb-1">{event.title}</div>
-                      <div className="text-xs opacity-75">
+                      <div className="font-semibold text-xs sm:text-sm mb-0.5">{event.title}</div>
+                      <div className="text-[10px] sm:text-xs opacity-75">
                         {getEventTypeLabel(event.extendedProps.type)}
                         {event.extendedProps.projectName && ` • ${event.extendedProps.projectName}`}
                       </div>
@@ -520,17 +521,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
                               e.stopPropagation();
                               handleCompleteReminder(event.extendedProps.reminderId);
                             }}
-                            className="text-xs px-2 py-1 rounded bg-white border border-green-200 text-green-700 hover:bg-green-50"
+                            className="text-[10px] sm:text-xs px-2.5 py-1 rounded-lg bg-white border border-green-200 text-green-700 hover:bg-green-50 font-medium active:scale-95"
                           >
                             <Check className="w-3 h-3 inline mr-1" />
-                            Complete
+                            Done
                           </button>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDeleteReminder(event.extendedProps.reminderId);
                             }}
-                            className="text-xs px-2 py-1 rounded bg-white border border-red-200 text-red-700 hover:bg-red-50"
+                            className="text-[10px] sm:text-xs px-2.5 py-1 rounded-lg bg-white border border-red-200 text-red-700 hover:bg-red-50 font-medium active:scale-95"
                           >
                             <Trash2 className="w-3 h-3 inline mr-1" />
                             Delete
@@ -566,77 +567,83 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
   }
 
   return (
-    <div className="space-y-6 pb-24">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div className="flex items-center gap-3">
+    <div className="space-y-5 pb-24">
+      {/* Header — back + title + add on same row */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <button
-            onClick={() => window.history.back()}
-            className="p-2 rounded-lg border border-[#E8E2D5] hover:bg-[#FAF7F2] text-[#70675D] hover:text-[#231E1B] transition-colors cursor-pointer"
-            title="Back to Alerts"
+            onClick={() => {
+              if (onBack) {
+                onBack();
+              } else {
+                window.history.back();
+              }
+            }}
+            className="p-2 rounded-xl border border-[#E8E2D5] hover:bg-[#FAF7F2] active:scale-95 text-[#70675D] hover:text-[#231E1B] transition-colors cursor-pointer min-h-[36px] min-w-[36px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center shrink-0"
+            title="Back"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#231E1B]">
+          <div className="min-w-0">
+            <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-[#231E1B]">
               Calendar
             </h1>
-            <p className="text-sm text-[#70675D]">
-              View and manage your project schedule, deadlines, and reminders
+            <p className="text-xs lg:text-sm text-[#70675D]">
+              Project schedules, deadlines, and reminders
             </p>
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowReminderModal(true)}
-            className="px-4 py-2 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            Add Reminder
-          </button>
-        </div>
+        <button
+          onClick={() => setShowReminderModal(true)}
+          className="shrink-0 px-3.5 py-2 sm:px-4 lg:py-2 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] active:scale-95 text-white text-xs lg:text-sm font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer min-h-[36px] sm:min-h-[44px]"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add Reminder</span>
+        </button>
       </div>
 
       {/* Calendar Controls */}
-      <div className="bg-white border border-[#E8E2D5] rounded-2xl p-4 space-y-4">
+      <div className="bg-white border border-[#E8E2D5] rounded-2xl p-3.5 sm:p-4 space-y-3.5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigateDate('prev')}
-              className="px-3 py-1.5 rounded-lg border border-[#E8E2D5] hover:bg-[#FAF7F2] text-sm font-medium cursor-pointer"
-            >
-              ← Prev
-            </button>
+          <div className="flex items-center justify-between sm:justify-start gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => navigateDate('prev')}
+                className="px-3 py-2.5 rounded-xl border border-[#E8E2D5] hover:bg-[#FAF7F2] active:scale-95 text-xs font-semibold text-[#231E1B] cursor-pointer min-h-[44px] flex items-center justify-center"
+              >
+                ← Prev
+              </button>
+              
+              <button
+                onClick={() => navigateDate('today')}
+                className="px-3 py-2.5 rounded-xl border border-[#E8E2D5] hover:bg-[#FAF7F2] active:scale-95 text-xs font-semibold text-[#231E1B] cursor-pointer min-h-[44px] flex items-center justify-center"
+              >
+                Today
+              </button>
+              
+              <button
+                onClick={() => navigateDate('next')}
+                className="px-3 py-2.5 rounded-xl border border-[#E8E2D5] hover:bg-[#FAF7F2] active:scale-95 text-xs font-semibold text-[#231E1B] cursor-pointer min-h-[44px] flex items-center justify-center"
+              >
+                Next →
+              </button>
+            </div>
             
-            <button
-              onClick={() => navigateDate('today')}
-              className="px-3 py-1.5 rounded-lg border border-[#E8E2D5] hover:bg-[#FAF7F2] text-sm font-medium cursor-pointer"
-            >
-              Today
-            </button>
-            
-            <button
-              onClick={() => navigateDate('next')}
-              className="px-3 py-1.5 rounded-lg border border-[#E8E2D5] hover:bg-[#FAF7F2] text-sm font-medium cursor-pointer"
-            >
-              Next →
-            </button>
-            
-            <div className="text-lg font-bold text-[#231E1B] ml-4">
+            <div className="text-sm sm:text-base font-bold font-serif text-[#231E1B] sm:ml-3 truncate">
               {getDateRangeText()}
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 bg-[#FAF7F2] p-1 rounded-xl border border-[#E8E2D5]">
             {(['month', 'week', 'day'] as const).map((v) => (
               <button
                 key={v}
                 onClick={() => setView(v)}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium capitalize cursor-pointer transition-colors ${
+                className={`flex-1 sm:flex-none px-3.5 py-2 rounded-lg text-xs font-semibold capitalize cursor-pointer transition-all active:scale-95 text-center min-h-[44px] flex items-center justify-center ${
                   view === v
-                    ? 'bg-[#C85A32] text-white'
-                    : 'border border-[#E8E2D5] hover:bg-[#FAF7F2] text-[#70675D]'
+                    ? 'bg-[#C85A32] text-white shadow-2xs'
+                    : 'text-[#70675D] hover:text-[#231E1B]'
                 }`}
               >
                 {v}
@@ -647,7 +654,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
 
         {/* Error state */}
         {error && (
-          <div className="p-4 rounded-2xl bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] text-sm flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] text-xs flex items-center justify-between">
             <span>{error}</span>
             <button
               onClick={fetchEvents}
@@ -659,25 +666,25 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
         )}
 
         {/* Legend */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 py-0.5">
           {(['task', 'milestone', 'approval', 'risk', 'issue', 'reminder'] as const).map((type) => (
-            <div key={type} className="flex items-center gap-1.5">
-              <div className={`w-3 h-3 rounded-full ${getEventTypeColor(type).split(' ')[0]}`} />
-              <span className="text-xs text-[#70675D] capitalize">{type}s</span>
+            <div key={type} className="flex items-center gap-1.5 shrink-0 bg-[#FAF7F2] px-2 py-1 rounded-lg border border-[#EDE7DC]">
+              <div className={`w-2.5 h-2.5 rounded-full ${getEventTypeColor(type).split(' ')[0]}`} />
+              <span className="text-[11px] font-medium text-[#70675D] capitalize">{type}s</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* Calendar View */}
-      <div className="bg-white border border-[#E8E2D5] rounded-2xl overflow-hidden">
+      <div className="bg-white border border-[#E8E2D5] rounded-2xl overflow-hidden shadow-2xs">
         {view === 'month' && (
           <>
             {/* Weekday headers */}
             <div className="grid grid-cols-7 gap-0 border-b border-[#E8E2D5]">
-              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-                <div key={day} className="p-3 text-center text-xs font-semibold text-[#70675D] bg-[#FAF7F2]">
-                  {day.substring(0, 3).toUpperCase()}
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                <div key={day} className="py-2 text-center text-[10px] sm:text-xs font-bold text-[#70675D] bg-[#FAF7F2]">
+                  {day}
                 </div>
               ))}
             </div>
@@ -695,19 +702,19 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
 
       {/* Event Type Summary */}
       <div className="bg-white border border-[#E8E2D5] rounded-2xl p-4">
-        <h3 className="font-serif text-lg font-bold text-[#231E1B] mb-3">Event Summary</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <h3 className="font-serif text-base sm:text-lg font-bold text-[#231E1B] mb-3">Event Summary</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
           {(['task', 'milestone', 'approval', 'risk', 'issue', 'reminder'] as const).map((type) => {
             const count = events.filter(e => e.extendedProps.type === type).length;
             return (
-              <div key={type} className="p-3 rounded-xl border border-[#E8E2D5]">
-                <div className="flex items-center justify-between mb-2">
+              <div key={type} className="p-3 rounded-xl border border-[#E8E2D5] bg-[#FAF7F2]/60">
+                <div className="flex items-center justify-between mb-1.5">
                   <span className="text-xs font-semibold text-[#70675D] capitalize">
                     {type}s
                   </span>
-                  <div className={`w-3 h-3 rounded-full ${getEventTypeColor(type).split(' ')[0]}`} />
+                  <div className={`w-2.5 h-2.5 rounded-full ${getEventTypeColor(type).split(' ')[0]}`} />
                 </div>
-                <div className="text-2xl font-bold font-serif text-[#231E1B]">
+                <div className="text-xl sm:text-2xl font-bold font-serif text-[#231E1B]">
                   {count}
                 </div>
               </div>
@@ -716,73 +723,77 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ onSelectProject }) =
         </div>
       </div>
 
-      {/* Reminder Modal */}
+      {/* Reminder Modal / Bottom Sheet */}
       {showReminderModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+            
             <div className="flex items-center justify-between">
-              <h3 className="font-serif text-lg font-bold text-[#231E1B]">Add Personal Reminder</h3>
+              <h3 className="font-serif text-base sm:text-lg font-bold text-[#231E1B]">Add Personal Reminder</h3>
               <button
                 onClick={() => setShowReminderModal(false)}
-                className="p-1 rounded-lg hover:bg-[#FAF7F2] cursor-pointer"
+                className="p-1.5 rounded-xl hover:bg-[#FAF7F2] active:scale-95 text-[#70675D] cursor-pointer"
               >
-                <X className="w-5 h-5 text-[#70675D]" />
+                <X className="w-5 h-5" />
               </button>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               <div>
-                <label className="block text-sm font-medium text-[#70675D] mb-1">
+                <label className="block text-xs font-semibold text-[#70675D] mb-1">
                   Title *
                 </label>
                 <input
                   type="text"
                   value={reminderForm.title}
                   onChange={(e) => setReminderForm({ ...reminderForm, title: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-[#E8E2D5] focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:border-transparent"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8E2D5] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:border-transparent min-h-[44px]"
                   placeholder="e.g., Follow up with team"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-[#70675D] mb-1">
+                <label className="block text-xs font-semibold text-[#70675D] mb-1">
                   Description
                 </label>
                 <textarea
                   value={reminderForm.description}
                   onChange={(e) => setReminderForm({ ...reminderForm, description: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-[#E8E2D5] focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:border-transparent"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8E2D5] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:border-transparent"
                   placeholder="Optional details..."
                   rows={3}
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-[#70675D] mb-1">
+                <label className="block text-xs font-semibold text-[#70675D] mb-1">
                   Reminder Date *
                 </label>
                 <input
                   type="date"
                   value={reminderForm.reminderDate}
                   onChange={(e) => setReminderForm({ ...reminderForm, reminderDate: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-[#E8E2D5] focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:border-transparent"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8E2D5] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:border-transparent min-h-[44px]"
                 />
               </div>
             </div>
             
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
               <button
+                type="button"
                 onClick={() => setShowReminderModal(false)}
-                className="px-4 py-2 rounded-lg border border-[#E8E2D5] hover:bg-[#FAF7F2] text-sm font-medium cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#E8E2D5] hover:bg-[#FAF7F2] active:scale-95 text-xs font-semibold text-[#70675D] cursor-pointer min-h-[44px]"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleCreateReminder}
-                disabled={!reminderForm.title || !reminderForm.reminderDate}
-                className="px-4 py-2 rounded-lg bg-[#C85A32] hover:bg-[#A63C1E] text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                disabled={!reminderForm.title || !reminderForm.reminderDate || submittingReminder}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] active:scale-95 text-white text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-h-[44px] shadow-xs"
               >
-                Add Reminder
+                {submittingReminder ? 'Adding...' : 'Add Reminder'}
               </button>
             </div>
           </div>

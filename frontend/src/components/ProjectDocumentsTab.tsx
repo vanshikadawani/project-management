@@ -198,7 +198,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E8E2D5]">
         <div>
-          <h3 className="font-serif font-bold text-base text-[#231E1B]">Document Repository</h3>
+          <h3 className="font-serif font-bold text-sm sm:text-base text-[#231E1B]">Document Repository</h3>
           <p className="text-xs text-[#70685F]">
             Secure cloud storage for project deliverables, plans, and drawings with revision versioning
           </p>
@@ -207,7 +207,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
         <button
           id="btn-upload-document"
           onClick={() => setShowUploadModal(true)}
-          className="px-4 py-2 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] active:scale-95 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-transform cursor-pointer min-h-[44px]"
         >
           <Upload className="w-4 h-4" />
           Upload Document
@@ -221,31 +221,31 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
           {error}
         </div>
       ) : documents.length === 0 ? (
-        <div className="p-12 rounded-2xl bg-white border border-[#E8E2D5] text-center space-y-3">
+        <div className="p-8 sm:p-12 rounded-2xl bg-white border border-[#E8E2D5] text-center space-y-3">
           <FileText className="w-12 h-12 text-[#DDD6C8] mx-auto" />
           <h4 className="font-serif font-bold text-base text-[#231E1B]">No Documents Stored</h4>
-          <p className="text-xs text-[#70685F] max-w-sm mx-auto">
+          <p className="text-xs text-[#70685F] max-w-sm mx-auto leading-relaxed">
             Upload project specifications, contracts, budgets, or CAD drawings (PDF, XLSX, DOCX, DWG, PNG, JPG up to 25 MB).
           </p>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="px-4 py-2 rounded-xl bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#A63C1E] shadow-xs cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#A63C1E] active:scale-95 shadow-xs cursor-pointer min-h-[44px]"
           >
             Upload First Document
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
           {documents.map((doc) => {
             const latestVersion = doc.versions[0];
             return (
               <div
                 key={doc.id}
-                className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs space-y-3 flex flex-col justify-between"
+                className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs space-y-3 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F2EDE2] text-[#554E44]">
                         {doc.fileType}
                       </span>
@@ -254,31 +254,31 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                       </span>
                     </div>
 
-                    <span className="text-[11px] text-[#9B9287]">
+                    <span className="text-[10px] sm:text-[11px] text-[#9B9287]">
                       {new Date(doc.updatedAt).toLocaleDateString()}
                     </span>
                   </div>
 
-                  <h4 className="font-serif font-bold text-sm text-[#231E1B] mt-2 truncate">
+                  <h4 className="font-serif font-bold text-xs sm:text-sm text-[#231E1B] mt-2 truncate">
                     {doc.title}
                   </h4>
                   {doc.description && (
                     <p className="text-xs text-[#554E44] mt-0.5 line-clamp-2">{doc.description}</p>
                   )}
 
-                  <div className="text-[11px] text-[#70685F] mt-2 flex items-center gap-2">
+                  <div className="text-[10px] sm:text-[11px] text-[#70685F] mt-2 flex items-center gap-2">
                     <span>Size: {latestVersion ? formatBytes(latestVersion.fileSize) : 'N/A'}</span>
                     <span>&bull;</span>
-                    <span>By: {doc.uploader?.name || 'Member'}</span>
+                    <span className="truncate">By: {doc.uploader?.name || 'Member'}</span>
                   </div>
                 </div>
 
                 <div className="pt-2 border-t border-[#F0EBE0] flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <a
                       href={apiUrl(`/api/documents/${doc.id}/download`)}
                       download
-                      className="px-3 py-1.5 rounded-xl bg-[#F5F1E8] hover:bg-[#EDE7DC] text-[#231E1B] text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-3 py-2.5 rounded-xl bg-[#F5F1E8] hover:bg-[#EDE7DC] active:scale-95 text-[#231E1B] text-xs font-semibold flex items-center gap-1.5 transition-transform cursor-pointer min-h-[44px]"
                       title="Download latest version"
                     >
                       <Download className="w-3.5 h-3.5 text-[#C85A32]" />
@@ -287,7 +287,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
 
                     <button
                       onClick={() => setViewingHistoryDoc(doc)}
-                      className="px-2.5 py-1.5 rounded-xl text-[#70685F] hover:text-[#231E1B] text-xs font-medium flex items-center gap-1 cursor-pointer"
+                      className="px-2.5 py-2.5 rounded-xl text-[#70685F] hover:text-[#231E1B] active:scale-95 text-xs font-semibold flex items-center gap-1 cursor-pointer min-h-[44px]"
                       title="View all versions"
                     >
                       <History className="w-3.5 h-3.5" />
@@ -302,7 +302,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                       setVersionComment('');
                       setVersionError(null);
                     }}
-                    className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#526E55] hover:bg-[#EBF2EB] flex items-center gap-1 transition-colors cursor-pointer"
+                    className="px-3 py-2.5 rounded-xl text-xs font-semibold text-[#526E55] hover:bg-[#EBF2EB] active:scale-95 flex items-center gap-1 transition-transform cursor-pointer min-h-[44px]"
                   >
                     <FilePlus className="w-3.5 h-3.5" />
                     New Version
@@ -314,17 +314,19 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
         </div>
       )}
 
-      {/* Upload Document Modal */}
+      {/* Upload Document Modal / Bottom Sheet */}
       {showUploadModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-[#FBF9F4] rounded-2xl shadow-2xl border border-[#E8E2D5] p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#E8E2D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+
             <div className="flex items-center justify-between">
-              <h3 className="font-serif font-bold text-base text-[#231E1B]">Upload Project Document</h3>
+              <h3 className="font-serif font-bold text-base sm:text-lg text-[#231E1B]">Upload Project Document</h3>
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="p-1 rounded-lg text-[#70685F] hover:bg-[#EDE7DC]"
+                className="p-1.5 rounded-xl text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -340,16 +342,16 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
               </div>
             )}
 
-            <form onSubmit={handleUploadSubmit} className="space-y-4">
+            <form onSubmit={handleUploadSubmit} className="space-y-3.5">
               {/* Drag and Drop Zone */}
               <div
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={handleFileDrop}
                 onClick={() => fileInputRef.current?.click()}
-                className={`p-6 border-2 border-dashed rounded-2xl text-center cursor-pointer transition-colors ${
+                className={`p-5 sm:p-6 border-2 border-dashed rounded-2xl text-center cursor-pointer transition-colors ${
                   selectedFile
                     ? 'border-[#526E55] bg-[#F2F7F2]'
-                    : 'border-[#DDD6C8] bg-white hover:bg-[#F9F7F2]'
+                    : 'border-[#DDD6C8] bg-[#FAF7F2] hover:bg-[#F9F7F2]'
                 }`}
               >
                 <input
@@ -367,13 +369,13 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                 <Upload className={`w-8 h-8 mx-auto mb-2 ${selectedFile ? 'text-[#526E55]' : 'text-[#70685F]'}`} />
                 {selectedFile ? (
                   <div>
-                    <p className="text-xs font-bold text-[#231E1B]">{selectedFile.name}</p>
+                    <p className="text-xs font-bold text-[#231E1B] truncate">{selectedFile.name}</p>
                     <p className="text-[11px] text-[#70685F] mt-0.5">{formatBytes(selectedFile.size)}</p>
-                    <p className="text-[10px] text-[#526E55] font-semibold mt-1">Click or drag another file to replace</p>
+                    <p className="text-[10px] text-[#526E55] font-semibold mt-1">Tap to replace file</p>
                   </div>
                 ) : (
                   <div>
-                    <p className="text-xs font-semibold text-[#231E1B]">Click to browse or drag &amp; drop file</p>
+                    <p className="text-xs font-semibold text-[#231E1B]">Tap to choose file or drag &amp; drop</p>
                     <p className="text-[11px] text-[#70685F] mt-1">
                       PDF, XLSX, DOCX, DWG, PNG, JPG (up to 25 MB)
                     </p>
@@ -384,7 +386,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
               {uploading && (
                 <div className="space-y-1">
                   <div className="flex justify-between text-[11px] text-[#70685F]">
-                    <span>Uploading to S3 vault...</span>
+                    <span>Uploading...</span>
                     <span>{uploadProgress}%</span>
                   </div>
                   <div className="w-full bg-[#E8E2D5] rounded-full h-2 overflow-hidden">
@@ -404,7 +406,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                   value={docTitle}
                   onChange={(e) => setDocTitle(e.target.value)}
                   placeholder="e.g. Architectural Site Plan"
-                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
+                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
                 />
               </div>
 
@@ -414,8 +416,8 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                   type="text"
                   value={docDescription}
                   onChange={(e) => setDocDescription(e.target.value)}
-                  placeholder="e.g. Approved foundation blueprints from engineer"
-                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
+                  placeholder="e.g. Approved foundation blueprints"
+                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
                 />
               </div>
 
@@ -426,22 +428,22 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                   value={uploadComment}
                   onChange={(e) => setUploadComment(e.target.value)}
                   placeholder="e.g. Initial draft for review"
-                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
+                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(false)}
-                  className="px-4 py-2 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 transition-all cursor-pointer min-h-[44px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!selectedFile || uploading}
-                  className="px-4 py-2 rounded-xl bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#A63C1E] shadow-xs cursor-pointer disabled:opacity-40"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#A63C1E] active:scale-95 shadow-xs cursor-pointer disabled:opacity-40 min-h-[44px]"
                 >
                   {uploading ? 'Uploading...' : 'Upload Document'}
                 </button>
@@ -451,16 +453,20 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
         </div>
       )}
 
-      {/* Upload New Version Modal */}
+      {/* Upload New Version Modal / Bottom Sheet */}
       {targetDoc && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-[#FBF9F4] rounded-2xl shadow-2xl border border-[#E8E2D5] p-6 space-y-4">
-            <h3 className="font-serif font-bold text-base text-[#231E1B]">
-              Upload New Revision (v{targetDoc.currentVersion + 1})
-            </h3>
-            <p className="text-xs text-[#70685F]">
-              Updating &ldquo;{targetDoc.title}&rdquo;. Previous versions will remain preserved in history.
-            </p>
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#E8E2D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+
+            <div>
+              <h3 className="font-serif font-bold text-base sm:text-lg text-[#231E1B]">
+                Upload New Revision (v{targetDoc.currentVersion + 1})
+              </h3>
+              <p className="text-xs text-[#70685F]">
+                Updating &ldquo;{targetDoc.title}&rdquo;. Previous versions will remain preserved.
+              </p>
+            </div>
 
             {versionError && (
               <div className="p-3 bg-[#FDF2F2] border border-[#F8D7D7] rounded-xl text-xs text-[#991B1B]">
@@ -468,11 +474,11 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
               </div>
             )}
 
-            <form onSubmit={handleVersionSubmit} className="space-y-4">
+            <form onSubmit={handleVersionSubmit} className="space-y-3.5">
               <div
                 onClick={() => versionInputRef.current?.click()}
                 className={`p-5 border-2 border-dashed rounded-xl text-center cursor-pointer ${
-                  versionFile ? 'border-[#526E55] bg-[#F2F7F2]' : 'border-[#DDD6C8] bg-white'
+                  versionFile ? 'border-[#526E55] bg-[#F2F7F2]' : 'border-[#DDD6C8] bg-[#FAF7F2]'
                 }`}
               >
                 <input
@@ -488,9 +494,9 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                 />
                 <FilePlus className="w-7 h-7 mx-auto mb-1 text-[#526E55]" />
                 {versionFile ? (
-                  <p className="text-xs font-bold text-[#231E1B]">{versionFile.name}</p>
+                  <p className="text-xs font-bold text-[#231E1B] truncate">{versionFile.name}</p>
                 ) : (
-                  <p className="text-xs text-[#70685F]">Click to select revised file</p>
+                  <p className="text-xs text-[#70685F]">Tap to select revised file</p>
                 )}
               </div>
 
@@ -503,22 +509,22 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                   value={versionComment}
                   onChange={(e) => setVersionComment(e.target.value)}
                   placeholder="e.g. Incorporated structural engineer feedback"
-                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
+                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
                 />
               </div>
 
-              <div className="flex justify-end gap-2">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setTargetDoc(null)}
-                  className="px-4 py-2 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 transition-all cursor-pointer min-h-[44px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!versionFile || uploadingVersion}
-                  className="px-4 py-2 rounded-xl bg-[#526E55] text-white text-xs font-semibold hover:bg-[#3E5540] shadow-xs cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#526E55] text-white text-xs font-semibold hover:bg-[#3E5540] active:scale-95 transition-all shadow-xs cursor-pointer min-h-[44px]"
                 >
                   {uploadingVersion ? 'Uploading...' : 'Commit Revision'}
                 </button>
@@ -528,20 +534,22 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
         </div>
       )}
 
-      {/* Version History Modal */}
+      {/* Version History Modal / Bottom Sheet */}
       {viewingHistoryDoc && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-[#FBF9F4] rounded-2xl shadow-2xl border border-[#E8E2D5] p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#E8E2D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+
             <div className="flex items-center justify-between pb-2 border-b border-[#E8E2D5]">
-              <div>
-                <h3 className="font-serif font-bold text-base text-[#231E1B]">Version History</h3>
-                <p className="text-xs text-[#70685F]">{viewingHistoryDoc.title}</p>
+              <div className="min-w-0">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-[#231E1B]">Version History</h3>
+                <p className="text-xs text-[#70685F] truncate">{viewingHistoryDoc.title}</p>
               </div>
               <button
                 onClick={() => setViewingHistoryDoc(null)}
-                className="p-1 text-[#70685F] hover:bg-[#EDE7DC] rounded-lg"
+                className="p-1.5 text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 rounded-xl cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
@@ -549,9 +557,9 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
               {viewingHistoryDoc.versions.map((v) => (
                 <div
                   key={v.id}
-                  className="p-3 rounded-xl bg-white border border-[#E8E2D5] flex items-center justify-between gap-3 text-xs"
+                  className="p-3 sm:p-3.5 rounded-xl bg-[#FAF7F2] border border-[#E8E2D5] flex items-center justify-between gap-3 text-xs"
                 >
-                  <div className="space-y-0.5">
+                  <div className="space-y-0.5 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-[#231E1B]">Version {v.version}</span>
                       {v.version === viewingHistoryDoc.currentVersion && (
@@ -560,7 +568,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                         </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-[#70685F]">{v.comment || 'No comment'}</div>
+                    <div className="text-[11px] text-[#70685F] truncate">{v.comment || 'No comment'}</div>
                     <div className="text-[10px] text-[#9B9287]">
                       {new Date(v.uploadedAt).toLocaleString()} &bull; {formatBytes(v.fileSize)}
                     </div>
@@ -569,7 +577,7 @@ export const ProjectDocumentsTab: React.FC<ProjectDocumentsTabProps> = ({ projec
                   <a
                     href={apiUrl(`/api/documents/${viewingHistoryDoc.id}/download?version=${v.version}`)}
                     download
-                    className="px-3 py-1.5 rounded-lg bg-[#F5F1E8] hover:bg-[#EDE7DC] text-xs font-semibold flex items-center gap-1 text-[#231E1B] shrink-0"
+                    className="px-3 py-2 rounded-xl bg-white hover:bg-[#EDE7DC] active:scale-95 text-xs font-semibold flex items-center gap-1 text-[#231E1B] shrink-0 border border-[#DDD6C8] min-h-[38px]"
                   >
                     <Download className="w-3.5 h-3.5 text-[#C85A32]" />
                     Download
