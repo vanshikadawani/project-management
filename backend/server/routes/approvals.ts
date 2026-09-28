@@ -74,7 +74,7 @@ router.get('/project/:projectId', requireAuth, async (req: AuthRequest, res: Res
       where: { projectId },
       orderBy: { requestedAt: 'desc' },
       include: {
-        project: { select: { id: true, name: true } },
+        project: { select: { id: true, name: true, ownerId: true } },
         requester: { select: { id: true, name: true, role: true, avatarUrl: true } },
         approver: { select: { id: true, name: true, role: true, avatarUrl: true } },
       },
@@ -158,7 +158,7 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
         version: 1,
       },
       include: {
-        project: { select: { id: true, name: true } },
+        project: { select: { id: true, name: true, ownerId: true } },
         requester: { select: { id: true, name: true, role: true } },
         approver: { select: { id: true, name: true, role: true } },
       },
@@ -214,13 +214,12 @@ router.post('/:id/decide', requireAuth, async (req: AuthRequest, res: Response) 
       return res.status(403).json({ error: 'Forbidden: Employees cannot approve or send back requests.' });
     }
 
-    // SELF-APPROVAL PREVENTION
-    if (approval.requestedBy === user.id) {
-      return res.status(403).json({ error: 'Self-approval is forbidden. You cannot approve your own request.' });
-    }
+    // Permission check: Both Project Owner and CEO are eligible to approve/send back requests on the project
+    const isCEO = user.role === 'CEO';
+    const isProjectOwner = approval.project.ownerId === user.id;
+    const isDesignatedApprover = user.id === approval.approverId;
 
-    // Permission check: Must be designated approver or CEO
-    const canDecide = user.id === approval.approverId || user.role === 'CEO';
+    const canDecide = isCEO || isProjectOwner || isDesignatedApprover;
     if (!canDecide) {
       return res.status(403).json({ error: 'You are not authorized to decide this request.' });
     }

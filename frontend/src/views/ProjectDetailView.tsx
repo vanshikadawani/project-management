@@ -928,11 +928,11 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       </button>
 
       {/* Project Master Header Card */}
-      <div className="p-6 rounded-3xl bg-white border border-[#E8E2D5] shadow-sm space-y-4">
+      <div className="p-4 sm:p-6 rounded-2xl lg:rounded-3xl bg-white border border-[#E8E2D5] shadow-xs lg:shadow-sm space-y-3 sm:space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-semibold text-[#8C6D58] uppercase tracking-wider">
+              <span className="text-[10px] sm:text-xs font-semibold text-[#8C6D58] uppercase tracking-wider bg-[#F5F1E8] sm:bg-transparent px-2.5 py-0.5 sm:px-0 sm:py-0 rounded-full">
                 {project.sponsor} Sponsor
               </span>
               <StatusBadge
@@ -941,10 +941,10 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 size="md"
               />
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#231E1B]">
+            <h1 className="font-display text-lg sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
               {project.name}
             </h1>
-            <p className="text-sm text-[#70675D] max-w-3xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#70675D] max-w-3xl leading-relaxed">
               {project.goal}
             </p>
           </div>
@@ -954,7 +954,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
             <button
               id="status-override-button"
               onClick={() => setShowOverrideModal(true)}
-              className="self-start px-3.5 py-2 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#ECE5D6] border border-[#DDD6C8] text-[#554E44] flex items-center gap-1.5 transition-colors cursor-pointer min-h-[44px]"
+              className="self-start px-3.5 py-2 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#ECE5D6] active:scale-95 border border-[#DDD6C8] text-[#554E44] flex items-center gap-1.5 transition-all cursor-pointer min-h-[44px]"
               title="Override automatic status with recorded reason"
             >
               <Edit2 className="w-3.5 h-3.5 text-[#C85A32]" />
@@ -964,17 +964,19 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         </div>
 
         {/* Progress vs Plan Dual Visual Bar */}
-        <div className="pt-3 border-t border-[#F2ECE1] space-y-2">
+        <div className="pt-2.5 sm:pt-3 border-t border-[#F2ECE1] space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-[#231E1B]">
-              Actual Progress: <strong className="text-[#C85A32] text-sm">{metrics.progress}%</strong>
+              <span className="sm:hidden">Actual: </span>
+              <span className="hidden sm:inline">Actual Progress: </span>
+              <strong className="text-[#C85A32] text-xs sm:text-sm">{metrics.progress}%</strong>
             </span>
             <span className="text-[#70675D]">
               Scheduled Plan: <strong className="text-[#4E463E]">{metrics.plan}%</strong>
             </span>
           </div>
 
-          <div className="relative w-full h-3 rounded-full bg-[#EAE4D8] overflow-hidden">
+          <div className="relative w-full h-2.5 sm:h-3 rounded-full bg-[#EAE4D8] overflow-hidden">
             {/* Planned baseline watermark */}
             <div
               className="absolute top-0 bottom-0 left-0 bg-[#D4C8B5]"
@@ -993,51 +995,53 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
             />
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-[#7A7165]">
+          <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-[#7A7165]">
             <span>
               Start: {new Date(project.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
             <span>
-              Target End: {new Date(project.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              <span className="sm:hidden">Target: </span>
+              <span className="hidden sm:inline">Target End: </span>
+              {new Date(project.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
           </div>
         </div>
 
         {/* Executive Meta Strip */}
-        <div className="pt-3 border-t border-[#F2ECE1] grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+        <div className="pt-2.5 sm:pt-3 border-t border-[#F2ECE1] grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs">
           <div>
-            <span className="text-[#8C8275] block">Project Owner</span>
-            <span className="font-semibold text-[#231E1B]">{project.owner?.name}</span>
+            <span className="text-[10px] sm:text-xs text-[#8C8275] block">Project Owner</span>
+            <span className="font-semibold text-[#231E1B] truncate block">{project.owner?.name}</span>
           </div>
           <div>
-            <span className="text-[#8C8275] block">Sponsor</span>
-            <span className="font-semibold text-[#231E1B]">{project.sponsor}</span>
+            <span className="text-[10px] sm:text-xs text-[#8C8275] block">Sponsor</span>
+            <span className="font-semibold text-[#231E1B] truncate block">{project.sponsor}</span>
           </div>
           {!isEmployee ? (
             <>
               <div>
-                <span className="text-[#8C8275] block">Planned Budget</span>
+                <span className="text-[10px] sm:text-xs text-[#8C8275] block">Planned Budget</span>
                 <span className="font-semibold text-[#231E1B]">
                   £{project.plannedBudget.toLocaleString()}
                 </span>
               </div>
               <div>
-                <span className="text-[#8C8275] block">Spend to Date</span>
+                <span className="text-[10px] sm:text-xs text-[#8C8275] block">Spend to Date</span>
                 <span className="font-semibold text-[#C85A32]">
                   £{project.spendToDate.toLocaleString()}
                 </span>
               </div>
             </>
           ) : (
-            <div className="sm:col-span-2 flex items-center gap-1.5 text-[#8C8275] italic">
+            <div className="col-span-2 flex items-center gap-1.5 text-[#8C8275] italic text-[11px]">
               <span>Financial figures confidential to Owner &amp; CEO</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Tabs Bar */}
-      <div className="flex items-center gap-1 border-b border-[#E8E2D5] overflow-x-auto pb-px">
+      {/* Tabs Bar - Smooth Edge-to-Edge Touch Scroll */}
+      <div className="flex items-center gap-1 border-b border-[#E8E2D5] overflow-x-auto no-scrollbar  pb-px">
         {[
           { key: 'phases', label: 'Phases & Tasks', count: project.phases.length },
           { key: 'overview', label: 'Overview & Charter' },
@@ -1055,7 +1059,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
             key={tab.key}
             id={`tab-btn-${tab.key}`}
             onClick={() => setActiveTab(tab.key as any)}
-            className={`px-4 py-2.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 min-h-[44px] cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3.5 sm:px-4 py-2.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === tab.key
                 ? 'border-[#C85A32] text-[#C85A32]'
                 : 'border-transparent text-[#70685F] hover:text-[#231E1B]'
@@ -1245,7 +1249,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                                       id={`task-state-select-${task.id}`}
                                       value={task.state}
                                       onChange={(e) => handleTaskStateChange(task.id, e.target.value)}
-                                      className="px-2.5 py-1.5 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-hidden focus:border-[#C85A32] cursor-pointer min-h-[40px]"
+                                      className="px-2.5 py-1.5 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-hidden focus:border-[#C85A32] cursor-pointer min-h-[44px]"
                                     >
                                       <option value="Not started">Not started</option>
                                       <option value="In progress">In progress</option>
@@ -1255,7 +1259,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
                                     <button
                                       onClick={() => handleToggleRiskFlag(task)}
-                                      className={`p-2 rounded-xl border min-h-[40px] cursor-pointer ${
+                                      className={`p-2 rounded-xl border min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer ${
                                         task.hasRiskFlag
                                           ? 'bg-[#FEE2E2] border-[#FECACA] text-[#B3261E]'
                                           : 'bg-white border-[#E0D9CC] text-[#7A7165] hover:text-[#B3261E]'
@@ -1274,7 +1278,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                                       [task.id]: !prev[task.id],
                                     }))
                                   }
-                                  className="p-2 rounded-xl bg-white border border-[#E0D9CC] text-[#7A7165] hover:bg-[#F5F1E8] min-h-[40px] cursor-pointer"
+                                  className="p-2 rounded-xl bg-white border border-[#E0D9CC] text-[#7A7165] hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
                                   title="Expand quality checks and details"
                                 >
                                   {isExpanded ? (
@@ -1696,7 +1700,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* TAB 7: APPROVAL REQUESTS */}
       {activeTab === 'approvals' && (
-        <ProjectApprovalsTab projectId={project.id} projectName={project.name} />
+        <ProjectApprovalsTab projectId={project.id} projectName={project.name} projectOwnerId={project.ownerId} />
       )}
 
       {/* TAB 8: BASELINES & PLAN VS ACTUAL */}
@@ -1721,13 +1725,20 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* MODAL: STATUS OVERRIDE */}
       {showOverrideModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4 animate-in fade-in zoom-in-95">
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowOverrideModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
             <div className="flex items-center justify-between">
               <h4 className="font-serif text-lg font-bold text-[#231E1B]">Override Project Status</h4>
               <button
                 onClick={() => setShowOverrideModal(false)}
-                className="p-1 text-gray-500 hover:text-black"
+                className="p-2 text-gray-500 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1738,7 +1749,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
               strictly required and recorded in the audit log.
             </p>
 
-            <form onSubmit={handleStatusOverride} className="space-y-3">
+            <form onSubmit={handleStatusOverride} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Target Status
@@ -1746,7 +1757,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 <select
                   value={overrideStatus}
                   onChange={(e) => setOverrideStatus(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 >
                   <option value="ON_TRACK">On Track</option>
                   <option value="AT_RISK">At Risk</option>
@@ -1773,7 +1784,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   <button
                     type="button"
                     onClick={handleRemoveOverride}
-                    className="text-xs text-[#B3261E] hover:underline font-semibold"
+                    className="text-xs text-[#B3261E] hover:underline font-semibold min-h-[44px] flex items-center cursor-pointer"
                   >
                     Clear Override (Auto)
                   </button>
@@ -1785,13 +1796,13 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowOverrideModal(false)}
-                    className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100 hover:bg-gray-200"
+                    className="px-4 py-2 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722]"
+                    className="px-5 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95"
                   >
                     Save Override
                   </button>
@@ -1804,10 +1815,26 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* MODAL: NEW PHASE */}
       {showNewPhaseModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4">
-            <h4 className="font-serif text-lg font-bold text-[#231E1B]">Add New Phase</h4>
-            <form onSubmit={handleCreatePhase} className="space-y-3">
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowNewPhaseModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+            <div className="flex items-center justify-between">
+              <h4 className="font-serif text-lg font-bold text-[#231E1B]">Add New Phase</h4>
+              <button
+                onClick={() => setShowNewPhaseModal(false)}
+                className="p-2 text-gray-500 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreatePhase} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Phase Name <span className="text-red-500">*</span>
@@ -1818,10 +1845,10 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   value={newPhaseName}
                   onChange={(e) => setNewPhaseName(e.target.value)}
                   placeholder="e.g. Phase 3: Final Acceptance"
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-semibold text-[#231E1B] mb-1">Start Date</label>
                   <input
@@ -1829,7 +1856,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                     type="date"
                     value={newPhaseStart}
                     onChange={(e) => setNewPhaseStart(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                   />
                 </div>
                 <div>
@@ -1839,22 +1866,22 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                     type="date"
                     value={newPhaseEnd}
                     onChange={(e) => setNewPhaseEnd(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowNewPhaseModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Create Phase
                 </button>
@@ -1866,10 +1893,26 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* MODAL: NEW TASK */}
       {showNewTaskModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4">
-            <h4 className="font-serif text-lg font-bold text-[#231E1B]">Add New Task</h4>
-            <form onSubmit={handleCreateTask} className="space-y-3">
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowNewTaskModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+            <div className="flex items-center justify-between">
+              <h4 className="font-serif text-lg font-bold text-[#231E1B]">Add New Task</h4>
+              <button
+                onClick={() => setShowNewTaskModal(false)}
+                className="p-2 text-gray-500 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTask} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Title (1-120 chars) <span className="text-red-500">*</span>
@@ -1881,17 +1924,17 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                   placeholder="e.g. Calibrate safety sensors"
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-semibold text-[#231E1B] mb-1">Assignee</label>
                   <select
                     value={newTaskAssigneeId}
                     onChange={(e) => setNewTaskAssigneeId(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                   >
                     <option value="">Unassigned</option>
                     {assignableUsers.map((u) => (
@@ -1906,7 +1949,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   <select
                     value={newTaskPriority}
                     onChange={(e) => setNewTaskPriority(e.target.value as any)}
-                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                   >
                     <option value="Normal">Normal</option>
                     <option value="High">High</option>
@@ -1915,7 +1958,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-semibold text-[#231E1B] mb-1">Start Date</label>
                   <input
@@ -1923,7 +1966,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                     type="date"
                     value={newTaskPlannedStart}
                     onChange={(e) => setNewTaskPlannedStart(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                   />
                 </div>
                 <div>
@@ -1933,14 +1976,14 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                     type="date"
                     value={newTaskPlannedEnd}
                     onChange={(e) => setNewTaskPlannedEnd(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
-                  Planned Hours (Weight in progress calculation: 0-999)
+                  Planned Hours (0-999)
                 </label>
                 <input
                   required
@@ -1949,21 +1992,21 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   max={999}
                   value={newTaskPlannedHours}
                   onChange={(e) => setNewTaskPlannedHours(Number(e.target.value))}
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowNewTaskModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Create Task
                 </button>
@@ -1975,10 +2018,26 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* MODAL: NEW ISSUE */}
       {showNewIssueModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4">
-            <h4 className="font-serif text-lg font-bold text-[#231E1B]">Raise Project Issue</h4>
-            <form onSubmit={handleCreateIssue} className="space-y-3">
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowNewIssueModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+            <div className="flex items-center justify-between">
+              <h4 className="font-serif text-lg font-bold text-[#231E1B]">Raise Project Issue</h4>
+              <button
+                onClick={() => setShowNewIssueModal(false)}
+                className="p-2 text-gray-500 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateIssue} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Issue Title <span className="text-red-500">*</span>
@@ -1989,7 +2048,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   value={newIssueTitle}
                   onChange={(e) => setNewIssueTitle(e.target.value)}
                   placeholder="e.g. Critical valve failure in line 2"
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 />
               </div>
               <div>
@@ -1997,7 +2056,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 <select
                   value={newIssueSeverity}
                   onChange={(e) => setNewIssueSeverity(e.target.value as any)}
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 >
                   <option value="Minor">Minor</option>
                   <option value="Major">Major</option>
@@ -2018,17 +2077,17 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowNewIssueModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Raise Issue
                 </button>
@@ -2038,16 +2097,31 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         </div>
       )}
 
-      {/* MODAL: REOPEN ISSUE (Requires non-empty comment!) */}
+      {/* MODAL: REOPEN ISSUE */}
       {showReopenModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4">
-            <h4 className="font-serif text-lg font-bold text-[#231E1B]">Reopen Issue</h4>
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowReopenModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+            <div className="flex items-center justify-between">
+              <h4 className="font-serif text-lg font-bold text-[#231E1B]">Reopen Issue</h4>
+              <button
+                onClick={() => setShowReopenModal(false)}
+                className="p-2 text-gray-500 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <p className="text-xs text-[#70675D]">
               A non-empty comment explaining why this issue is being reopened is strictly required by
               the governance system.
             </p>
-            <form onSubmit={handleReopenIssueSubmit} className="space-y-3">
+            <form onSubmit={handleReopenIssueSubmit} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Reopen Justification <span className="text-red-500">*</span>
@@ -2061,17 +2135,17 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowReopenModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Reopen Issue
                 </button>
@@ -2083,10 +2157,26 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* MODAL: NEW RISK */}
       {showNewRiskModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4">
-            <h4 className="font-serif text-lg font-bold text-[#231E1B]">Record Risk in Register</h4>
-            <form onSubmit={handleCreateRisk} className="space-y-3">
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowNewRiskModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+            <div className="flex items-center justify-between">
+              <h4 className="font-serif text-lg font-bold text-[#231E1B]">Record Risk in Register</h4>
+              <button
+                onClick={() => setShowNewRiskModal(false)}
+                className="p-2 text-gray-500 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateRisk} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Risk Description <span className="text-red-500">*</span>
@@ -2097,7 +2187,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   value={newRiskDesc}
                   onChange={(e) => setNewRiskDesc(e.target.value)}
                   placeholder="e.g. Lead time for replacement motors may exceed 4 weeks"
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 />
               </div>
               <div>
@@ -2105,7 +2195,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 <select
                   value={newRiskSeverity}
                   onChange={(e) => setNewRiskSeverity(e.target.value as any)}
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 >
                   <option value="Low">Low</option>
                   <option value="Medium">Medium</option>
@@ -2125,17 +2215,17 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowNewRiskModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Save Risk
                 </button>
@@ -2147,15 +2237,30 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* MODAL: NEW MILESTONE */}
       {showNewMilestoneModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4">
-            <h4 className="font-serif text-lg font-bold text-[#231E1B]">Add Project Milestone</h4>
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowNewMilestoneModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+            <div className="flex items-center justify-between">
+              <h4 className="font-serif text-lg font-bold text-[#231E1B]">Add Project Milestone</h4>
+              <button
+                onClick={() => setShowNewMilestoneModal(false)}
+                className="p-2 text-gray-500 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <p className="text-xs text-[#70675D]">
               Milestone date must fall within the project start (
               {new Date(project.startDate).toLocaleDateString()}) and end (
               {new Date(project.endDate).toLocaleDateString()}) dates.
             </p>
-            <form onSubmit={handleCreateMilestone} className="space-y-3">
+            <form onSubmit={handleCreateMilestone} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Milestone Title <span className="text-red-500">*</span>
@@ -2166,10 +2271,10 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   value={newMilestoneTitle}
                   onChange={(e) => setNewMilestoneTitle(e.target.value)}
                   placeholder="e.g. Factory Acceptance Test (FAT)"
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div>
                   <label className="block text-xs font-semibold text-[#231E1B] mb-1">Baseline Date</label>
                   <input
@@ -2177,7 +2282,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                     type="date"
                     value={newMilestoneBaseline}
                     onChange={(e) => setNewMilestoneBaseline(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                   />
                 </div>
                 <div>
@@ -2187,22 +2292,22 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                     type="date"
                     value={newMilestoneForecast}
                     onChange={(e) => setNewMilestoneForecast(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                    className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowNewMilestoneModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Save Milestone
                 </button>

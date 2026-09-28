@@ -5,30 +5,32 @@ let socket: Socket | null = null;
 let currentUserId: string | null = null;
 const activeProjectRooms = new Set<string>();
 
+const isLocalhost =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+   window.location.hostname === '127.0.0.1' ||
+   window.location.hostname === '0.0.0.0');
+
 /**
  * Returns the singleton Socket.IO client instance.
  * Automatically authenticates and reconnects across route/view transitions.
- * - In Production: Connects directly to backend VITE_API_URL (e.g. https://project-management-1zps.vercel.app)
- * - In Development: Uses local proxy or relative origin (e.g. http://localhost:3000 -> http://127.0.0.1:5000)
+ * - In Production: Uses import.meta.env.VITE_API_URL (e.g. https://project-management-1zps.vercel.app)
+ * - In Development: Uses VITE_API_URL if set, or local proxy / relative origin
  */
 export function getSocket(userId?: string): Socket {
-  const envUrl = ((import.meta as any).env?.VITE_API_URL || '').trim().replace(/\/$/, '');
-  const socketUrl =
-    envUrl ||
-    API_BASE_URL ||
-    (typeof window !== 'undefined' && window.location?.origin) ||
-    '';
+  const envUrl = (((import.meta as any).env?.VITE_API_URL || '') as string).trim().replace(/\/$/, '');
+  const socketUrl = isLocalhost
+    ? (envUrl || '')
+    : (envUrl || API_BASE_URL || (typeof window !== 'undefined' && window.location?.origin) || '');
 
-  if (userId && (!currentUserId || currentUserId !== userId)) {
+  if (userId) {
     currentUserId = userId;
   }
 
   if (!socket) {
     console.log('[Socket] Initializing Socket.IO client pointing to:', socketUrl || '(same origin)');
     socket = io(socketUrl, {
-      auth: (cb) => {
-        cb({ userId: currentUserId || undefined });
-      },
+      auth: { userId: currentUserId || undefined },
       query: currentUserId ? { userId: currentUserId } : undefined,
       transports: ['websocket', 'polling'],
       withCredentials: true,

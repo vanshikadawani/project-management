@@ -181,33 +181,37 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
   });
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-5 sm:space-y-6 pb-20 sm:pb-24 max-w-full overflow-hidden sm:overflow-visible">
       {/* Toast */}
       {toastMessage && (
         <div
-          className={`fixed top-16 right-4 z-50 p-4 rounded-xl shadow-lg border max-w-md animate-in slide-in-from-top-2 text-xs flex items-center justify-between gap-3 ${
+          className={`fixed top-16 right-4 left-4 sm:left-auto z-50 p-4 rounded-2xl shadow-lg border max-w-md animate-in slide-in-from-top-2 text-xs flex items-center justify-between gap-3 ${
             toastMessage.type === 'error'
               ? 'bg-[#FEE2E2] text-[#991B1B] border-[#FECACA]'
               : 'bg-[#EBF2EB] text-[#2D5A34] border-[#C4D9C5]'
           }`}
         >
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+            {toastMessage.type === 'error' ? (
+              <AlertCircle className="w-4 h-4 text-[#B3261E] shrink-0" />
+            ) : (
+              <CheckCircle2 className="w-4 h-4 text-[#2D5A34] shrink-0" />
+            )}
             <span>{toastMessage.text}</span>
           </div>
-          <button onClick={() => setToastMessage(null)}>
+          <button onClick={() => setToastMessage(null)} className="p-1 cursor-pointer">
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* Header */}
+      {/* Header — title + action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#231E1B]">
-            Issues Log
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
+            Issues
           </h1>
-          <p className="text-sm text-[#70675D]">
+          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5">
             Events that have already occurred and require operational response.
           </p>
         </div>
@@ -215,52 +219,89 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
         <button
           id="raise-issue-main-btn"
           onClick={() => setShowRaiseModal(true)}
-          className="self-start sm:self-auto px-4 py-2.5 rounded-full bg-[#C85A32] hover:bg-[#AD4722] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer min-h-[44px]"
+          className="shrink-0 self-end sm:self-auto -mt-8 sm:mt-0 px-3.5 py-2 sm:px-4 lg:py-2 rounded-xl bg-[#C85A32] hover:bg-[#AD4722] active:scale-95 text-white text-xs lg:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer min-h-[36px] sm:min-h-[44px] transition-all"
         >
           <Plus className="w-4 h-4" />
-          Raise New Issue
+          <span className="sm:hidden">Raise</span>
+          <span className="hidden sm:inline">Raise Issue</span>
         </button>
       </div>
 
       {/* Filters & Controls */}
-      <div className="space-y-3">
-        {/* Search */}
-        <div className="relative">
-          <Search className="w-4 h-4 text-[#8C8275] absolute left-3.5 top-1/2 -translate-y-1/2" />
+      <div className="space-y-2.5 sm:space-y-3">
+        {/* Search input */}
+        <div className="relative w-full">
+          <Search className="w-4 h-4 text-[#8C8275] absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2" />
           <input
             id="issues-search-input"
             type="text"
-            placeholder="Search issues, details, or project names..."
+            placeholder="Search issues, summaries, blockers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-[#DDD6C8] text-sm text-[#231E1B] placeholder-[#8F867A] focus:outline-hidden focus:border-[#C85A32] shadow-2xs min-h-[44px]"
+            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-full bg-white border border-[#DDD6C8] text-xs sm:text-sm text-[#231E1B] placeholder-[#8F867A] focus:outline-none focus:border-[#C85A32] shadow-2xs min-h-[36px] sm:min-h-[44px]"
           />
         </div>
 
-        {/* Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        {/* Row 2: Filter dropdowns — native selects on mobile, pills on desktop */}
+        <div className="flex items-center gap-2 sm:hidden">
           {/* State */}
-          <div className="flex items-center gap-1 bg-[#FAF6EE] p-1 rounded-full border border-[#EAE3D5]">
+          <select
+            className="flex-1 px-2 py-2 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
+            value={stateFilter}
+            onChange={(e) => setStateFilter(e.target.value as any)}
+          >
+            <option value="OPEN">Active</option>
+            <option value="CLOSED">Closed</option>
+            <option value="ALL">All Status</option>
+          </select>
+          {/* Severity */}
+          <select
+            className="flex-1 px-2 py-2 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
+            value={severityFilter}
+            onChange={(e) => setSeverityFilter(e.target.value)}
+          >
+            <option value="ALL">All Severity</option>
+            <option value="Critical">Critical</option>
+            <option value="Major">Major</option>
+            <option value="Minor">Minor</option>
+          </select>
+          {/* Project */}
+          <select
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProjectId(e.target.value)}
+            className="flex-1 px-2 py-2 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
+          >
+            <option value="ALL">All Projects</option>
+            {projects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Desktop: pill chips */}
+        <div className="hidden sm:flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          {/* State */}
+          <div className="flex items-center gap-1 bg-[#FAF6EE] p-1 rounded-full border border-[#EAE3D5] shrink-0">
             <button
               onClick={() => setStateFilter('OPEN')}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                stateFilter === 'OPEN' ? 'bg-[#C85A32] text-white' : 'text-[#70675D]'
+              className={`px-3.5 py-2 rounded-full text-xs font-semibold transition-colors min-h-[44px] cursor-pointer flex items-center justify-center ${
+                stateFilter === 'OPEN' ? 'bg-[#C85A32] text-white shadow-2xs' : 'text-[#70675D]'
               }`}
             >
-              Open / Active
+              Active
             </button>
             <button
               onClick={() => setStateFilter('CLOSED')}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                stateFilter === 'CLOSED' ? 'bg-[#C85A32] text-white' : 'text-[#70675D]'
+              className={`px-3.5 py-2 rounded-full text-xs font-semibold transition-colors min-h-[44px] cursor-pointer flex items-center justify-center ${
+                stateFilter === 'CLOSED' ? 'bg-[#C85A32] text-white shadow-2xs' : 'text-[#70675D]'
               }`}
             >
               Closed
             </button>
             <button
               onClick={() => setStateFilter('ALL')}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                stateFilter === 'ALL' ? 'bg-[#C85A32] text-white' : 'text-[#70675D]'
+              className={`px-3.5 py-2 rounded-full text-xs font-semibold transition-colors min-h-[44px] cursor-pointer flex items-center justify-center ${
+                stateFilter === 'ALL' ? 'bg-[#C85A32] text-white shadow-2xs' : 'text-[#70675D]'
               }`}
             >
               All
@@ -268,13 +309,13 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
           </div>
 
           {/* Severity */}
-          <div className="flex items-center gap-1 bg-[#FAF6EE] p-1 rounded-full border border-[#EAE3D5]">
+          <div className="flex items-center gap-1 bg-[#FAF6EE] p-1 rounded-full border border-[#EAE3D5] shrink-0">
             {['ALL', 'Critical', 'Major', 'Minor'].map((sev) => (
               <button
                 key={sev}
                 onClick={() => setSeverityFilter(sev)}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                  severityFilter === sev ? 'bg-[#C85A32] text-white' : 'text-[#70675D]'
+                className={`px-3.5 py-2 rounded-full text-xs font-semibold transition-colors min-h-[44px] cursor-pointer flex items-center justify-center ${
+                  severityFilter === sev ? 'bg-[#C85A32] text-white shadow-2xs' : 'text-[#70675D]'
                 }`}
               >
                 {sev}
@@ -286,7 +327,7 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
           <select
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="px-3 py-1.5 rounded-full border border-[#DDD6C8] bg-white text-xs font-medium text-[#231E1B] focus:outline-hidden min-h-[36px]"
+            className="px-3.5 py-1.5 rounded-full border border-[#DDD6C8] bg-white text-xs font-medium text-[#231E1B] focus:outline-none min-h-[44px] shrink-0 cursor-pointer"
           >
             <option value="ALL">All Projects</option>
             {projects.map((p) => (
@@ -430,16 +471,26 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
 
       {/* RAISE ISSUE MODAL */}
       {showRaiseModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4 animate-in fade-in zoom-in-95">
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowRaiseModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
             <div className="flex items-center justify-between">
               <h4 className="font-serif text-lg font-bold text-[#231E1B]">Raise New Issue</h4>
-              <button onClick={() => setShowRaiseModal(false)} className="text-gray-400 hover:text-black">
+              <button 
+                onClick={() => setShowRaiseModal(false)} 
+                className="p-2 text-gray-400 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleRaiseIssue} className="space-y-3">
+            <form onSubmit={handleRaiseIssue} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Project <span className="text-red-500">*</span>
@@ -448,7 +499,7 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
                   required
                   value={newProjectId}
                   onChange={(e) => setNewProjectId(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 >
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -468,7 +519,7 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="e.g. Critical boiler pressure sensor failure"
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 />
               </div>
 
@@ -477,7 +528,7 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
                 <select
                   value={newSeverity}
                   onChange={(e) => setNewSeverity(e.target.value as any)}
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 >
                   <option value="Minor">Minor</option>
                   <option value="Major">Major</option>
@@ -499,17 +550,17 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowRaiseModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722]"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Raise Issue
                 </button>
@@ -521,13 +572,28 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
 
       {/* REOPEN ISSUE MODAL */}
       {showReopenModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4">
-            <h4 className="font-serif text-lg font-bold text-[#231E1B]">Reopen Issue</h4>
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowReopenModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+            <div className="flex items-center justify-between">
+              <h4 className="font-serif text-lg font-bold text-[#231E1B]">Reopen Issue</h4>
+              <button 
+                onClick={() => setShowReopenModal(false)} 
+                className="p-2 text-gray-400 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <p className="text-xs text-[#70675D]">
               A non-empty comment explaining the recurrence or reason is strictly required.
             </p>
-            <form onSubmit={handleReopenIssue} className="space-y-3">
+            <form onSubmit={handleReopenIssue} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Reopen Justification <span className="text-red-500">*</span>
@@ -542,17 +608,17 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowReopenModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722]"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Confirm Reopen
                 </button>

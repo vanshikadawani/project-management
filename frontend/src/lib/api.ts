@@ -4,9 +4,16 @@
  * as well as same-domain / relative proxy deployments.
  */
 
-export const API_BASE_URL: string = (
-  (import.meta as any).env?.VITE_API_URL || ''
-).replace(/\/$/, '');
+const isLocalhost =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+   window.location.hostname === '127.0.0.1' ||
+   window.location.hostname === '0.0.0.0');
+
+const envUrl = (((import.meta as any).env?.VITE_API_URL || '') as string).trim().replace(/\/$/, '');
+
+export const API_BASE_URL: string = isLocalhost ? (envUrl || '') : envUrl;
+
 
 /**
  * Returns the fully qualified URL for an API endpoint.

@@ -104,24 +104,24 @@ export const WorkloadView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-5 sm:space-y-6 pb-20 sm:pb-24 max-w-full overflow-hidden sm:overflow-visible">
       {toast && (
-        <div className="fixed top-16 right-4 z-50 p-3.5 rounded-xl bg-[#231E1B] text-white text-xs font-medium shadow-lg animate-in fade-in">
+        <div className="fixed top-16 right-4 left-4 sm:left-auto z-50 p-4 rounded-2xl bg-[#231E1B] text-white text-xs font-semibold shadow-xl animate-in fade-in">
           {toast}
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#231E1B]">
-            Team Workload
+      {/* Header — title + week */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
+            Workload
           </h1>
-          <p className="text-sm text-[#70675D]">
+          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5">
             Capacity allocation vs 37-hour standard reference for the active week.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#5A524A] bg-[#FAF6EE] px-3.5 py-1.5 rounded-full border border-[#EAE3D5] self-start sm:self-auto">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-[#5A524A] bg-[#FAF6EE] px-3.5 py-1.5 rounded-full border border-[#EAE3D5] shrink-0 self-end sm:self-auto -mt-8 sm:mt-0 shadow-2xs">
           <Calendar className="w-3.5 h-3.5 text-[#C85A32]" />
           <span>Week of Sep 14, 2026</span>
         </div>
@@ -129,45 +129,45 @@ export const WorkloadView: React.FC = () => {
 
       {/* Summary KPI cards */}
       {data?.summary && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-3.5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs">
-            <span className="text-[10px] uppercase font-bold text-[#70675D] tracking-wider block">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] sm:text-xs uppercase font-bold text-[#70675D] tracking-wider block truncate">
               Active Team
             </span>
-            <div className="mt-1 text-2xl font-bold font-serif text-[#231E1B]">
+            <div className="mt-1 text-xl sm:text-2xl font-bold font-serif text-[#231E1B]">
               {data.summary.totalTeam}
             </div>
-            <span className="text-[11px] text-[#70675D]">Staff members</span>
+            <span className="text-[10px] sm:text-[11px] text-[#70675D] truncate">Staff members</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border border-[#FECACA] shadow-xs">
-            <span className="text-[10px] uppercase font-bold text-[#991B1B] tracking-wider block">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#FECACA] shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] sm:text-xs uppercase font-bold text-[#991B1B] tracking-wider block truncate">
               Overallocated
             </span>
-            <div className="mt-1 text-2xl font-bold font-serif text-[#991B1B]">
+            <div className="mt-1 text-xl sm:text-2xl font-bold font-serif text-[#991B1B]">
               {data.summary.overallocatedCount}
             </div>
-            <span className="text-[11px] text-[#991B1B]">&gt; 100% capacity</span>
+            <span className="text-[10px] sm:text-[11px] text-[#991B1B] truncate">&gt; 100% capacity</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border border-[#FDE68A] shadow-xs">
-            <span className="text-[10px] uppercase font-bold text-[#92400E] tracking-wider block">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#FDE68A] shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] sm:text-xs uppercase font-bold text-[#92400E] tracking-wider block truncate">
               Balanced
             </span>
-            <div className="mt-1 text-2xl font-bold font-serif text-[#92400E]">
+            <div className="mt-1 text-xl sm:text-2xl font-bold font-serif text-[#92400E]">
               {data.summary.balancedCount}
             </div>
-            <span className="text-[11px] text-[#92400E]">70% – 100% load</span>
+            <span className="text-[10px] sm:text-[11px] text-[#92400E] truncate">70% – 100% load</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border border-[#C6DEC7] shadow-xs">
-            <span className="text-[10px] uppercase font-bold text-[#2D5A34] tracking-wider block">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#C6DEC7] shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] sm:text-xs uppercase font-bold text-[#2D5A34] tracking-wider block truncate">
               Available
             </span>
-            <div className="mt-1 text-2xl font-bold font-serif text-[#2D5A34]">
+            <div className="mt-1 text-xl sm:text-2xl font-bold font-serif text-[#2D5A34]">
               {data.summary.availableCount}
             </div>
-            <span className="text-[11px] text-[#2D5A34]">&lt; 70% capacity</span>
+            <span className="text-[10px] sm:text-[11px] text-[#2D5A34] truncate">&lt; 70% capacity</span>
           </div>
         </div>
       )}
@@ -199,11 +199,10 @@ export const WorkloadView: React.FC = () => {
 
       {/* Workload Team Cards */}
       {!loading && !error && data?.workload && (
-        <div className="space-y-4">
+        <div className="space-y-3.5 sm:space-y-4">
           {data.workload.map((member) => {
             const isOver = member.status === 'OVER';
             const isBalanced = member.status === 'BALANCED';
-            const isAvailable = member.status === 'AVAILABLE';
 
             let statusPillClass = 'bg-[#EBF2EB] text-[#2D5A34] border-[#C4D9C5]';
             let barColor = 'bg-[#526E55]';
@@ -220,28 +219,28 @@ export const WorkloadView: React.FC = () => {
               <div
                 key={member.user.id}
                 id={`workload-card-${member.user.id}`}
-                className="p-5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs space-y-3"
+                className="p-4 sm:p-5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs space-y-3"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                   <div className="flex items-center gap-3">
                     <img
                       src={member.user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${member.user.name}`}
                       alt={member.user.name}
-                      className="w-10 h-10 rounded-full border border-white shadow-2xs"
+                      className="w-10 h-10 rounded-full border border-white shadow-2xs shrink-0"
                       referrerPolicy="no-referrer"
                     />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-sm text-[#231E1B]">{member.user.name}</h4>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-bold text-xs sm:text-sm text-[#231E1B] truncate">{member.user.name}</h4>
                         <span className="text-[10px] text-[#70675D] bg-[#F5F1E8] px-2 py-0.5 rounded-full">
                           {member.user.department || member.user.role}
                         </span>
                       </div>
-                      <div className="text-xs text-[#70675D]">{member.user.email}</div>
+                      <div className="text-[11px] text-[#70675D] truncate">{member.user.email}</div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                  <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
                     <span className={`text-xs px-3 py-1 rounded-full border ${statusPillClass}`}>
                       {member.statusLabel} ({member.workloadPercentage}%)
                     </span>
@@ -252,10 +251,10 @@ export const WorkloadView: React.FC = () => {
                           setSelectedUser(member);
                           setShowAllocateModal(true);
                         }}
-                        className="px-3 py-1.5 rounded-full bg-[#FAF6EE] hover:bg-[#ECE5D6] text-xs font-semibold text-[#5A524A] border border-[#DDD6C8] flex items-center gap-1 min-h-[36px] cursor-pointer"
+                        className="px-3.5 py-1.5 rounded-full bg-[#FAF6EE] hover:bg-[#ECE5D6] text-xs font-semibold text-[#5A524A] border border-[#DDD6C8] flex items-center gap-1 min-h-[44px] cursor-pointer active:scale-95 transition-all"
                         title="Adjust project hours allocation"
                       >
-                        <Plus className="w-3 h-3 text-[#C85A32]" />
+                        <Plus className="w-3.5 h-3.5 text-[#C85A32]" />
                         Allocate
                       </button>
                     )}
@@ -269,7 +268,7 @@ export const WorkloadView: React.FC = () => {
                       {member.allocatedHours} hrs allocated
                     </span>
                     <span className="text-[#70675D]">
-                      Standard Reference: <strong>{member.referenceHours} hrs / wk</strong>
+                      Ref: <strong>{member.referenceHours} hrs / wk</strong>
                     </span>
                   </div>
 
@@ -283,8 +282,8 @@ export const WorkloadView: React.FC = () => {
 
                 {/* Associated Projects Breakdown */}
                 <div className="pt-2 border-t border-[#F2ECE1] space-y-1">
-                  <span className="text-[11px] font-bold text-[#8C8275] uppercase tracking-wider block">
-                    Assigned Project Breakdown:
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#8C8275] uppercase tracking-wider block">
+                    Assigned Projects:
                   </span>
                   {member.projects.length === 0 ? (
                     <div className="text-xs text-[#8C8275] italic">
@@ -297,8 +296,8 @@ export const WorkloadView: React.FC = () => {
                           key={p.id}
                           className="px-2.5 py-1 rounded-xl bg-[#FAF8F2] border border-[#EBE4D5] text-xs flex items-center gap-2"
                         >
-                          <span className="font-semibold text-[#231E1B]">{p.name}</span>
-                          <span className="text-[10px] font-bold text-[#C85A32] bg-[#FDECE5] px-1.5 py-0.2 rounded-md">
+                          <span className="font-semibold text-[#231E1B] truncate max-w-[150px]">{p.name}</span>
+                          <span className="text-[10px] font-bold text-[#C85A32] bg-[#FDECE5] px-1.5 py-0.2 rounded-md shrink-0">
                             {p.hours}h
                           </span>
                         </div>
@@ -314,13 +313,23 @@ export const WorkloadView: React.FC = () => {
 
       {/* ALLOCATE MODAL */}
       {showAllocateModal && selectedUser && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3D5] space-y-4 animate-in fade-in zoom-in-95">
+        <div 
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setShowAllocateModal(false)}
+        >
+          <div 
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] sm:max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
             <div className="flex items-center justify-between">
               <h4 className="font-serif text-lg font-bold text-[#231E1B]">
                 Allocate Project Hours
               </h4>
-              <button onClick={() => setShowAllocateModal(false)} className="text-gray-400 hover:text-black">
+              <button 
+                onClick={() => setShowAllocateModal(false)} 
+                className="p-2 text-gray-400 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -330,14 +339,14 @@ export const WorkloadView: React.FC = () => {
               active reference week.
             </p>
 
-            <form onSubmit={handleAllocateSubmit} className="space-y-3">
+            <form onSubmit={handleAllocateSubmit} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">Project</label>
                 <select
                   required
                   value={allocateProjectId}
                   onChange={(e) => setAllocateProjectId(e.target.value)}
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 >
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -358,21 +367,21 @@ export const WorkloadView: React.FC = () => {
                   max={60}
                   value={allocateHours}
                   onChange={(e) => setAllocateHours(Number(e.target.value))}
-                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm"
+                  className="w-full p-2.5 rounded-xl border border-[#DDD6C8] text-sm min-h-[44px]"
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2.5 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAllocateModal(false)}
-                  className="px-3.5 py-2 rounded-full text-xs font-semibold bg-gray-100"
+                  className="px-4 py-2.5 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] min-h-[44px] cursor-pointer flex-1 sm:flex-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722]"
+                  className="px-5 py-2.5 rounded-full text-xs font-semibold bg-[#C85A32] text-white hover:bg-[#AD4722] min-h-[44px] shadow-xs cursor-pointer active:scale-95 flex-1 sm:flex-none"
                 >
                   Confirm Allocation
                 </button>

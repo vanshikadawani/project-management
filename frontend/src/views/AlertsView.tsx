@@ -80,93 +80,94 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
   });
 
   return (
-    <div className="space-y-6 pb-24">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#231E1B]">
-            What needs your attention?
+    <div className="space-y-5 sm:space-y-6 pb-20 sm:pb-24 max-w-full overflow-hidden sm:overflow-visible">
+      {/* Header — title + Refresh */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
+            Attention Stream
           </h1>
-          <p className="text-sm text-[#70675D]">
+          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5">
             Live operational pulse, critical blockers, and action items for {currentUser?.name}.
           </p>
         </div>
         <button
           onClick={fetchAlerts}
-          className="self-start sm:self-auto px-3.5 py-1.5 rounded-full text-xs font-medium bg-[#F5F1E8] hover:bg-[#EAE4D6] border border-[#DDD6C8] text-[#5A524A] transition-colors cursor-pointer min-h-[44px] flex items-center gap-1.5"
+          className="shrink-0 self-end sm:self-auto -mt-8 sm:mt-0 px-3.5 py-2 sm:px-4 rounded-full text-xs lg:text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] active:scale-95 border border-[#DDD6C8] text-[#5A524A] transition-all cursor-pointer min-h-[36px] sm:min-h-[44px] flex items-center gap-1.5 shadow-2xs"
         >
           <Clock className="w-3.5 h-3.5" />
-          Refresh
+          <span className="sm:hidden">Refresh</span>
+          <span className="hidden sm:inline">Refresh Pulse</span>
         </button>
       </div>
 
       {/* Summary KPI Strip */}
       {data?.summary && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-3.5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#8C2B2B] uppercase tracking-wider">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] sm:text-xs font-bold text-[#8C2B2B] uppercase tracking-wider truncate">
                 Critical Issues
               </span>
-              <AlertOctagon className="w-4 h-4 text-[#B3261E]" />
+              <AlertOctagon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#B3261E] shrink-0" />
             </div>
-            <div className="mt-2 text-2xl font-bold font-serif text-[#231E1B]">
+            <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold font-serif text-[#231E1B]">
               {data.summary.criticalIssuesCount}
             </div>
-            <span className="text-[11px] text-[#70675D]">Affects project status</span>
+            <span className="text-[10px] sm:text-[11px] text-[#70675D] mt-0.5 truncate">Affects status</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#B45309] uppercase tracking-wider">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] sm:text-xs font-bold text-[#B45309] uppercase tracking-wider truncate">
                 High Risks
               </span>
-              <AlertTriangle className="w-4 h-4 text-[#D97706]" />
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D97706] shrink-0" />
             </div>
-            <div className="mt-2 text-2xl font-bold font-serif text-[#231E1B]">
+            <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold font-serif text-[#231E1B]">
               {data.summary.highRisksCount}
             </div>
-            <span className="text-[11px] text-[#70675D]">Visible to leadership</span>
+            <span className="text-[10px] sm:text-[11px] text-[#70675D] mt-0.5 truncate">Leadership view</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] sm:text-xs font-bold text-[#6B7280] uppercase tracking-wider truncate">
                 Blocked Tasks
               </span>
-              <ShieldAlert className="w-4 h-4 text-[#6B7280]" />
+              <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#6B7280] shrink-0" />
             </div>
-            <div className="mt-2 text-2xl font-bold font-serif text-[#231E1B]">
+            <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold font-serif text-[#231E1B]">
               {data.summary.blockedTasksCount}
             </div>
-            <span className="text-[11px] text-[#70675D]">Immediate work stoppage</span>
+            <span className="text-[10px] sm:text-[11px] text-[#70675D] mt-0.5 truncate">Work stoppage</span>
           </div>
 
-          <div className="p-3.5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#2D5A34] uppercase tracking-wider">
-                My Active Tasks
+          <div className="p-3 sm:p-3.5 rounded-2xl bg-white border border-[#EAE3D5] shadow-xs flex flex-col justify-between">
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] sm:text-xs font-bold text-[#2D5A34] uppercase tracking-wider truncate">
+                Active Tasks
               </span>
-              <CheckSquare className="w-4 h-4 text-[#407B4A]" />
+              <CheckSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#407B4A] shrink-0" />
             </div>
-            <div className="mt-2 text-2xl font-bold font-serif text-[#231E1B]">
+            <div className="mt-1 sm:mt-2 text-xl sm:text-2xl font-bold font-serif text-[#231E1B]">
               {data.summary.myTasksCount}
             </div>
-            <span className="text-[11px] text-[#70675D]">Assigned to you</span>
+            <span className="text-[10px] sm:text-[11px] text-[#70675D] mt-0.5 truncate">Assigned to you</span>
           </div>
         </div>
       )}
 
       {/* Today's Calendar Preview */}
-      <div className="bg-white border border-[#E8E2D5] rounded-2xl p-4 space-y-3">
+      <div className="bg-white border border-[#E8E2D5] rounded-2xl p-3.5 sm:p-4 space-y-3 shadow-2xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-[#C85A32]" />
-            <h3 className="font-serif text-lg font-bold text-[#231E1B]">Today's Calendar</h3>
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-[#C85A32]" />
+            <h3 className="font-serif text-base sm:text-lg font-bold text-[#231E1B]">Today's Calendar</h3>
           </div>
           <button
             onClick={fetchTodayEvents}
-            className="text-xs text-[#70675D] hover:text-[#C85A32] flex items-center gap-1 cursor-pointer"
+            className="text-xs text-[#70675D] hover:text-[#C85A32] flex items-center gap-1 cursor-pointer py-1 px-2 rounded-lg hover:bg-[#FAF7F2] transition-colors"
           >
             <Clock className="w-3.5 h-3.5" />
             Refresh
@@ -176,11 +177,11 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
         {todayEventsLoading ? (
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 bg-[#FAF7F2] rounded-lg animate-pulse" />
+              <div key={i} className="h-12 bg-[#FAF7F2] rounded-xl animate-pulse" />
             ))}
           </div>
         ) : todayEvents.length === 0 ? (
-          <div className="py-4 text-center text-sm text-[#A8A195]">
+          <div className="py-4 text-center text-xs sm:text-sm text-[#A8A195]">
             No events scheduled for today
           </div>
         ) : (
@@ -210,12 +211,11 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
                           onSelectProject(extendedProps.projectId, 'issues');
                           break;
                         default:
-                          // For reminders, we don't navigate
                           break;
                       }
                     }
                   }}
-                  className={`p-3 rounded-xl border cursor-pointer transition-colors hover:opacity-90 ${
+                  className={`p-3 rounded-xl border cursor-pointer transition-all active:scale-[0.99] hover:opacity-90 min-h-[44px] ${
                     extendedProps.type === 'task' ? 'bg-blue-50 border-blue-200' :
                     extendedProps.type === 'milestone' ? 'bg-green-50 border-green-200' :
                     extendedProps.type === 'approval' ? 'bg-yellow-50 border-yellow-200' :
@@ -224,15 +224,15 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
                     'bg-purple-50 border-purple-200'
                   } ${!extendedProps.projectId ? 'cursor-default hover:opacity-100' : ''}`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium text-sm text-[#231E1B] truncate">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="font-medium text-xs sm:text-sm text-[#231E1B] truncate">
                       {event.title}
                     </div>
-                    <div className="text-xs text-[#70675D] capitalize">
+                    <div className="text-[10px] sm:text-xs text-[#70675D] capitalize shrink-0 font-medium">
                       {extendedProps.type}
                     </div>
                   </div>
-                  <div className="text-xs text-[#70675D] mt-1 truncate">
+                  <div className="text-[11px] text-[#70675D] mt-0.5 truncate">
                     {extendedProps.projectName || 'Personal reminder'}
                   </div>
                 </div>
@@ -248,36 +248,50 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
                 onShowCalendar();
               }
             }}
-            className="w-full py-2 rounded-lg bg-[#F5F1E8] hover:bg-[#EDE7DC] border border-[#E0D9CB] text-[#70685F] hover:text-[#231E1B] text-sm font-medium transition-colors cursor-pointer"
+            className="w-full py-2.5 rounded-xl bg-[#F5F1E8] hover:bg-[#EDE7DC] active:scale-[0.99] border border-[#E0D9CB] text-[#70685F] hover:text-[#231E1B] text-xs sm:text-sm font-semibold transition-all cursor-pointer min-h-[44px] flex items-center justify-center gap-1.5"
           >
+            <Calendar className="w-4 h-4 text-[#C85A32]" />
             View Full Calendar
           </button>
         </div>
       </div>
 
-      {/* Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        <span className="text-xs text-[#7A7165] flex items-center gap-1 font-medium pl-1">
-          <Filter className="w-3.5 h-3.5" /> Filter:
-        </span>
-        {[
-          { key: 'ALL', label: 'All Items' },
-          { key: 'CRITICAL', label: 'Critical Issues' },
-          { key: 'RISKS', label: 'Risks & Flags' },
-          { key: 'MY_TASKS', label: 'My Assigned Work' },
-        ].map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setActiveFilter(f.key as any)}
-            className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[36px] cursor-pointer ${
-              activeFilter === f.key
-                ? 'bg-[#C85A32] text-white shadow-xs'
-                : 'bg-[#F3EFE6] text-[#554F47] hover:bg-[#EAE4D6]'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+      {/* Filter — compact select on mobile, chips on sm+ */}
+      <div className="flex items-center gap-2">
+        <Filter className="w-3.5 h-3.5 text-[#C85A32] sm:text-[#70685F] shrink-0" />
+        <span className="hidden sm:inline text-xs text-[#7A7165] font-medium pl-0.5">Filter:</span>
+        {/* Mobile: native select */}
+        <select
+          className="sm:hidden flex-1 px-3 py-2 rounded-full border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
+          value={activeFilter}
+          onChange={(e) => setActiveFilter(e.target.value as any)}
+        >
+          <option value="ALL">All Items</option>
+          <option value="CRITICAL">Critical Issues</option>
+          <option value="RISKS">Risks &amp; Flags</option>
+          <option value="MY_TASKS">My Assigned Work</option>
+        </select>
+        {/* Desktop: pill chips */}
+        <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          {[
+            { key: 'ALL', label: 'All Items' },
+            { key: 'CRITICAL', label: 'Critical Issues' },
+            { key: 'RISKS', label: 'Risks & Flags' },
+            { key: 'MY_TASKS', label: 'My Assigned Work' },
+          ].map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setActiveFilter(f.key as any)}
+              className={`px-3 sm:px-3.5 py-1.5 sm:py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all min-h-[36px] sm:min-h-[40px] cursor-pointer shrink-0 active:scale-95 flex items-center justify-center ${
+                activeFilter === f.key
+                  ? 'bg-[#C85A32] text-white shadow-xs font-semibold'
+                  : 'bg-[#F3EFE6] text-[#554F47] hover:bg-[#EAE4D6]'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Loading state */}
