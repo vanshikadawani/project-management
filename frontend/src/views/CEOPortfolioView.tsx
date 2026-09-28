@@ -62,23 +62,23 @@ export const CEOPortfolioView: React.FC<CEOPortfolioViewProps> = ({ onSelectProj
   });
 
   return (
-    <div className="space-y-5 sm:space-y-6 pb-20 sm:pb-24 max-w-full overflow-hidden sm:overflow-visible">
+    <div className="space-y-6 pb-24">
       {/* Header Banner */}
-      <div className="p-4 sm:p-6 rounded-2xl lg:rounded-3xl bg-[#231E1B] text-white space-y-2.5 sm:space-y-3 shadow-sm">
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-          <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-white/10 text-white/80">
+      <div className="p-6 rounded-3xl bg-[#231E1B] text-white space-y-3 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded-full bg-white/10 text-white/80">
             Executive Command
           </span>
-          <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[#C85A32] text-white">
+          <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[#C85A32] text-white">
             CEO Dashboard
           </span>
         </div>
 
         <div>
-          <h2 className="font-serif text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight">
             Portfolio Health &amp; Capital Allocation
           </h2>
-          <p className="text-xs lg:text-sm text-white/70 max-w-xl mt-1 leading-relaxed">
+          <p className="text-xs text-white/70 max-w-xl mt-1 leading-relaxed">
             Consolidated oversight across active initiatives, financial burn rates, schedule variance, and critical risk escalations.
           </p>
         </div>
@@ -87,86 +87,64 @@ export const CEOPortfolioView: React.FC<CEOPortfolioViewProps> = ({ onSelectProj
       {loading ? (
         <div className="py-20 text-center text-xs text-[#70685F]">Loading CEO portfolio intelligence...</div>
       ) : error ? (
-        <div className="p-4 sm:p-6 rounded-2xl bg-[#FDF2F2] border border-[#F8D7D7] text-xs text-[#991B1B] text-center">
+        <div className="p-6 rounded-xl bg-[#FDF2F2] border border-[#F8D7D7] text-xs text-[#991B1B] text-center">
           {error}
         </div>
       ) : kpis ? (
         <>
           {/* High-Level KPI Summary Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs flex flex-col justify-between">
-              <div className="text-[10px] sm:text-[11px] font-bold text-[#70685F] uppercase tracking-wider truncate">
-                Active Initiatives
-              </div>
-              <div className="text-xl sm:text-2xl font-serif font-bold text-[#231E1B] mt-1">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
+              <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Active Initiatives</div>
+              <div className="text-2xl font-serif font-bold text-[#231E1B] mt-1">
                 {kpis.totalProjects}
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-[#70685F] mt-1 truncate">
+              <div className="flex items-center gap-2 text-[11px] text-[#70685F] mt-1">
                 <span className="text-[#2D5A34] font-semibold">{kpis.onTrackCount} on track</span>
                 <span>&bull;</span>
                 <span className="text-[#991B1B] font-semibold">{kpis.offTrackCount} off track</span>
               </div>
             </div>
 
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs flex flex-col justify-between">
-              <div className="text-[10px] sm:text-[11px] font-bold text-[#70685F] uppercase tracking-wider truncate">
-                <span className="lg:hidden">Portfolio Capital</span>
-                <span className="hidden lg:inline">Committed Portfolio Capital</span>
-              </div>
-              <div className="text-xl sm:text-2xl font-serif font-bold text-[#231E1B] mt-1">
+            <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
+              <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Committed Portfolio Capital</div>
+              <div className="text-2xl font-serif font-bold text-[#231E1B] mt-1">
                 £{kpis.totalPortfolioFunds.toLocaleString()}
               </div>
-              <div className="text-[10px] sm:text-[11px] text-[#70685F] mt-1 truncate">
-                <span className="lg:hidden">(£{kpis.totalContingency.toLocaleString()} reserved)</span>
-                <span className="hidden lg:inline">(£{kpis.totalContingency.toLocaleString()} reserved contingency)</span>
+              <div className="text-[11px] text-[#70685F] mt-1">
+                (£{kpis.totalContingency.toLocaleString()} reserved contingency)
               </div>
             </div>
 
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs flex flex-col justify-between">
-              <div className="text-[10px] sm:text-[11px] font-bold text-[#70685F] uppercase tracking-wider truncate">
-                Portfolio Spend
-              </div>
-              <div className="text-xl sm:text-2xl font-serif font-bold text-[#C85A32] mt-1">
+            <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
+              <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Portfolio Spend</div>
+              <div className="text-2xl font-serif font-bold text-[#C85A32] mt-1">
                 £{kpis.totalSpend.toLocaleString()}
               </div>
-              <div className="text-[10px] sm:text-[11px] text-[#70685F] mt-1 truncate">
-                <span className="lg:hidden">{kpis.overallSpendPercent}% &bull; £{kpis.portfolioRemaining.toLocaleString()} rem</span>
-                <span className="hidden lg:inline">{kpis.overallSpendPercent}% utilized &bull; £{kpis.portfolioRemaining.toLocaleString()} remaining</span>
+              <div className="text-[11px] text-[#70685F] mt-1">
+                {kpis.overallSpendPercent}% utilized &bull; £{kpis.portfolioRemaining.toLocaleString()} remaining
               </div>
             </div>
 
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs flex flex-col justify-between">
-              <div className="text-[10px] sm:text-[11px] font-bold text-[#70685F] uppercase tracking-wider truncate">
-                Risk Escalations
-              </div>
-              <div className="text-xl sm:text-2xl font-serif font-bold text-[#991B1B] mt-1">
+            <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
+              <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Risk Escalations</div>
+              <div className="text-2xl font-serif font-bold text-[#991B1B] mt-1">
                 {kpis.totalCriticalIssues} Critical
               </div>
-              <div className="text-[10px] sm:text-[11px] text-[#70685F] mt-1 truncate">
-                <span className="lg:hidden">+{kpis.totalHighRisks} High-risk conditions</span>
-                <span className="hidden lg:inline">+{kpis.totalHighRisks} High-risk conditions open</span>
+              <div className="text-[11px] text-[#70685F] mt-1">
+                +{kpis.totalHighRisks} High-risk conditions open
               </div>
             </div>
           </div>
 
-          {/* Filter — compact select on mobile, pills on desktop */}
-          <div className="flex items-center gap-2 pt-1">
-            <Filter className="w-3.5 h-3.5 text-[#C85A32] sm:text-[#70685F] shrink-0" />
-            <span className="hidden sm:inline text-xs font-semibold text-[#231E1B]">Filter:</span>
-            {/* Mobile select */}
-            <select
-              className="sm:hidden flex-1 px-3 py-2 rounded-full border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
-              value={activeFilter}
-              onChange={(e) => setActiveFilter(e.target.value)}
-            >
-              <option value="ALL">All ({projects.length})</option>
-              <option value="OFF_TRACK">Off Track ({kpis.offTrackCount})</option>
-              <option value="AT_RISK">At Risk ({kpis.atRiskCount})</option>
-              <option value="FINANCIAL_CONCERN">Financial Concern (≥90%)</option>
-              <option value="CRITICAL">Critical Issues ({kpis.totalCriticalIssues})</option>
-            </select>
-            {/* Desktop chips */}
-            <div className="hidden sm:flex items-center gap-1.5 text-xs overflow-x-auto no-scrollbar pb-1">
+          {/* Filter Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-1.5 text-xs">
+              <Filter className="w-3.5 h-3.5 text-[#70685F]" />
+              <span className="font-semibold text-[#231E1B]">Filter:</span>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 text-xs">
               {[
                 { id: 'ALL', label: `All (${projects.length})` },
                 { id: 'OFF_TRACK', label: `Off Track (${kpis.offTrackCount})` },
@@ -177,9 +155,9 @@ export const CEOPortfolioView: React.FC<CEOPortfolioViewProps> = ({ onSelectProj
                 <button
                   key={btn.id}
                   onClick={() => setActiveFilter(btn.id)}
-                  className={`px-3 py-1.5 rounded-xl font-semibold border transition-all cursor-pointer whitespace-nowrap min-h-[36px] sm:min-h-[40px] shrink-0 active:scale-95 flex items-center justify-center ${
+                  className={`px-3 py-1.5 rounded-xl font-semibold border transition-all cursor-pointer ${
                     activeFilter === btn.id
-                      ? 'bg-[#231E1B] text-white border-[#231E1B] shadow-xs'
+                      ? 'bg-[#231E1B] text-white border-[#231E1B]'
                       : 'bg-white text-[#70685F] border-[#DDD6C8] hover:bg-[#F5F1E8]'
                   }`}
                 >

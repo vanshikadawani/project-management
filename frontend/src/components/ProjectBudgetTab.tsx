@@ -149,7 +149,7 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
       {/* Header Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E8E2D5]">
         <div>
-          <h3 className="font-serif font-bold text-sm sm:text-base text-[#231E1B]">Financial Control &amp; Budget</h3>
+          <h3 className="font-serif font-bold text-base text-[#231E1B]">Financial Control &amp; Budget</h3>
           <p className="text-xs text-[#70685F]">
             Baseline allocation, linear planned spend marker, and phase level expenditure
           </p>
@@ -159,7 +159,7 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
           <button
             id="btn-record-spend"
             onClick={() => setShowSpendModal(true)}
-            className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] active:scale-95 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-transform cursor-pointer min-h-[44px]"
+            className="px-4 py-2 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Record Spend
@@ -168,61 +168,61 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
       </div>
 
       {/* Core KPI Metrics Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
-          <div className="text-[10px] sm:text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Planned Budget</div>
-          <div className="text-lg sm:text-xl font-serif font-bold text-[#231E1B] mt-1">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
+          <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Planned Budget</div>
+          <div className="text-xl font-serif font-bold text-[#231E1B] mt-1">
             £{budgetData.plannedBudget.toLocaleString()}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-[#70685F] mt-0.5 truncate">
-            + £{budgetData.contingency.toLocaleString()} cont.
+          <div className="text-[11px] text-[#70685F] mt-1">
+            + £{budgetData.contingency.toLocaleString()} contingency
           </div>
         </div>
 
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
-          <div className="text-[10px] sm:text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Spend to Date</div>
-          <div className="text-lg sm:text-xl font-serif font-bold text-[#C85A32] mt-1">
+        <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
+          <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Spend to Date</div>
+          <div className="text-xl font-serif font-bold text-[#C85A32] mt-1">
             £{budgetData.spendToDate.toLocaleString()}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-[#70685F] mt-0.5">
+          <div className="text-[11px] text-[#70685F] mt-1">
             {budgetData.spendPercent}% of planned
           </div>
         </div>
 
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
-          <div className="text-[10px] sm:text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Remaining Funds</div>
-          <div className="text-lg sm:text-xl font-serif font-bold text-[#526E55] mt-1">
+        <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
+          <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Remaining Funds</div>
+          <div className="text-xl font-serif font-bold text-[#526E55] mt-1">
             £{budgetData.remaining.toLocaleString()}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-[#70685F] mt-0.5 truncate">
-            Total: £{budgetData.totalBudget.toLocaleString()}
+          <div className="text-[11px] text-[#70685F] mt-1">
+            Total capacity: £{budgetData.totalBudget.toLocaleString()}
           </div>
         </div>
 
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
-          <div className="text-[10px] sm:text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Planned vs Actual</div>
+        <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs">
+          <div className="text-[11px] font-bold text-[#70685F] uppercase tracking-wider">Planned vs Actual</div>
           <div
-            className={`text-lg sm:text-xl font-serif font-bold mt-1 ${
+            className={`text-xl font-serif font-bold mt-1 ${
               budgetData.variance <= 0 ? 'text-[#526E55]' : 'text-[#991B1B]'
             }`}
           >
             {budgetData.variance >= 0 ? `+£${budgetData.variance.toLocaleString()}` : `-£${Math.abs(budgetData.variance).toLocaleString()}`}
           </div>
-          <div className="text-[10px] sm:text-[11px] text-[#70685F] mt-0.5 truncate">
-            {budgetData.variance <= 0 ? 'Under pace' : 'Over pace'}
+          <div className="text-[11px] text-[#70685F] mt-1">
+            {budgetData.variance <= 0 ? 'Under expected spend pace' : 'Over expected spend pace'}
           </div>
         </div>
       </div>
 
       {/* Plan Marker Progression Bar */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+      <div className="p-5 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs space-y-3">
+        <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-serif font-bold text-xs sm:text-sm text-[#231E1B]">Schedule vs Spend Progress</span>
-            <span className="text-[10px] sm:text-[11px] text-[#70685F]">(Plan Marker: {budgetData.planPercent}%)</span>
+            <span className="font-serif font-bold text-[#231E1B]">Schedule vs Spend Progress</span>
+            <span className="text-[11px] text-[#70685F]">(Plan Marker: {budgetData.planPercent}%)</span>
           </div>
-          <div className="text-[11px] sm:text-xs text-[#70685F]">
-            Expected spend: <strong className="text-[#231E1B]">£{budgetData.plannedSpendToDate.toLocaleString()}</strong>
+          <div className="text-[#70685F]">
+            Expected spend to date: <strong className="text-[#231E1B]">£{budgetData.plannedSpendToDate.toLocaleString()}</strong>
           </div>
         </div>
 
@@ -244,7 +244,7 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
           />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] text-[#70685F] pt-1">
+        <div className="flex items-center justify-between text-[11px] text-[#70685F] pt-1">
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-[#C85A32]" />
             <span>Actual Spend ({budgetData.spendPercent}%)</span>
@@ -256,42 +256,42 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
         </div>
       </div>
 
-      {/* Phase Spend Breakdown */}
+      {/* Phase Spend Breakdown Table */}
       <div className="bg-white rounded-2xl border border-[#E8E2D5] shadow-2xs overflow-hidden">
-        <div className="px-4 sm:px-5 py-3 sm:py-3.5 bg-[#FBF9F4] border-b border-[#E8E2D5]">
-          <h4 className="font-serif font-bold text-xs sm:text-sm text-[#231E1B]">Phase Budget Allocations</h4>
-          <p className="text-[10px] sm:text-[11px] text-[#70685F]">Expenditure tracked by project execution phase</p>
+        <div className="px-5 py-3.5 bg-[#FBF9F4] border-b border-[#E8E2D5]">
+          <h4 className="font-serif font-bold text-sm text-[#231E1B]">Phase Budget Allocations</h4>
+          <p className="text-[11px] text-[#70685F]">Expenditure tracked by project execution phase</p>
         </div>
 
-        <div className="divide-y divide-[#E8E2D5]">
+        <div className="divide-y divide-[#E8E2D5] overflow-x-auto">
           {budgetData.phases.map((ph) => (
-            <div key={ph.id} className="p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div key={ph.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="space-y-1 sm:w-1/3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm font-bold text-[#231E1B]">{ph.name}</span>
+                  <span className="text-xs font-bold text-[#231E1B]">{ph.name}</span>
                   {ph.isWarning90Percent && (
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF3C7] text-[#92400E]">
                       ≥ 90%
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-[#70685F]">
+                <div className="text-[11px] text-[#70685F]">
                   {new Date(ph.plannedStart).toLocaleDateString()} – {new Date(ph.plannedEnd).toLocaleDateString()}
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 sm:gap-4 sm:w-1/2 text-xs bg-[#FAF7F2] sm:bg-transparent p-2.5 sm:p-0 rounded-xl">
+              <div className="grid grid-cols-3 gap-4 sm:w-1/2 text-xs">
                 <div>
-                  <div className="text-[9px] sm:text-[10px] text-[#70685F] uppercase font-bold">Planned</div>
-                  <div className="font-semibold text-xs sm:text-sm text-[#231E1B]">£{ph.plannedBudget.toLocaleString()}</div>
+                  <div className="text-[10px] text-[#70685F] uppercase font-bold">Planned</div>
+                  <div className="font-semibold text-[#231E1B]">£{ph.plannedBudget.toLocaleString()}</div>
                 </div>
                 <div>
-                  <div className="text-[9px] sm:text-[10px] text-[#70685F] uppercase font-bold">Spent</div>
-                  <div className="font-semibold text-xs sm:text-sm text-[#C85A32]">£{ph.spendToDate.toLocaleString()}</div>
+                  <div className="text-[10px] text-[#70685F] uppercase font-bold">Spent</div>
+                  <div className="font-semibold text-[#C85A32]">£{ph.spendToDate.toLocaleString()}</div>
                 </div>
                 <div>
-                  <div className="text-[9px] sm:text-[10px] text-[#70685F] uppercase font-bold">Remaining</div>
-                  <div className="font-semibold text-xs sm:text-sm text-[#526E55]">£{ph.remaining.toLocaleString()}</div>
+                  <div className="text-[10px] text-[#70685F] uppercase font-bold">Remaining</div>
+                  <div className="font-semibold text-[#526E55]">£{ph.remaining.toLocaleString()}</div>
                 </div>
               </div>
 
@@ -305,20 +305,16 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
         </div>
       </div>
 
-      {/* Record Spend Modal / Bottom Sheet */}
+      {/* Record Spend Modal */}
       {showSpendModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
-            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-[#FBF9F4] rounded-2xl shadow-2xl border border-[#E8E2D5] p-6 space-y-4">
+            <h3 className="font-serif font-bold text-base text-[#231E1B]">Record Actual Spend</h3>
+            <p className="text-xs text-[#70685F]">
+              Log project expenditures against budget and phase allocations.
+            </p>
 
-            <div>
-              <h3 className="font-serif font-bold text-base sm:text-lg text-[#231E1B]">Record Actual Spend</h3>
-              <p className="text-xs text-[#70685F]">
-                Log project expenditures against budget and phase allocations.
-              </p>
-            </div>
-
-            <form onSubmit={handleRecordSpend} className="space-y-3.5">
+            <form onSubmit={handleRecordSpend} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Spend Amount (£) *
@@ -330,7 +326,7 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
                   value={spendAmount}
                   onChange={(e) => setSpendAmount(e.target.value)}
                   placeholder="e.g. 1500"
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:outline-hidden focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:outline-hidden focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
@@ -341,7 +337,7 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
                 <select
                   value={spendPhaseId}
                   onChange={(e) => setSpendPhaseId(e.target.value)}
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:outline-hidden focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:outline-hidden focus:ring-1 focus:ring-[#C85A32]"
                 >
                   <option value="">-- Project Level / General --</option>
                   {budgetData.phases.map((ph) => (
@@ -361,22 +357,22 @@ export const ProjectBudgetTab: React.FC<ProjectBudgetTabProps> = ({ projectId, p
                   value={spendDescription}
                   onChange={(e) => setSpendDescription(e.target.value)}
                   placeholder="e.g. Contractor milestone disbursement"
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:outline-hidden focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:outline-hidden focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowSpendModal(false)}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 transition-all cursor-pointer min-h-[44px]"
+                  className="px-4 py-2 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingSpend}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#A63C1E] active:scale-95 transition-all shadow-xs cursor-pointer min-h-[44px]"
+                  className="px-4 py-2 rounded-xl bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#A63C1E] transition-colors shadow-xs cursor-pointer"
                 >
                   {submittingSpend ? 'Recording...' : 'Record Spend'}
                 </button>

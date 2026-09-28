@@ -34,18 +34,15 @@ export const ChatView: React.FC = () => {
   return (
     <div className="space-y-6 pb-24">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#E8E2D5]">
-        <div className="min-w-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E8E2D5]">
+        <div>
           <div className="flex items-center gap-2">
-            <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#231E1B]">
-              <span className="sm:hidden">Chat</span>
-              <span className="hidden sm:inline">Team Collaboration &amp; Chat</span>
-            </h2>
+            <h2 className="font-serif text-2xl font-bold text-[#231E1B]">Team Collaboration &amp; Chat</h2>
             <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#EAE3D5] text-[#60564C]">
               Real-time
             </span>
           </div>
-          <p className="text-xs lg:text-sm text-[#70685F] mt-0.5">
+          <p className="text-xs text-[#70685F] mt-0.5">
             Dedicated project channels, typing indicators, and @mentions
           </p>
         </div>
@@ -61,39 +58,39 @@ export const ChatView: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Channels Selector */}
+          {/* Channels Selector Sidebar */}
           <div className="lg:col-span-4 space-y-2">
-            <div className="text-[11px] font-bold text-[#70685F] uppercase px-1 mb-1 flex items-center gap-1.5">
+            <div className="text-[11px] font-bold text-[#70685F] uppercase px-2 mb-2 flex items-center gap-1.5">
               <FolderKanban className="w-3.5 h-3.5" />
               Project Channels
             </div>
 
-            <div className="flex flex-row overflow-x-auto no-scrollbar gap-2 pb-1 lg:flex-col lg:overflow-visible lg:gap-1.5">
+            <div className="space-y-1.5">
               {projects.map((proj) => {
                 const isSelected = selectedProject?.id === proj.id;
                 return (
                   <button
                     key={proj.id}
                     onClick={() => setSelectedProject(proj)}
-                    className={`shrink-0 w-auto min-w-[150px] max-w-[220px] lg:w-full lg:max-w-none text-left p-2.5 sm:p-3 rounded-2xl border transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                    className={`w-full text-left p-3 rounded-2xl border transition-all flex items-center justify-between gap-2 cursor-pointer ${
                       isSelected
                         ? 'bg-white border-[#C85A32] shadow-xs ring-1 ring-[#C85A32]/20'
                         : 'bg-[#FBF9F4] border-[#E8E2D5] hover:bg-white hover:border-[#DDD6C8]'
                     }`}
                   >
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <Hash className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#C85A32]' : 'text-[#70685F]'}`} />
+                        <Hash className={`w-3.5 h-3.5 ${isSelected ? 'text-[#C85A32]' : 'text-[#70685F]'}`} />
                         <span className={`text-xs font-bold truncate ${isSelected ? 'text-[#C85A32]' : 'text-[#231E1B]'}`}>
                           {proj.name}
                         </span>
                       </div>
-                      <div className="text-[10px] sm:text-[11px] text-[#70685F] truncate mt-0.5">
+                      <div className="text-[11px] text-[#70685F] truncate mt-0.5">
                         {proj.phases?.length || 0} phases &bull; {proj.owner?.name || 'Owner'}
                       </div>
                     </div>
 
-                    <ChevronRight className={`w-4 h-4 shrink-0 hidden lg:block ${isSelected ? 'text-[#C85A32]' : 'text-[#C0B9AF]'}`} />
+                    <ChevronRight className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#C85A32]' : 'text-[#C0B9AF]'}`} />
                   </button>
                 );
               })}

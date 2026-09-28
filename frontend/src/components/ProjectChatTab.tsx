@@ -192,40 +192,40 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
   );
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E8E2D5] shadow-xs overflow-hidden flex flex-col" style={{ height: 'min(calc(100dvh - 240px), 640px)', minHeight: '380px' }}>
+    <div className="bg-white rounded-2xl border border-[#E8E2D5] shadow-xs overflow-hidden flex flex-col h-[640px]">
       {/* Thread Header */}
-      <div className="px-3.5 sm:px-5 py-3 sm:py-3.5 bg-[#FBF9F4] border-b border-[#E8E2D5] flex items-center justify-between gap-2">
-        <div className="min-w-0">
-          <h3 className="font-serif font-bold text-xs sm:text-sm text-[#231E1B] flex items-center gap-1.5 truncate">
+      <div className="px-5 py-3.5 bg-[#FBF9F4] border-b border-[#E8E2D5] flex items-center justify-between">
+        <div>
+          <h3 className="font-serif font-bold text-sm text-[#231E1B] flex items-center gap-2">
             <span>Project Discussion</span>
-            <span className="text-[11px] font-normal text-[#70685F] truncate">&bull; #{projectName}</span>
+            <span className="text-[11px] font-normal text-[#70685F]">&bull; #{projectName}</span>
           </h3>
-          <p className="text-[10px] sm:text-[11px] text-[#70685F] truncate">
-            Real-time collaboration &amp; mentions
+          <p className="text-[11px] text-[#70685F]">
+            Real-time project collaboration, decisions, and member mentions
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-2">
           <div className="flex -space-x-1.5 overflow-hidden">
-            {members.slice(0, 4).map((m) => (
+            {members.slice(0, 5).map((m) => (
               <img
                 key={m.id}
                 src={m.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${m.name}`}
                 alt={m.name}
                 title={m.name}
-                className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-white object-cover"
+                className="w-6 h-6 rounded-full border-2 border-white object-cover"
                 referrerPolicy="no-referrer"
               />
             ))}
           </div>
-          <span className="text-[10px] sm:text-[11px] font-semibold text-[#70685F] ml-0.5">
+          <span className="text-[11px] font-semibold text-[#70685F] ml-1">
             {members.length} {members.length === 1 ? 'member' : 'members'}
           </span>
         </div>
       </div>
 
       {/* Message Stream */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 bg-[#FBF9F4]/40">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#FBF9F4]/40">
         {loading ? (
           <div className="py-20 text-center text-xs text-[#70685F]">Loading project chat...</div>
         ) : error ? (
@@ -253,7 +253,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
             return (
               <div
                 key={msg.id}
-                className={`flex items-start gap-2 sm:gap-3 ${isMe ? 'flex-row-reverse' : ''}`}
+                className={`flex items-start gap-3 ${isMe ? 'flex-row-reverse' : ''}`}
               >
                 <img
                   src={
@@ -261,23 +261,23 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
                     `https://api.dicebear.com/7.x/initials/svg?seed=${msg.author?.name || 'User'}`
                   }
                   alt={msg.author?.name}
-                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-[#E8E2D5] object-cover shrink-0 mt-0.5 shadow-2xs"
+                  className="w-8 h-8 rounded-full border border-[#E8E2D5] object-cover shrink-0 mt-0.5 shadow-2xs"
                   referrerPolicy="no-referrer"
                 />
 
-                <div className={`max-w-[85%] sm:max-w-[70%] ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
-                  <div className={`flex items-center gap-1.5 text-[10px] sm:text-[11px] mb-1 ${isMe ? 'flex-row-reverse' : ''}`}>
+                <div className={`max-w-[78%] sm:max-w-[70%] ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
+                  <div className={`flex items-center gap-1.5 text-[11px] mb-1 ${isMe ? 'flex-row-reverse' : ''}`}>
                     <span className="font-bold text-[#231E1B]">{msg.author?.name || 'Unknown'}</span>
-                    <span className="text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full bg-[#EFECE4] text-[#554E45]">
+                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[#EFECE4] text-[#554E45]">
                       {msg.author?.role === 'ProjectOwner' ? 'Owner' : msg.author?.role}
                     </span>
-                    <span className="text-[#9B9287] text-[9px] sm:text-[10px]">
+                    <span className="text-[#9B9287] text-[10px]">
                       {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
 
                   <div
-                    className={`p-3 sm:p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed break-words shadow-2xs ${
+                    className={`p-3.5 rounded-2xl text-xs leading-relaxed break-words shadow-2xs ${
                       isMe
                         ? 'bg-[#C85A32] text-white rounded-tr-xs'
                         : isMentioned
@@ -297,7 +297,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
 
       {/* Typing Indicator */}
       {typingUsers.length > 0 && (
-        <div className="px-4 py-1 text-[10px] sm:text-[11px] text-[#70685F] italic bg-[#F5F1E8] border-t border-[#E8E2D5] flex items-center gap-1.5">
+        <div className="px-5 py-1 text-[11px] text-[#70685F] italic bg-[#F5F1E8] border-t border-[#E8E2D5] flex items-center gap-1.5">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#C85A32] animate-ping" />
           {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
         </div>
@@ -313,7 +313,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
             <button
               key={m.id}
               onClick={() => handleSelectMention(m)}
-              className="w-full text-left flex items-center gap-2 px-2.5 py-2.5 rounded-lg hover:bg-[#F5F1E8] text-xs text-[#231E1B] transition-colors cursor-pointer min-h-[44px]"
+              className="w-full text-left flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-[#F5F1E8] text-xs text-[#231E1B] transition-colors cursor-pointer"
             >
               <img
                 src={m.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${m.name}`}
@@ -329,7 +329,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
       )}
 
       {/* Input Composer */}
-      <form onSubmit={handleSendMessage} className="p-2.5 sm:p-3 bg-white border-t border-[#E8E2D5] flex gap-2 items-end">
+      <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-[#E8E2D5] flex gap-2 items-end">
         <textarea
           ref={textareaRef}
           id="chat-message-input"
@@ -341,16 +341,16 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
               handleSendMessage();
             }
           }}
-          placeholder="Type a message or @Name to mention..."
+          placeholder="Type a message or use @Name to mention... (Enter to send)"
           rows={2}
-          className="flex-1 bg-[#FBF9F4] border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs sm:text-sm text-[#231E1B] focus:outline-hidden focus:ring-1 focus:ring-[#C85A32] resize-none min-h-[44px]"
+          className="flex-1 bg-[#FBF9F4] border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:outline-hidden focus:ring-1 focus:ring-[#C85A32] resize-none"
         />
 
         <button
           type="submit"
           id="chat-send-button"
           disabled={!inputText.trim() || sending}
-          className="p-3 rounded-xl bg-[#C85A32] text-white hover:bg-[#A63C1E] active:scale-95 disabled:opacity-40 transition-all shadow-xs shrink-0 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="p-2.5 rounded-xl bg-[#C85A32] text-white hover:bg-[#A63C1E] disabled:opacity-40 transition-colors shadow-xs shrink-0 cursor-pointer"
           title="Send message"
         >
           <Send className="w-4 h-4" />

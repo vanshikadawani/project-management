@@ -52,7 +52,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   return (
     <nav
       id="bottom-nav-bar"
-      className="fixed bottom-0 left-0 right-0 z-40 bg-[#FBF9F4]/95 backdrop-blur-md border-t border-[#E8E2D5] px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] sm:py-2 transition-all shadow-xs"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#FBF9F4]/95 backdrop-blur-md border-t border-[#E8E2D5] px-2 py-1.5 sm:py-2"
     >
       <div className="max-w-lg mx-auto flex items-center justify-around">
         {tabs.map((tab) => {
@@ -64,38 +64,38 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               key={tab.id}
               id={`nav-tab-${tab.id}`}
               onClick={() => onTabChange(tab.id)}
-              className={`relative flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 px-1 rounded-2xl transition-all cursor-pointer select-none active:scale-95 ${
-                isActive ? 'text-[#C85A32] font-semibold' : 'text-[#70685F] hover:text-[#231E1B]'
+              className={`relative flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 px-1 rounded-xl transition-all cursor-pointer ${
+                isActive ? 'text-[#C85A32]' : 'text-[#70685F] hover:text-[#231E1B]'
               }`}
             >
-              <div className={`relative p-1 rounded-xl transition-all ${isActive ? 'bg-[#FBE8E2]/60' : ''}`}>
+              <div className="relative">
                 <Icon
                   className={`w-5 h-5 transition-transform ${
-                    isActive ? 'scale-105 stroke-[2.3]' : 'stroke-[1.8]'
+                    isActive ? 'scale-110 stroke-[2.3]' : 'stroke-[1.8]'
                   }`}
                 />
                 {tab.badge !== null && tab.badge !== undefined && (
                   <span
-                    className={`absolute -top-1 -right-2 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center shadow-xs ${tab.badgeColor}`}
+                    className={`absolute -top-1.5 -right-2.5 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold flex items-center justify-center ${tab.badgeColor}`}
                   >
                     {tab.badge > 99 ? '99+' : tab.badge}
                   </span>
                 )}
                 {tab.subBadge && (
-                  <span className="absolute -top-1 -right-2.5 px-1 py-0.2 rounded-full text-[8px] font-bold bg-[#E8E2D5] text-[#70675D]">
+                  <span className="absolute -top-1.5 -right-3 px-1 py-0.2 rounded-full text-[8px] font-bold bg-[#E8E2D5] text-[#70675D]">
                     {tab.subBadge}
                   </span>
                 )}
               </div>
               <span
-                className={`text-[10px] sm:text-[11px] mt-0.5 tracking-tight transition-all ${
-                  isActive ? 'font-bold text-[#C85A32]' : 'font-medium text-[#70685F]'
+                className={`text-[11px] mt-0.5 transition-all ${
+                  isActive ? 'font-bold text-[#C85A32]' : 'font-medium'
                 }`}
               >
                 {tab.label}
               </span>
               {isActive && (
-                <span className="absolute bottom-0 w-6 h-0.5 rounded-full bg-[#C85A32]" />
+                <span className="absolute bottom-0 w-8 h-0.5 rounded-full bg-[#C85A32]" />
               )}
             </button>
           );

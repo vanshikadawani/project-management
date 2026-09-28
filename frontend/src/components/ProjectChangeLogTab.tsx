@@ -51,18 +51,18 @@ export const ProjectChangeLogTab: React.FC<ProjectChangeLogTabProps> = ({ projec
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E8E2D5]">
         <div>
-          <h3 className="font-serif font-bold text-sm sm:text-base text-[#231E1B]">Governance Change Log</h3>
+          <h3 className="font-serif font-bold text-base text-[#231E1B]">Governance Change Log</h3>
           <p className="text-xs text-[#70685F]">
-            Immutable chronological audit log of status overrides, charter adjustments, and baseline decisions
+            Immutable chronological audit log of status overrides, charter adjustments, baseline captures, and approved decisions
           </p>
         </div>
 
-        {/* Filter Pills with Horizontal Touch Scroll */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar  pb-1">
+        {/* Filter Pills */}
+        <div className="flex flex-wrap gap-1.5 text-xs">
           {[
             { id: 'ALL', label: 'All Events' },
             { id: 'STATUS', label: 'Status' },
@@ -73,9 +73,9 @@ export const ProjectChangeLogTab: React.FC<ProjectChangeLogTabProps> = ({ projec
             <button
               key={pill.id}
               onClick={() => setCategoryFilter(pill.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all active:scale-95 shrink-0 cursor-pointer min-h-[44px] flex items-center justify-center ${
+              className={`px-3 py-1 rounded-xl font-semibold border transition-all cursor-pointer ${
                 categoryFilter === pill.id
-                  ? 'bg-[#231E1B] text-white border-[#231E1B] shadow-2xs'
+                  ? 'bg-[#231E1B] text-white border-[#231E1B]'
                   : 'bg-white text-[#70685F] border-[#DDD6C8] hover:bg-[#F5F1E8]'
               }`}
             >
@@ -92,7 +92,7 @@ export const ProjectChangeLogTab: React.FC<ProjectChangeLogTabProps> = ({ projec
           {error}
         </div>
       ) : filteredEntries.length === 0 ? (
-        <div className="p-8 sm:p-12 rounded-2xl bg-white border border-[#E8E2D5] text-center space-y-2">
+        <div className="p-12 rounded-2xl bg-white border border-[#E8E2D5] text-center space-y-2">
           <History className="w-10 h-10 text-[#DDD6C8] mx-auto" />
           <h4 className="font-serif font-bold text-sm text-[#231E1B]">No audit events found</h4>
           <p className="text-xs text-[#70685F]">
@@ -100,7 +100,7 @@ export const ProjectChangeLogTab: React.FC<ProjectChangeLogTabProps> = ({ projec
           </p>
         </div>
       ) : (
-        <div className="relative pl-5 sm:pl-6 border-l-2 border-[#E8E2D5] space-y-4 sm:space-y-6 ml-2 sm:ml-3 my-4">
+        <div className="relative pl-6 border-l-2 border-[#E8E2D5] space-y-6 ml-3 my-4">
           {filteredEntries.map((item) => {
             const timeStr = item.at || (item as any).createdAt;
             const actor = item.actorId || item.changedBy || 'System';
@@ -110,22 +110,22 @@ export const ProjectChangeLogTab: React.FC<ProjectChangeLogTabProps> = ({ projec
             return (
               <div key={item.id} className="relative group">
                 {/* Timeline node */}
-                <span className="absolute -left-[27px] sm:-left-[31px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white bg-[#C85A32] shadow-xs" />
+                <span className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white bg-[#C85A32] shadow-xs" />
 
-                <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs space-y-2">
+                <div className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs space-y-2">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-2">
                       <span
-                        className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full border ${getSourceBadgeStyle(
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getSourceBadgeStyle(
                           item.sourceType || item.action
                         )}`}
                       >
                         {item.sourceType || 'CHANGE'}
                       </span>
-                      <h4 className="font-serif font-bold text-xs sm:text-sm text-[#231E1B]">{actionText}</h4>
+                      <h4 className="font-serif font-bold text-xs text-[#231E1B]">{actionText}</h4>
                     </div>
 
-                    <span className="text-[10px] sm:text-[11px] text-[#9B9287]">
+                    <span className="text-[11px] text-[#9B9287]">
                       {timeStr ? new Date(timeStr).toLocaleString() : ''}
                     </span>
                   </div>
@@ -144,14 +144,14 @@ export const ProjectChangeLogTab: React.FC<ProjectChangeLogTabProps> = ({ projec
                     <p className="text-xs text-[#554E44] leading-relaxed break-words">{detailsText}</p>
                   )}
 
-                  <div className="pt-2 border-t border-[#F5F1E8] flex items-center justify-between text-[10px] sm:text-[11px] text-[#70685F]">
+                  <div className="pt-2 border-t border-[#F5F1E8] flex items-center justify-between text-[11px] text-[#70685F]">
                     <span className="flex items-center gap-1.5">
                       <UserCheck className="w-3.5 h-3.5 text-[#526E55]" />
                       Recorded by: <strong className="text-[#231E1B]">{actor}</strong>
                     </span>
 
                     {item.sourceId && (
-                      <span className="text-[10px] text-[#9B9287]">Ref: {item.sourceId.slice(0, 8)}</span>
+                      <span className="text-[10px] text-[#9B9287]">Ref ID: {item.sourceId.slice(0, 8)}</span>
                     )}
                   </div>
                 </div>

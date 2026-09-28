@@ -151,36 +151,35 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
   });
 
   return (
-    <div className="space-y-5 sm:space-y-6 pb-20 sm:pb-24 max-w-full overflow-hidden sm:overflow-visible">
-      {/* Header — title + actions */}
+    <div className="space-y-6 pb-24">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
+        <div>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#231E1B]">
             Projects
           </h1>
-          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5">
+          <p className="text-sm text-[#70675D]">
             Active strategic initiatives and operational schedules.
           </p>
         </div>
 
         {(isCEO || isProjectOwner) && (
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-end sm:self-auto -mt-8 sm:mt-0">
+          <div className="flex items-center gap-2">
             <button
               id="projects-add-btn"
               onClick={() => setShowCreateModal(true)}
-              className="px-3 py-2 sm:px-4 lg:py-2 rounded-xl text-xs lg:text-sm font-semibold text-white bg-[#C85A32] hover:bg-[#993F1C] active:scale-95 shadow-xs flex items-center gap-1.5 transition-all min-h-[36px] sm:min-h-[44px] cursor-pointer"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#C85A32] hover:bg-[#993F1C] shadow-xs flex items-center gap-1.5 transition-colors min-h-[44px] cursor-pointer"
             >
               <Plus className="w-4 h-4" />
-              <span className="sm:hidden">Add</span>
-              <span className="hidden sm:inline">Add Project</span>
+              Add Project
             </button>
 
             {isCEO && (
-              <div className="hidden sm:flex items-center gap-1.5 p-1 bg-[#EAE3D5] rounded-xl lg:rounded-2xl">
+              <div className="flex items-center gap-1.5 p-1 bg-[#EAE3D5] rounded-2xl w-fit">
                 <button
                   id="projects-view-mode-grid"
                   onClick={() => setViewMode('list')}
-                  className={`px-3.5 py-1.5 sm:py-2 rounded-lg lg:rounded-xl text-xs font-semibold cursor-pointer transition-colors min-h-[40px] sm:min-h-[44px] flex items-center justify-center ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors ${
                     viewMode === 'list'
                       ? 'bg-white text-[#231E1B] shadow-xs'
                       : 'text-[#70685F] hover:text-[#231E1B]'
@@ -191,7 +190,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
                 <button
                   id="projects-view-mode-portfolio"
                   onClick={() => setViewMode('ceo_portfolio')}
-                  className={`px-3.5 py-1.5 sm:py-2 rounded-lg lg:rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center justify-center gap-1.5 min-h-[40px] sm:min-h-[44px] ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 ${
                     viewMode === 'ceo_portfolio'
                       ? 'bg-[#C85A32] text-white shadow-xs'
                       : 'text-[#70685F] hover:text-[#231E1B]'
@@ -206,72 +205,48 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
         )}
       </div>
 
-      {/* CEO view toggle on mobile: compact select */}
-      {isCEO && (
-        <select
-          className="sm:hidden w-full px-3 py-2 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
-          value={viewMode}
-          onChange={(e) => setViewMode(e.target.value as any)}
-        >
-          <option value="list">Grid View</option>
-          <option value="ceo_portfolio">CEO Portfolio View</option>
-        </select>
-      )}
-
       {isCEO && viewMode === 'ceo_portfolio' ? (
         <CEOPortfolioView onSelectProject={onSelectProject} />
       ) : (
         <>
-          {/* Controls: Search + Status Filter */}
-          <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
-            {/* Search input */}
-            <div className="relative flex-1 min-w-0">
-              <Search className="w-4 h-4 text-[#8C8275] absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                id="projects-search-input"
-                type="text"
-                placeholder="Search projects, goals, or owners..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-full bg-white border border-[#DDD6C8] text-xs sm:text-sm text-[#231E1B] placeholder-[#8F867A] focus:outline-none focus:border-[#C85A32] shadow-2xs min-h-[36px] sm:min-h-[44px]"
-              />
-            </div>
+          {/* Controls: Search & Status Filter */}
+          <div className="flex flex-col sm:flex-row gap-3">
+        {/* Search input */}
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-[#8C8275] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            id="projects-search-input"
+            type="text"
+            placeholder="Search projects, goals, or owners..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 rounded-full bg-white border border-[#DDD6C8] text-sm text-[#231E1B] placeholder-[#8F867A] focus:outline-hidden focus:border-[#C85A32] shadow-2xs min-h-[44px]"
+          />
+        </div>
 
-            {/* Status filter — compact select on mobile */}
-            <select
-              className="sm:hidden shrink-0 px-3 py-2 rounded-full border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          {[
+            { key: 'ALL', label: 'All' },
+            { key: 'ON_TRACK', label: 'On Track' },
+            { key: 'AT_RISK', label: 'At Risk' },
+            { key: 'OFF_TRACK', label: 'Off Track' },
+          ].map((f) => (
+            <button
+              key={f.key}
+              id={`filter-btn-${f.key.toLowerCase()}`}
+              onClick={() => setStatusFilter(f.key as any)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[40px] cursor-pointer ${
+                statusFilter === f.key
+                  ? 'bg-[#C85A32] text-white shadow-xs'
+                  : 'bg-[#F3EFE6] text-[#554F47] hover:bg-[#EAE4D6]'
+              }`}
             >
-              <option value="ALL">All Status</option>
-              <option value="ON_TRACK">On Track</option>
-              <option value="AT_RISK">At Risk</option>
-              <option value="OFF_TRACK">Off Track</option>
-            </select>
-
-            {/* Status filter — pill chips on desktop */}
-            <div className="hidden sm:flex items-center gap-1.5 overflow-x-auto pb-1">
-              {[
-                { key: 'ALL', label: 'All' },
-                { key: 'ON_TRACK', label: 'On Track' },
-                { key: 'AT_RISK', label: 'At Risk' },
-                { key: 'OFF_TRACK', label: 'Off Track' },
-              ].map((f) => (
-                <button
-                  key={f.key}
-                  id={`filter-btn-${f.key.toLowerCase()}`}
-                  onClick={() => setStatusFilter(f.key as any)}
-                  className={`px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all min-h-[40px] sm:min-h-[44px] cursor-pointer shrink-0 active:scale-95 flex items-center justify-center ${
-                    statusFilter === f.key
-                      ? 'bg-[#C85A32] text-white shadow-xs font-semibold'
-                      : 'bg-[#F3EFE6] text-[#554F47] hover:bg-[#EAE4D6]'
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Loading State */}
       {loading && (
@@ -436,22 +411,19 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
       {/* Create Project Modal */}
       {showCreateModal && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-in fade-in duration-200"
           onClick={() => setShowCreateModal(false)}
         >
           <div
-            className="w-full max-w-2xl max-h-[92vh] sm:max-h-[90vh] overflow-y-auto bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-[#EAE3D5] animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 flex flex-col"
+            className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-xl border border-[#EAE3D5] animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Mobile Sheet Drag Indicator */}
-            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto mt-3 sm:hidden" />
-
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-[#EAE3D5]">
-              <h2 className="font-display text-lg sm:text-xl font-bold text-[#231E1B]">Create New Project</h2>
+            <div className="flex items-center justify-between p-5 border-b border-[#EAE3D5]">
+              <h2 className="font-display text-xl font-bold text-[#231E1B]">Create New Project</h2>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="p-2 rounded-xl text-[#70675D] hover:text-[#231E1B] hover:bg-[#F5F1E8] transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-1.5 rounded-lg text-[#70675D] hover:text-[#231E1B] hover:bg-[#F5F1E8] transition-colors"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
@@ -459,9 +431,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleCreateProject} className="p-4 sm:p-6 space-y-4 sm:space-y-5 flex-1 overflow-y-auto">
+            <form onSubmit={handleCreateProject} className="p-5 space-y-5">
               {createError && (
-                <div className="p-3 rounded-xl bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] text-xs sm:text-sm flex items-center gap-2">
+                <div className="p-3 rounded-xl bg-[#FEE2E2] border border-[#FECACA] text-[#991B1B] text-sm flex items-center gap-2">
                   <AlertOctagon className="w-4 h-4 flex-shrink-0" />
                   <span>{createError}</span>
                 </div>
@@ -469,7 +441,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
 
               {/* Project Name */}
               <div>
-                <label htmlFor="project-name" className="block text-xs sm:text-sm font-semibold text-[#231E1B] mb-1.5">
+                <label htmlFor="project-name" className="block text-sm font-medium text-[#231E1B] mb-1.5">
                   Project Name <span className="text-[#C85A32]">*</span>
                 </label>
                 <input
@@ -486,7 +458,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
 
               {/* Goal */}
               <div>
-                <label htmlFor="project-goal" className="block text-xs sm:text-sm font-semibold text-[#231E1B] mb-1.5">
+                <label htmlFor="project-goal" className="block text-sm font-medium text-[#231E1B] mb-1.5">
                   Strategic Goal <span className="text-[#C85A32]">*</span>
                 </label>
                 <textarea
@@ -502,7 +474,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
 
               {/* Sponsor */}
               <div>
-                <label htmlFor="project-sponsor" className="block text-xs sm:text-sm font-semibold text-[#231E1B] mb-1.5">
+                <label htmlFor="project-sponsor" className="block text-sm font-medium text-[#231E1B] mb-1.5">
                   Executive Sponsor <span className="text-[#C85A32]">*</span>
                 </label>
                 <input
@@ -518,9 +490,9 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
               </div>
 
               {/* Dates Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="project-start" className="block text-xs sm:text-sm font-semibold text-[#231E1B] mb-1.5">
+                  <label htmlFor="project-start" className="block text-sm font-medium text-[#231E1B] mb-1.5">
                     Start Date <span className="text-[#C85A32]">*</span>
                   </label>
                   <input
@@ -534,7 +506,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
                   />
                 </div>
                 <div>
-                  <label htmlFor="project-end" className="block text-xs sm:text-sm font-semibold text-[#231E1B] mb-1.5">
+                  <label htmlFor="project-end" className="block text-sm font-medium text-[#231E1B] mb-1.5">
                     End Date <span className="text-[#C85A32]">*</span>
                   </label>
                   <input
@@ -552,8 +524,8 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
               {/* Owner Selection (CEO only) */}
               {isCEO && (
                 <div>
-                  <label htmlFor="project-owner" className="block text-xs sm:text-sm font-semibold text-[#231E1B] mb-1.5">
-                    Project Owner <span className="text-[#70675D] font-normal">(optional)</span>
+                  <label htmlFor="project-owner" className="block text-sm font-medium text-[#231E1B] mb-1.5">
+                    Project Owner <span className="text-[#70675D]">(optional)</span>
                   </label>
                   <select
                     id="project-owner"
@@ -576,20 +548,20 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
                       ))}
                   </select>
                   <p className="mt-1 text-xs text-[#70675D]">
-                    Leave blank to assign yourself as owner.
+                    Leave blank to assign yourself as owner. Only Project Owners and Employees are shown.
                   </p>
                 </div>
               )}
 
               {/* Budget Section */}
               <div className="pt-3 border-t border-[#F2ECE1]">
-                <h3 className="font-semibold text-xs sm:text-sm text-[#231E1B] mb-3 flex items-center gap-1.5">
+                <h3 className="font-medium text-sm text-[#231E1B] mb-3 flex items-center gap-1.5">
                   <Briefcase className="w-4 h-4 text-[#C85A32]" />
                   Budget (Optional)
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="project-budget" className="block text-xs sm:text-sm font-semibold text-[#231E1B] mb-1.5">
+                    <label htmlFor="project-budget" className="block text-sm font-medium text-[#231E1B] mb-1.5">
                       Planned Budget (£)
                     </label>
                     <input
@@ -604,7 +576,7 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
                     />
                   </div>
                   <div>
-                    <label htmlFor="project-contingency" className="block text-xs sm:text-sm font-semibold text-[#231E1B] mb-1.5">
+                    <label htmlFor="project-contingency" className="block text-sm font-medium text-[#231E1B] mb-1.5">
                       Contingency (£)
                     </label>
                     <input
@@ -622,19 +594,19 @@ export const ProjectsView: React.FC<ProjectsViewProps> = ({ onSelectProject }) =
               </div>
 
               {/* Form Actions */}
-              <div className="flex justify-end gap-2.5 pt-4 border-t border-[#F2ECE1] pb-2">
+              <div className="flex justify-end gap-3 pt-4 border-t border-[#F2ECE1]">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
                   disabled={createLoading}
-                  className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-[#554F47] bg-[#F3EFE6] hover:bg-[#EAE4D6] border border-[#DDD6C8] transition-colors min-h-[44px] cursor-pointer flex-1 sm:flex-none"
+                  className="px-4 py-2.5 rounded-xl text-sm font-semibold text-[#554F47] bg-[#F3EFE6] hover:bg-[#EAE4D6] border border-[#DDD6C8] transition-colors min-h-[44px] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createLoading}
-                  className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-white bg-[#C85A32] hover:bg-[#993F1C] active:scale-95 shadow-xs flex items-center justify-center gap-1.5 transition-all min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex-1 sm:flex-none"
+                  className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[#C85A32] hover:bg-[#993F1C] shadow-xs flex items-center gap-1.5 transition-colors min-h-[44px] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {createLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {createLoading ? 'Creating...' : 'Create Project'}

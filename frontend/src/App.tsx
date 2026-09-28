@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { TopNav } from './components/TopNav.tsx';
 import { BottomNav, NavTab } from './components/BottomNav.tsx';
@@ -29,16 +29,6 @@ function MainApp() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(0);
   const [showCalendar, setShowCalendar] = useState(false);
-  // Ref to the main scroll container for programmatic scroll-to-top
-  const mainScrollRef = useRef<HTMLElement>(null);
-
-  const scrollToTop = () => {
-    if (mainScrollRef.current) {
-      mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
 
   // Fetch unread notifications count
   const fetchNotificationCount = async () => {
@@ -97,7 +87,7 @@ function MainApp() {
     setProjectInitialTab(initialTab);
     setIsNotificationsOpen(false);
     setShowCalendar(false);
-    scrollToTop();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleTabChange = (tab: NavTab) => {
@@ -105,14 +95,14 @@ function MainApp() {
     // If switching tabs, clear selected project drilldown
     setSelectedProjectId(null);
     setShowCalendar(false);
-    scrollToTop();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleShowCalendar = () => {
     setShowCalendar(true);
     setSelectedProjectId(null);
     setIsNotificationsOpen(false);
-    scrollToTop();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (isLoading) {
@@ -134,7 +124,7 @@ function MainApp() {
   }
 
   return (
-    <div className="h-[100dvh] overflow-hidden sm:h-auto sm:min-h-screen sm:overflow-visible bg-[#FBF9F4] text-[#231E1B] flex flex-col antialiased selection:bg-[#FBECE6] selection:text-[#C85A32]">
+    <div className="min-h-screen bg-[#FBF9F4] text-[#231E1B] flex flex-col antialiased selection:bg-[#FBECE6] selection:text-[#C85A32]">
       {/* Fixed Top Brand & Auth Bar */}
       <TopNav
         onOpenNotifications={() => setIsNotificationsOpen(true)}
@@ -142,43 +132,34 @@ function MainApp() {
         unreadCount={unreadNotificationsCount}
       />
 
-      {/* Main Screen Container - ONLY this area scrolls vertically on mobile; normal scroll on desktop */}
-      <main
-        ref={mainScrollRef}
-        className="flex-1 w-full overflow-y-auto overflow-x-hidden sm:overflow-visible"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-24 sm:pb-28">
-          {selectedProjectId ? (
-            <ProjectDetailView
-              projectId={selectedProjectId}
-              initialTab={projectInitialTab}
-              onBack={() => setSelectedProjectId(null)}
-            />
-          ) : showCalendar ? (
-            <CalendarView
-              onSelectProject={handleSelectProject}
-              onBack={() => setShowCalendar(false)}
-            />
-          ) : (
-            <>
-              {activeTab === 'alerts' && (
-                <AlertsView 
-                  onSelectProject={handleSelectProject} 
-                  onShowCalendar={handleShowCalendar}
-                />
-              )}
-              {activeTab === 'projects' && (
-                <ProjectsView onSelectProject={handleSelectProject} />
-              )}
-              {activeTab === 'issues' && (
-                <IssuesView onSelectProject={handleSelectProject} />
-              )}
-              {activeTab === 'workload' && <WorkloadView />}
-              {activeTab === 'chat' && <ChatView />}
-            </>
-          )}
-        </div>
+      {/* Main Screen Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+        {selectedProjectId ? (
+          <ProjectDetailView
+            projectId={selectedProjectId}
+            initialTab={projectInitialTab}
+            onBack={() => setSelectedProjectId(null)}
+          />
+        ) : showCalendar ? (
+          <CalendarView onSelectProject={handleSelectProject} />
+        ) : (
+          <>
+            {activeTab === 'alerts' && (
+              <AlertsView 
+                onSelectProject={handleSelectProject} 
+                onShowCalendar={handleShowCalendar}
+              />
+            )}
+            {activeTab === 'projects' && (
+              <ProjectsView onSelectProject={handleSelectProject} />
+            )}
+            {activeTab === 'issues' && (
+              <IssuesView onSelectProject={handleSelectProject} />
+            )}
+            {activeTab === 'workload' && <WorkloadView />}
+            {activeTab === 'chat' && <ChatView />}
+          </>
+        )}
       </main>
 
       {/* Fixed Bottom 5-Tab Navigation */}

@@ -19,10 +19,9 @@ import { ApprovalRequest } from '../types.ts';
 interface ProjectApprovalsTabProps {
   projectId: string;
   projectName: string;
-  projectOwnerId?: string;
 }
 
-export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projectId, projectName, projectOwnerId }) => {
+export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projectId, projectName }) => {
   const { currentUser, isCEO, isEmployee } = useAuth();
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,7 +197,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#E8E2D5]">
         <div>
-          <h3 className="font-serif font-bold text-sm sm:text-base text-[#231E1B]">Governance &amp; Approval Requests</h3>
+          <h3 className="font-serif font-bold text-base text-[#231E1B]">Governance &amp; Approval Requests</h3>
           <p className="text-xs text-[#70685F]">
             Formal change control for Budget adjustments, Milestones, and Project Scope
           </p>
@@ -207,7 +206,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
         <button
           id="btn-submit-approval"
           onClick={() => setShowNewModal(true)}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] active:scale-95 text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-transform cursor-pointer min-h-[44px]"
+          className="px-4 py-2 rounded-xl bg-[#C85A32] hover:bg-[#A63C1E] text-white text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Submit Request
@@ -229,26 +228,21 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
         <div className="space-y-3">
           {approvals.map((req) => {
             const isRequester = currentUser?.id === req.requestedBy;
-            const isProjectOwner = req.project?.ownerId
-              ? currentUser?.id === req.project.ownerId
-              : projectOwnerId
-              ? currentUser?.id === projectOwnerId
-              : currentUser?.role === 'ProjectOwner';
-            const isDesignatedApprover = currentUser?.id === req.approverId;
-            const canDecide = !isEmployee && (isCEO || isProjectOwner || isDesignatedApprover) && req.state === 'Pending';
+            const isApprover = currentUser?.id === req.approverId || isCEO;
+            const canDecide = !isEmployee && isApprover && req.state === 'Pending' && !isRequester;
 
             return (
               <div
                 key={req.id}
-                className="p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs space-y-3"
+                className="p-4 rounded-2xl bg-white border border-[#E8E2D5] shadow-2xs space-y-3"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#EAE3D5] text-[#5A524A]">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#EAE3D5] text-[#5A524A]">
                       {req.type}
                     </span>
                     <span
-                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${getStateBadge(
+                      className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${getStateBadge(
                         req.state
                       )}`}
                     >
@@ -261,13 +255,13 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                     )}
                   </div>
 
-                  <span className="text-[10px] sm:text-[11px] text-[#9B9287]">
+                  <span className="text-[11px] text-[#9B9287]">
                     Submitted {new Date(req.requestedAt).toLocaleDateString()} by {req.requester?.name}
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="font-serif font-bold text-xs sm:text-sm text-[#231E1B]">{req.summary}</h4>
+                  <h4 className="font-serif font-bold text-sm text-[#231E1B]">{req.summary}</h4>
                   <p className="text-xs text-[#554E44] mt-1 leading-relaxed">{req.detail}</p>
                 </div>
 
@@ -288,13 +282,20 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-[#F0EBE0] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <div className="pt-2 border-t border-[#F0EBE0] flex flex-wrap items-center justify-between gap-3 text-xs">
                   <div className="text-[11px] text-[#70685F] flex items-center gap-1.5">
                     <UserCheck className="w-3.5 h-3.5 text-[#C85A32]" />
                     Designated Approver: <strong className="text-[#231E1B]">{req.approver?.name || 'Executive'}</strong>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    {/* Self-approval prevention warning */}
+                    {isRequester && req.state === 'Pending' && (
+                      <span className="text-[11px] text-[#9B9287] italic">
+                        Self-approval forbidden (Awaiting {req.approver?.name})
+                      </span>
+                    )}
+
                     {/* Resubmit for Sent back requests */}
                     {isRequester && req.state === 'Sent back' && (
                       <button
@@ -304,7 +305,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                           setRevisedDetail(req.detail);
                           setRevisedImpact(req.impact);
                         }}
-                        className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-[#526E55] hover:bg-[#3E5540] active:scale-95 text-white text-xs font-semibold flex items-center justify-center gap-1 shadow-xs transition-transform cursor-pointer min-h-[40px]"
+                        className="px-3 py-1.5 rounded-xl bg-[#526E55] hover:bg-[#3E5540] text-white text-xs font-semibold flex items-center gap-1 shadow-xs transition-colors cursor-pointer"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                         Revise &amp; Resubmit
@@ -313,14 +314,14 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
 
                     {/* Decision buttons for approver */}
                     {canDecide && (
-                      <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
                             setDecidingRequest(req);
                             setDecisionAction('SEND_BACK');
                             setDecisionNote('');
                           }}
-                          className="flex-1 sm:flex-none px-3.5 py-2 rounded-xl border border-[#DDD6C8] hover:bg-[#EDE7DC] active:scale-95 text-[#70685F] text-xs font-semibold transition-all cursor-pointer min-h-[40px] text-center"
+                          className="px-3 py-1.5 rounded-xl border border-[#DDD6C8] hover:bg-[#EDE7DC] text-[#70685F] text-xs font-semibold transition-colors cursor-pointer"
                         >
                           Send Back
                         </button>
@@ -330,7 +331,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                             setDecisionAction('APPROVE');
                             setDecisionNote('Approved as submitted.');
                           }}
-                          className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#2D5A34] hover:bg-[#1E3E23] active:scale-95 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer min-h-[40px] text-center"
+                          className="px-3 py-1.5 rounded-xl bg-[#2D5A34] hover:bg-[#1E3E23] text-white text-xs font-semibold transition-colors shadow-xs cursor-pointer"
                         >
                           Approve Request
                         </button>
@@ -344,20 +345,16 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
         </div>
       )}
 
-      {/* New Request Modal / Bottom Sheet */}
+      {/* New Request Modal */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#EAE3D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
-            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-[#FBF9F4] rounded-2xl shadow-2xl border border-[#E8E2D5] p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="font-serif font-bold text-base text-[#231E1B]">Submit Approval Request</h3>
+            <p className="text-xs text-[#70685F]">
+              Requests are routed according to governance thresholds and self-approval prevention rules.
+            </p>
 
-            <div>
-              <h3 className="font-serif font-bold text-base sm:text-lg text-[#231E1B]">Submit Approval Request</h3>
-              <p className="text-xs text-[#70685F]">
-                Requests are routed according to governance thresholds and self-approval prevention rules.
-              </p>
-            </div>
-
-            <form onSubmit={handleSubmitNew} className="space-y-3.5">
+            <form onSubmit={handleSubmitNew} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">Request Type *</label>
                 <div className="grid grid-cols-3 gap-2">
@@ -366,10 +363,10 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                       key={t}
                       type="button"
                       onClick={() => setRequestType(t)}
-                      className={`py-2.5 rounded-xl text-xs font-semibold border transition-all active:scale-95 cursor-pointer min-h-[44px] ${
+                      className={`py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                         requestType === t
                           ? 'bg-[#C85A32] text-white border-[#C85A32] shadow-xs'
-                          : 'bg-[#FAF7F2] text-[#554E44] border-[#DDD6C8] hover:bg-[#F5F1E8]'
+                          : 'bg-white text-[#554E44] border-[#DDD6C8] hover:bg-[#F5F1E8]'
                       }`}
                     >
                       {t}
@@ -390,26 +387,26 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                     value={requestedAmount}
                     onChange={(e) => setRequestedAmount(e.target.value)}
                     placeholder="e.g. 5000"
-                    className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
+                    className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
                   />
-                  <p className="text-[10px] sm:text-[11px] text-[#70685F] mt-1">
+                  <p className="text-[11px] text-[#70685F] mt-1">
                     Budget increases exceeding contingency or over £50,000 route strictly to the CEO.
                   </p>
                 </div>
               )}
 
               {requestType === 'Timeline' && (
-                <div className="p-3 bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl flex items-start gap-2.5">
+                <div className="p-3 bg-white border border-[#DDD6C8] rounded-xl flex items-start gap-2.5">
                   <input
                     type="checkbox"
                     id="chk-baselined"
                     checked={movesBaselinedMilestone}
                     onChange={(e) => setMovesBaselinedMilestone(e.target.checked)}
-                    className="mt-0.5 rounded-sm text-[#C85A32] w-4 h-4"
+                    className="mt-0.5 rounded-sm text-[#C85A32]"
                   />
                   <label htmlFor="chk-baselined" className="text-xs text-[#231E1B] leading-snug cursor-pointer">
                     <strong>Moves a baselined milestone</strong>
-                    <div className="text-[10px] sm:text-[11px] text-[#70685F]">
+                    <div className="text-[11px] text-[#70685F]">
                       Timeline changes affecting baselined milestones escalate to Sponsor and CEO.
                     </div>
                   </label>
@@ -424,7 +421,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
                   placeholder="e.g. Additional soil testing contingency draw"
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
@@ -436,7 +433,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                   value={detail}
                   onChange={(e) => setDetail(e.target.value)}
                   placeholder="Explain why this change is necessary and what alternatives were evaluated..."
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
@@ -446,23 +443,23 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                   type="text"
                   value={impact}
                   onChange={(e) => setImpact(e.target.value)}
-                  placeholder="e.g. Shifts Phase 2 handover by 1 week"
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
+                  placeholder="e.g. Shifts Phase 2 handover by 1 week, absorbed in contingency"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowNewModal(false)}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 transition-all cursor-pointer min-h-[44px]"
+                  className="px-4 py-2 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#A63C1E] active:scale-95 transition-all shadow-xs cursor-pointer min-h-[44px]"
+                  className="px-4 py-2 rounded-xl bg-[#C85A32] text-white text-xs font-semibold hover:bg-[#A63C1E] shadow-xs cursor-pointer"
                 >
                   {submitting ? 'Submitting...' : 'Submit Request'}
                 </button>
@@ -472,24 +469,20 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
         </div>
       )}
 
-      {/* Decision Modal / Bottom Sheet */}
+      {/* Decision Modal */}
       {decidingRequest && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#E8E2D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
-            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-[#FBF9F4] rounded-2xl shadow-2xl border border-[#E8E2D5] p-6 space-y-4">
+            <h3 className="font-serif font-bold text-base text-[#231E1B]">
+              {decisionAction === 'APPROVE' ? 'Approve Request' : 'Send Back for Revision'}
+            </h3>
+            <p className="text-xs text-[#70685F]">
+              {decisionAction === 'APPROVE'
+                ? 'Approving will commit changes to project budget or schedule.'
+                : 'Sending back allows the requester to revise and resubmit without outright rejection.'}
+            </p>
 
-            <div>
-              <h3 className="font-serif font-bold text-base sm:text-lg text-[#231E1B]">
-                {decisionAction === 'APPROVE' ? 'Approve Request' : 'Send Back for Revision'}
-              </h3>
-              <p className="text-xs text-[#70685F]">
-                {decisionAction === 'APPROVE'
-                  ? 'Approving will commit changes to project budget or schedule.'
-                  : 'Sending back allows the requester to revise and resubmit.'}
-              </p>
-            </div>
-
-            <form onSubmit={handleDecide} className="space-y-3.5">
+            <form onSubmit={handleDecide} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">
                   Decision Note / Instructions
@@ -503,22 +496,22 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                       ? 'Approved'
                       : 'Specify revisions or questions for the requester...'
                   }
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
+              <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setDecidingRequest(null)}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 transition-all cursor-pointer min-h-[44px]"
+                  className="px-4 py-2 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={processingDecision}
-                  className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-white text-xs font-semibold shadow-xs cursor-pointer active:scale-95 transition-all min-h-[44px] ${
+                  className={`px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-xs cursor-pointer ${
                     decisionAction === 'APPROVE'
                       ? 'bg-[#2D5A34] hover:bg-[#1E3E23]'
                       : 'bg-[#B45309] hover:bg-[#92400E]'
@@ -536,20 +529,16 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
         </div>
       )}
 
-      {/* Revision Modal / Bottom Sheet */}
+      {/* Revision Modal */}
       {revisingRequest && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#E8E2D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
-            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-[#FBF9F4] rounded-2xl shadow-2xl border border-[#E8E2D5] p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="font-serif font-bold text-base text-[#231E1B]">Revise &amp; Resubmit Request</h3>
+            <p className="text-xs text-[#70685F]">
+              Submit revision v{revisingRequest.version + 1} addressing reviewer feedback: &ldquo;{revisingRequest.decisionNote}&rdquo;
+            </p>
 
-            <div>
-              <h3 className="font-serif font-bold text-base sm:text-lg text-[#231E1B]">Revise &amp; Resubmit Request</h3>
-              <p className="text-xs text-[#70685F]">
-                Submit revision v{revisingRequest.version + 1} addressing reviewer feedback: &ldquo;{revisingRequest.decisionNote}&rdquo;
-              </p>
-            </div>
-
-            <form onSubmit={handleResubmit} className="space-y-3.5">
+            <form onSubmit={handleResubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-[#231E1B] mb-1">Summary *</label>
                 <input
@@ -557,7 +546,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                   required
                   value={revisedSummary}
                   onChange={(e) => setRevisedSummary(e.target.value)}
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
@@ -568,7 +557,7 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                   rows={3}
                   value={revisedDetail}
                   onChange={(e) => setRevisedDetail(e.target.value)}
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
@@ -578,22 +567,22 @@ export const ProjectApprovalsTab: React.FC<ProjectApprovalsTabProps> = ({ projec
                   type="text"
                   value={revisedImpact}
                   onChange={(e) => setRevisedImpact(e.target.value)}
-                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] min-h-[44px]"
+                  className="w-full bg-white border border-[#DDD6C8] rounded-xl px-3 py-2 text-xs text-[#231E1B] focus:ring-1 focus:ring-[#C85A32]"
                 />
               </div>
 
-              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setRevisingRequest(null)}
-                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 transition-all cursor-pointer min-h-[44px]"
+                  className="px-4 py-2 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={processingRevision}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#526E55] text-white text-xs font-semibold hover:bg-[#3E5540] active:scale-95 transition-all shadow-xs cursor-pointer min-h-[44px]"
+                  className="px-4 py-2 rounded-xl bg-[#526E55] text-white text-xs font-semibold hover:bg-[#3E5540] shadow-xs cursor-pointer"
                 >
                   {processingRevision ? 'Submitting...' : `Submit Revision v${revisingRequest.version + 1}`}
                 </button>
