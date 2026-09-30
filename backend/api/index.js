@@ -360,12 +360,13 @@ function initSocket(httpServer2) {
       origin: (origin, callback) => {
         callback(null, true);
       },
-      methods: ["GET", "POST"],
-      credentials: true
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      credentials: true,
+      allowedHeaders: ["Content-Type", "Authorization", "x-user-id", "Cookie"]
     },
     pingInterval: 25e3,
     pingTimeout: 2e4,
-    transports: ["websocket", "polling"],
+    transports: ["polling", "websocket"],
     allowEIO3: true
   });
   io.use(async (socket, next) => {
