@@ -38,8 +38,25 @@ export function apiUrl(path: string): string {
  */
 export async function apiFetch(input: string | URL | Request, init?: RequestInit): Promise<Response> {
   const url = typeof input === 'string' ? apiUrl(input) : input;
-  return fetch(url, {
-    ...init,
-    credentials: init?.credentials || 'include',
-  });
+  const method = init?.method || 'GET';
+  const startTime = Date.now();
+
+  try {
+    const res = await fetch(url, {
+      ...init,
+      credentials: init?.credentials || 'include',
+    });
+
+    const elapsed = Date.now() - startTime;
+    if (!res.ok) {
+      console.warn(`[API] ${method} ${typeof url === 'string' ? url : (url as any).url} -> ${res.status} (${elapsed}ms)`);
+    }
+
+    return res;
+  } catch (err: any) {
+    const elapsed = Date.now() - startTime;
+    console.error(`[API] Network failure: ${method} ${typeof url === 'string' ? url : (url as any).url} (${elapsed}ms):`, err?.message || err);
+    throw err;
+  }
 }
+
