@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
-import { prisma } from '../../lib/prisma.ts';
-import { AuthRequest } from '../auth.ts';
-import { RiskCreateSchema, RiskUpdateSchema } from '../../lib/validators.ts';
+import { prisma } from '../../lib/prisma';
+import { AuthRequest } from '../auth';
+import { RiskCreateSchema, RiskUpdateSchema } from '../../lib/validators';
 
 const router = Router();
 

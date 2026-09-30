@@ -1,12 +1,12 @@
 import { Router, Response } from 'express';
-import { prisma } from '../../lib/prisma.ts';
-import { AuthRequest, requireAuth, requireCEO } from '../auth.ts';
+import { prisma } from '../../lib/prisma';
+import { AuthRequest, requireAuth, requireCEO } from '../auth';
 import {
   calculateProgress,
   calculatePlanPercentage,
   calculateProjectStatus,
   calculateBudgetHealth,
-} from '../../lib/calculations.ts';
+} from '../../lib/calculations';
 
 const router = Router();
 

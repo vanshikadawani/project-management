@@ -1,7 +1,7 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import type { Server as HTTPServer } from 'http';
-import { prisma } from '../lib/prisma.ts';
-import { canAccessProjectChat } from './routes/chat.ts';
+import { prisma } from '../lib/prisma';
+import { canAccessProjectChat } from './routes/chat';
 
 let io: SocketIOServer | null = null;
 

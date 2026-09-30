@@ -11,8 +11,7 @@
     "paths": {
       "@/*": ["./*"]
     },
-    "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["server.ts", "lib/**/*", "server/**/*", "prisma/**/*"]
+  "include": ["server.ts", "src/**/*", "lib/**/*", "server/**/*", "prisma/**/*"]
 }

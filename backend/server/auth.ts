@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { prisma } from '../lib/prisma.ts';
+import { prisma } from '../lib/prisma';
 
 export interface AuthenticatedUser {
   id: string;

@@ -1,8 +1,8 @@
 import { Router, Response } from 'express';
-import { prisma } from '../../lib/prisma.ts';
-import { AuthRequest, requireAuth } from '../auth.ts';
-import { emitToProject } from '../socket.ts';
-import { createNotification } from '../services/notificationService.ts';
+import { prisma } from '../../lib/prisma';
+import { AuthRequest, requireAuth } from '../auth';
+import { emitToProject } from '../socket';
+import { createNotification } from '../services/notificationService';
 
 const router = Router();
 
