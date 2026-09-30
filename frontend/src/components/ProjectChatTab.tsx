@@ -55,8 +55,32 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
     }
   };
 
+  // Silent poll for real-time chat updates across serverless/polling environments
+  const pollChatMessages = async () => {
+    try {
+      const res = await apiFetch(`/api/projects/${projectId}/chat`);
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.messages)) {
+          setMessages((prev) => {
+            if (data.messages.length !== prev.length || (data.messages.length > 0 && data.messages[data.messages.length - 1]?.id !== prev[prev.length - 1]?.id)) {
+              setTimeout(() => scrollToBottom(true), 50);
+              return data.messages;
+            }
+            return prev;
+          });
+        }
+      }
+    } catch {
+      // silent background sync
+    }
+  };
+
   useEffect(() => {
     fetchChat();
+    // Poll chat every 3.5 seconds to guarantee instant message delivery on serverless environments
+    const timer = setInterval(pollChatMessages, 3500);
+    return () => clearInterval(timer);
   }, [projectId]);
 
   // Socket.IO real-time events

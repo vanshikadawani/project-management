@@ -330,11 +330,8 @@ var chat_default = router;
 
 // server/socket.ts
 var io = null;
-var isVercel = !!process.env.VERCEL;
 async function authenticateSocket(socket, userId) {
-  const timestamp = (/* @__PURE__ */ new Date()).toISOString();
   try {
-    console.log(`[Socket][${timestamp}] Authenticating socket ${socket.id} with userId: "${userId}"`);
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, name: true, email: true, role: true }
@@ -342,39 +339,28 @@ async function authenticateSocket(socket, userId) {
     if (user) {
       socket.data.user = user;
       socket.join(`user:${user.id}`);
-      console.log(`[Socket][${timestamp}] Socket ${socket.id} successfully authenticated as "${user.name}" (${user.role}, ID: ${user.id}). Joined room: "user:${user.id}"`);
       return true;
-    } else {
-      console.warn(`[Socket][${timestamp}] Socket ${socket.id} authentication failed: User ID "${userId}" not found in database`);
     }
   } catch (err) {
-    console.error(`[Socket][${timestamp}] Socket ${socket.id} database lookup error for user "${userId}":`, err?.message || err);
+    console.error("[Socket] User lookup error:", err);
   }
   return false;
 }
 function initSocket(httpServer2) {
-  const envType = isVercel ? "Vercel Serverless" : "Node.js Server";
-  console.log(`[Socket] Initializing Socket.IO server in [${envType}] environment`);
   io = new SocketIOServer(httpServer2, {
     cors: {
       origin: (origin, callback) => {
         callback(null, true);
       },
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      credentials: true,
-      allowedHeaders: ["Content-Type", "Authorization", "x-user-id", "Cookie"]
+      methods: ["GET", "POST"],
+      credentials: true
     },
     pingInterval: 25e3,
     pingTimeout: 2e4,
-    transports: ["polling", "websocket"],
+    transports: ["websocket", "polling"],
     allowEIO3: true
   });
   io.use(async (socket, next) => {
-    const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-    const transport = socket.conn.transport?.name || "unknown";
-    const origin = socket.handshake.headers.origin || socket.handshake.headers.referer || "(none)";
-    const clientIp = socket.handshake.address || socket.handshake.headers["x-forwarded-for"] || "unknown";
-    console.log(`[Socket][${timestamp}] Incoming connection attempt: socket=${socket.id}, transport=${transport}, origin=${origin}, IP=${clientIp}`);
     try {
       const authUserId = socket.handshake.auth?.userId;
       const queryUserId = socket.handshake.query?.userId;
@@ -387,32 +373,20 @@ function initSocket(httpServer2) {
           userId = decodeURIComponent(match[1]);
         }
       }
-      console.log(`[Socket][${timestamp}] Handshake credentials: authUserId=${authUserId || "(none)"}, queryUserId=${queryUserId || "(none)"}, resolvedUserId=${userId || "(none)"}`);
       if (userId) {
         await authenticateSocket(socket, userId);
-      } else {
-        console.log(`[Socket][${timestamp}] Socket ${socket.id} connected without initial userId (will wait for 'authenticate' event)`);
       }
       next();
     } catch (err) {
-      console.error(`[Socket][${timestamp}] Authentication middleware error on socket ${socket.id}:`, err?.message || err);
+      console.error("[Socket] Authentication middleware error:", err);
       next();
     }
   });
   io.on("connection", (socket) => {
-    const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-    const transport = socket.conn.transport?.name || "unknown";
-    console.log(`[Socket][${timestamp}] Socket connected: ${socket.id} (Initial transport: ${transport}, Authenticated user: ${socket.data?.user?.name || "Unauthenticated"})`);
-    socket.conn.on("upgrade", (newTransport) => {
-      console.log(`[Socket][${(/* @__PURE__ */ new Date()).toISOString()}] Socket ${socket.id} transport upgraded to: ${newTransport.name}`);
-    });
     if (socket.data?.user?.id) {
       socket.join(`user:${socket.data.user.id}`);
-      console.log(`[Socket][${timestamp}] Auto-joined room "user:${socket.data.user.id}" for socket ${socket.id}`);
     }
     socket.on("authenticate", async ({ userId }, callback) => {
-      const authTime = (/* @__PURE__ */ new Date()).toISOString();
-      console.log(`[Socket][${authTime}] Received 'authenticate' event on socket ${socket.id} for userId: "${userId}"`);
       if (userId) {
         const success = await authenticateSocket(socket, userId);
         if (success) {
@@ -420,17 +394,13 @@ function initSocket(httpServer2) {
           return;
         }
       }
-      console.warn(`[Socket][${authTime}] 'authenticate' event failed for socket ${socket.id} (userId: "${userId}")`);
       if (callback) callback({ error: "Authentication failed" });
     });
     socket.on("join:project", async (data, callback) => {
-      const joinTime = (/* @__PURE__ */ new Date()).toISOString();
       try {
         const projectId = typeof data === "string" ? data : data?.projectId;
         const providedUserId = typeof data === "object" ? data?.userId : void 0;
-        console.log(`[Socket][${joinTime}] Socket ${socket.id} requested 'join:project' for project: "${projectId}", providedUserId: "${providedUserId || "(none)"}"`);
         if (!projectId) {
-          console.warn(`[Socket][${joinTime}] 'join:project' rejected: Missing projectId`);
           if (callback) callback({ error: "Project ID is required" });
           return;
         }
@@ -438,28 +408,26 @@ function initSocket(httpServer2) {
         if (!user?.id) {
           const fallbackUserId = providedUserId || socket.handshake.auth?.userId || socket.handshake.query?.userId;
           if (fallbackUserId) {
-            console.log(`[Socket][${joinTime}] Attempting fallback authentication for socket ${socket.id} with userId: "${fallbackUserId}"`);
             await authenticateSocket(socket, fallbackUserId);
             user = socket.data?.user;
           }
         }
         if (!user?.id) {
-          console.warn(`[Socket][${joinTime}] Unauthorized 'join:project' for unauthenticated socket ${socket.id} on project ${projectId}`);
+          console.warn(`[Socket] Unauthorized join:project for unauthenticated socket ${socket.id} on project ${projectId}`);
           if (callback) callback({ error: "Unauthorized: Authentication required" });
           return;
         }
         const hasAccess = await canAccessProjectChat(user.id, user.role, projectId);
         if (!hasAccess) {
-          console.warn(`[Socket][${joinTime}] Access denied: User "${user.name}" (${user.role}, ID: ${user.id}) cannot access project ${projectId}`);
+          console.warn(`[Socket] Access denied: User ${user.name} (${user.id}) cannot access project ${projectId}`);
           if (callback) callback({ error: "Unauthorized to join project room" });
           return;
         }
         socket.join(`project:${projectId}`);
-        const roomSize = io?.sockets.adapter.rooms.get(`project:${projectId}`)?.size || 1;
-        console.log(`[Socket][${joinTime}] User "${user.name}" (${user.id}) successfully joined "project:${projectId}" (Active subscribers in room: ${roomSize})`);
+        console.log(`[Socket] User ${user.name} (${user.id}) successfully joined project:${projectId}`);
         if (callback) callback({ success: true, room: `project:${projectId}` });
       } catch (err) {
-        console.error(`[Socket][${joinTime}] Failed to join project room:`, err?.message || err);
+        console.error("[Socket] Failed to join project room:", err);
         if (callback) callback({ error: "Failed to join room" });
       }
     });
@@ -467,24 +435,19 @@ function initSocket(httpServer2) {
       const projectId = typeof data === "string" ? data : data?.projectId;
       if (projectId) {
         socket.leave(`project:${projectId}`);
-        console.log(`[Socket][${(/* @__PURE__ */ new Date()).toISOString()}] Socket ${socket.id} left room "project:${projectId}"`);
       }
     });
     socket.on("typing:start", ({ projectId, userName }) => {
       if (projectId) {
-        console.log(`[Socket][${(/* @__PURE__ */ new Date()).toISOString()}] Typing start: "${userName}" in project "${projectId}"`);
         socket.to(`project:${projectId}`).emit("chat:typing", { projectId, userName, isTyping: true });
       }
     });
     socket.on("typing:stop", ({ projectId, userName }) => {
       if (projectId) {
-        console.log(`[Socket][${(/* @__PURE__ */ new Date()).toISOString()}] Typing stop: "${userName}" in project "${projectId}"`);
         socket.to(`project:${projectId}`).emit("chat:typing", { projectId, userName, isTyping: false });
       }
     });
-    socket.on("disconnect", (reason) => {
-      const discTime = (/* @__PURE__ */ new Date()).toISOString();
-      console.log(`[Socket][${discTime}] Socket disconnected: ${socket.id} (User: ${socket.data?.user?.name || "Unauthenticated"}, Reason: "${reason}")`);
+    socket.on("disconnect", () => {
     });
   });
   return io;
@@ -493,27 +456,19 @@ function getIO() {
   return io;
 }
 function emitToUser(userId, event, data) {
-  const timestamp = (/* @__PURE__ */ new Date()).toISOString();
   if (io) {
-    const room = `user:${userId}`;
-    const socketsInRoom = io.sockets.adapter.rooms.get(room);
-    const count = socketsInRoom ? socketsInRoom.size : 0;
-    console.log(`[Socket][${timestamp}] emitToUser -> room: "${room}", event: "${event}", subscribers: ${count}`);
-    io.to(room).emit(event, data);
-  } else {
-    console.warn(`[Socket][${timestamp}] emitToUser called before io is initialized`);
+    io.to(`user:${userId}`).emit(event, data);
   }
 }
 function emitToProject(projectId, event, data) {
-  const timestamp = (/* @__PURE__ */ new Date()).toISOString();
   if (io) {
     const room = `project:${projectId}`;
     const socketsInRoom = io.sockets.adapter.rooms.get(room);
     const count = socketsInRoom ? socketsInRoom.size : 0;
-    console.log(`[Socket][${timestamp}] emitToProject -> room: "${room}", event: "${event}", subscribers: ${count}`);
+    console.log(`[Socket] emitToProject -> room: ${room}, event: ${event}, subscribers: ${count}`);
     io.to(room).emit(event, data);
   } else {
-    console.warn(`[Socket][${timestamp}] emitToProject called before io is initialized`);
+    console.warn("[Socket] emitToProject called before io is initialized");
   }
 }
 
@@ -4108,8 +4063,8 @@ import path2 from "path";
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 var MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024;
 var ALLOWED_EXTENSIONS = /* @__PURE__ */ new Set(["pdf", "xlsx", "docx", "dwg", "png", "jpg", "jpeg"]);
-var isVercel2 = !!process.env.VERCEL;
-var LOCAL_S3_DIR = isVercel2 ? path2.join("/tmp", "storage", "s3") : path2.join(process.cwd(), "storage", "s3");
+var isVercel = !!process.env.VERCEL;
+var LOCAL_S3_DIR = isVercel ? path2.join("/tmp", "storage", "s3") : path2.join(process.cwd(), "storage", "s3");
 try {
   if (!fs.existsSync(LOCAL_S3_DIR)) {
     fs.mkdirSync(LOCAL_S3_DIR, { recursive: true });

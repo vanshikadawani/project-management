@@ -12,33 +12,52 @@ const isLocalhost =
    window.location.hostname === '0.0.0.0');
 
 /**
+ * Returns the sanitized target Socket.IO URL.
+ * - In Development (localhost): Empty string to leverage Vite proxy
+ * - In Production: VITE_API_URL or API_BASE_URL (with trailing / and /api stripped), or window.location.origin
+ */
+export function getSocketUrl(): string {
+  if (isLocalhost) return '';
+
+  const rawEnv = (((import.meta as any).env?.VITE_API_URL || '') as string).trim();
+  const cleanedEnv = rawEnv.replace(/\/api\/?$/, '').replace(/\/$/, '');
+  if (cleanedEnv) return cleanedEnv;
+
+  if (API_BASE_URL) {
+    return API_BASE_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+
+  return '';
+}
+
+/**
  * Returns the singleton Socket.IO client instance.
- * Automatically authenticates and reconnects across route/view transitions.
- * - In Production: Uses import.meta.env.VITE_API_URL (e.g. https://project-management-1zps.vercel.app)
- * - In Development: Uses VITE_API_URL if set, or local proxy / relative origin
+ * Configured with HTTP polling transport to guarantee zero 400 handshake errors across serverless and standard hosting.
  */
 export function getSocket(userId?: string): Socket {
-  const envUrl = (((import.meta as any).env?.VITE_API_URL || '') as string).trim().replace(/\/$/, '');
-  const socketUrl = isLocalhost
-    ? ''
-    : (envUrl || API_BASE_URL || (typeof window !== 'undefined' && window.location?.origin) || '');
+  const socketUrl = getSocketUrl();
 
   if (userId) {
     currentUserId = userId;
   }
 
   if (!socket) {
-    console.log('[Socket] Initializing Socket.IO client pointing to:', socketUrl || '(same origin / local proxy)');
+    console.log('[Socket] Initializing Socket.IO client (polling transport) pointing to:', socketUrl || '(same origin / local proxy)');
     socket = io(socketUrl, {
       auth: { userId: currentUserId || undefined },
       query: currentUserId ? { userId: currentUserId } : undefined,
-      transports: ['websocket', 'polling'],
+      transports: ['polling'],
+      upgrade: false, // Prevent attempted WebSocket upgrades on environments that block WebSockets (like Vercel Serverless)
       withCredentials: true,
       reconnection: true,
-      reconnectionAttempts: Infinity,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      timeout: 20000,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+      timeout: 15000,
     });
 
     socket.on('connect', () => {

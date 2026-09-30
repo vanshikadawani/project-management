@@ -56,6 +56,8 @@ function MainApp() {
 
   useEffect(() => {
     fetchNotificationCount();
+    const interval = setInterval(fetchNotificationCount, 10000);
+    return () => clearInterval(interval);
   }, [currentUser]);
 
   // Real-time notification updates
