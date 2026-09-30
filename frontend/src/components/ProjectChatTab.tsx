@@ -79,7 +79,7 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
   useEffect(() => {
     fetchChat();
     // Poll chat every 3.5 seconds to guarantee instant message delivery on serverless environments
-    const timer = setInterval(pollChatMessages, 3500);
+    const timer = setInterval(pollChatMessages, 2500);
     return () => clearInterval(timer);
   }, [projectId]);
 
@@ -301,13 +301,12 @@ export const ProjectChatTab: React.FC<ProjectChatTabProps> = ({ projectId, proje
                   </div>
 
                   <div
-                    className={`p-3 sm:p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed break-words shadow-2xs ${
-                      isMe
+                    className={`p-3 sm:p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed break-words shadow-2xs ${isMe
                         ? 'bg-[#C85A32] text-white rounded-tr-xs'
                         : isMentioned
-                        ? 'bg-[#FEF6F3] text-[#231E1B] border border-[#F3CEC1] rounded-tl-xs'
-                        : 'bg-white text-[#231E1B] border border-[#E8E2D5] rounded-tl-xs'
-                    }`}
+                          ? 'bg-[#FEF6F3] text-[#231E1B] border border-[#F3CEC1] rounded-tl-xs'
+                          : 'bg-white text-[#231E1B] border border-[#E8E2D5] rounded-tl-xs'
+                      }`}
                   >
                     {msg.body}
                   </div>
