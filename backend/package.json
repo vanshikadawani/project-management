@@ -6,7 +6,7 @@
   "main": "api/index.js",
   "scripts": {
     "dev": "tsx watch ./src/server.ts",
-    "build": "esbuild ./src/server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js && esbuild ./src/server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=api/index.js",
+    "build": "node build.js",
     "start": "node dist/server.js",
     "postinstall": "prisma generate",
     "db:push": "prisma db push --schema=prisma/schema.prisma",
