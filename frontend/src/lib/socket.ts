@@ -20,7 +20,7 @@ const isLocalhost =
 export function getSocket(userId?: string): Socket {
   const envUrl = (((import.meta as any).env?.VITE_API_URL || '') as string).trim().replace(/\/$/, '');
   const socketUrl = isLocalhost
-    ? (envUrl || '')
+    ? ''
     : (envUrl || API_BASE_URL || (typeof window !== 'undefined' && window.location?.origin) || '');
 
   if (userId) {
@@ -28,7 +28,7 @@ export function getSocket(userId?: string): Socket {
   }
 
   if (!socket) {
-    console.log('[Socket] Initializing Socket.IO client pointing to:', socketUrl || '(same origin)');
+    console.log('[Socket] Initializing Socket.IO client pointing to:', socketUrl || '(same origin / local proxy)');
     socket = io(socketUrl, {
       auth: { userId: currentUserId || undefined },
       query: currentUserId ? { userId: currentUserId } : undefined,
@@ -44,7 +44,9 @@ export function getSocket(userId?: string): Socket {
     socket.on('connect', () => {
       console.log('[Socket] Connected to server, id:', socket?.id);
       if (currentUserId) {
-        socket?.emit('authenticate', { userId: currentUserId });
+        socket?.emit('authenticate', { userId: currentUserId }, (res: any) => {
+          console.log('[Socket] Auth on connect response:', res);
+        });
       }
       // Re-join all active project rooms upon initial connect or reconnection
       activeProjectRooms.forEach((projectId) => {
@@ -59,9 +61,12 @@ export function getSocket(userId?: string): Socket {
       console.warn('[Socket] Connection error:', error.message);
     });
   } else if (userId && (socket.auth as any)?.userId !== userId) {
+    currentUserId = userId;
     socket.auth = { userId };
     if (socket.connected) {
-      socket.emit('authenticate', { userId });
+      socket.emit('authenticate', { userId }, (res: any) => {
+        console.log('[Socket] Dynamic auth response:', res);
+      });
       activeProjectRooms.forEach((projectId) => {
         socket?.emit('join:project', { projectId, userId });
       });

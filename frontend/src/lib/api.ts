@@ -12,7 +12,9 @@ const isLocalhost =
 
 const envUrl = (((import.meta as any).env?.VITE_API_URL || '') as string).trim().replace(/\/$/, '');
 
-export const API_BASE_URL: string = isLocalhost ? (envUrl || '') : envUrl;
+// On localhost, always use relative path ("") to route through Vite's local dev server proxy.
+// In production, use VITE_API_URL if configured, or same-origin.
+export const API_BASE_URL: string = isLocalhost ? '' : envUrl;
 
 
 /**

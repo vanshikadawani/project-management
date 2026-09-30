@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types.ts';
 import { apiFetch } from '../lib/api.ts';
+import { getSocket } from '../lib/socket.ts';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -31,6 +32,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const data = await res.json();
         setCurrentUser(data.currentUser);
         setDirectory(data.directory || []);
+        if (data.currentUser?.id) {
+          getSocket(data.currentUser.id);
+        }
       }
     } catch (err) {
       console.error('Failed to load auth session:', err);
@@ -56,6 +60,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: data.error || 'Authentication failed' };
       }
       setCurrentUser(data.user);
+      if (data.user?.id) {
+        getSocket(data.user.id);
+      }
       await fetchSession();
       return { success: true };
     } catch (err: any) {
