@@ -1,4 +1,4 @@
-// src/server.ts
+// server.ts
 import dotenv2 from "dotenv";
 import path3 from "path";
 import express from "express";
@@ -4751,7 +4751,7 @@ router19.get("/", requireAuth, async (req, res) => {
 });
 var users_default = router19;
 
-// src/server.ts
+// server.ts
 if (!process.env.DATABASE_URL || !process.env.APP_URL) {
   dotenv2.config({ path: path3.join(process.cwd(), "backend", ".env") });
   dotenv2.config({ path: path3.join(process.cwd(), ".env") });

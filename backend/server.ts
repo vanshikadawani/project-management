@@ -6,32 +6,33 @@ if (!process.env.DATABASE_URL || !process.env.APP_URL) {
   dotenv.config({ path: path.join(process.cwd(), '.env') });
 }
 dotenv.config();
+
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
 
-import { authenticate } from '../server/auth';
-import { initSocket, getIO } from '../server/socket';
+import { authenticate } from './server/auth';
+import { initSocket, getIO } from './server/socket';
 
-import authRouter from '../server/routes/auth';
-import projectsRouter from '../server/routes/projects';
-import phasesRouter from '../server/routes/phases';
-import tasksRouter from '../server/routes/tasks';
-import issuesRouter from '../server/routes/issues';
-import risksRouter from '../server/routes/risks';
-import milestonesRouter from '../server/routes/milestones';
-import alertsRouter from '../server/routes/alerts';
-import workloadRouter from '../server/routes/workload';
-import notificationsRouter from '../server/routes/notifications';
-import chatRouter from '../server/routes/chat';
-import approvalsRouter from '../server/routes/approvals';
-import baselinesRouter from '../server/routes/baselines';
-import changelogRouter from '../server/routes/changelog';
-import budgetRouter from '../server/routes/budget';
-import portfolioRouter from '../server/routes/portfolio';
-import documentsRouter from '../server/routes/documents';
-import calendarRouter from '../server/routes/calendar';
-import usersRouter from '../server/routes/users';
+import authRouter from './server/routes/auth';
+import projectsRouter from './server/routes/projects';
+import phasesRouter from './server/routes/phases';
+import tasksRouter from './server/routes/tasks';
+import issuesRouter from './server/routes/issues';
+import risksRouter from './server/routes/risks';
+import milestonesRouter from './server/routes/milestones';
+import alertsRouter from './server/routes/alerts';
+import workloadRouter from './server/routes/workload';
+import notificationsRouter from './server/routes/notifications';
+import chatRouter from './server/routes/chat';
+import approvalsRouter from './server/routes/approvals';
+import baselinesRouter from './server/routes/baselines';
+import changelogRouter from './server/routes/changelog';
+import budgetRouter from './server/routes/budget';
+import portfolioRouter from './server/routes/portfolio';
+import documentsRouter from './server/routes/documents';
+import calendarRouter from './server/routes/calendar';
+import usersRouter from './server/routes/users';
 
 const app = express();
 
