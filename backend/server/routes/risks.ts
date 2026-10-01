@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
-import { prisma } from '../../lib/prisma';
-import { AuthRequest } from '../auth';
-import { RiskCreateSchema, RiskUpdateSchema } from '../../lib/validators';
+import { prisma } from '../../lib/prisma.js';
+import { AuthRequest } from '../auth.js';
+import { RiskCreateSchema, RiskUpdateSchema } from '../../lib/validators.js';
 
 const router = Router();
 

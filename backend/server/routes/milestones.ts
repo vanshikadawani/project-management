@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
-import { prisma } from '../../lib/prisma';
-import { AuthRequest, requireOwnerOrCEO } from '../auth';
-import { MilestoneCreateSchema } from '../../lib/validators';
+import { prisma } from '../../lib/prisma.js';
+import { AuthRequest, requireOwnerOrCEO } from '../auth.js';
+import { MilestoneCreateSchema } from '../../lib/validators.js';
 
 const router = Router();
 

@@ -1,8 +1,8 @@
 import { Router, Response } from 'express';
-import { prisma } from '../../lib/prisma';
-import { AuthRequest, requireAuth } from '../auth';
-import { calculatePlanPercentage, calculateBudgetHealth } from '../../lib/calculations';
-import { createNotification } from '../services/notificationService';
+import { prisma } from '../../lib/prisma.js';
+import { AuthRequest, requireAuth } from '../auth.js';
+import { calculatePlanPercentage, calculateBudgetHealth } from '../../lib/calculations.js';
+import { createNotification } from '../services/notificationService.js';
 
 const router = Router();
 

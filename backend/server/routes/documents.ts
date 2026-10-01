@@ -1,13 +1,13 @@
 import { Router, Response } from 'express';
 import multer from 'multer';
-import { prisma } from '../../lib/prisma';
-import { AuthRequest, requireAuth } from '../auth';
+import { prisma } from '../../lib/prisma.js';
+import { AuthRequest, requireAuth } from '../auth.js';
 import {
   validateFileType,
   uploadToS3,
   getFromS3,
   MAX_FILE_SIZE_BYTES,
-} from '../services/s3Service';
+} from '../services/s3Service.js';
 
 const router = Router();
 

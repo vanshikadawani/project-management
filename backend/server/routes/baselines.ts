@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
-import { prisma } from '../../lib/prisma';
-import { AuthRequest, requireAuth } from '../auth';
-import { calculateMilestoneSlippage } from '../../lib/calculations';
+import { prisma } from '../../lib/prisma.js';
+import { AuthRequest, requireAuth } from '../auth.js';
+import { calculateMilestoneSlippage } from '../../lib/calculations.js';
 
 const router = Router();
 

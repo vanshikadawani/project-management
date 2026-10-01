@@ -1,8 +1,8 @@
 import { Router, Response } from 'express';
-import { prisma } from '../../lib/prisma';
-import { AuthRequest, requireAuth, requireOwnerOrCEO } from '../auth';
-import { calculateProgress, calculatePlanPercentage, calculateProjectStatus } from '../../lib/calculations';
-import { StatusOverrideSchema, ProjectCreateSchema, ProjectCharterUpdateSchema } from '../../lib/validators';
+import { prisma } from '../../lib/prisma.js';
+import { AuthRequest, requireAuth, requireOwnerOrCEO } from '../auth.js';
+import { calculateProgress, calculatePlanPercentage, calculateProjectStatus } from '../../lib/calculations.js';
+import { StatusOverrideSchema, ProjectCreateSchema, ProjectCharterUpdateSchema } from '../../lib/validators.js';
 
 const router = Router();
 

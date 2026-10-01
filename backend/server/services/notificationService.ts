@@ -1,5 +1,5 @@
-import { prisma } from '../../lib/prisma';
-import { emitToUser } from '../socket';
+import { prisma } from '../../lib/prisma.js';
+import { emitToUser } from '../socket.js';
 
 export type NotificationType =
   | 'chat_mention'
