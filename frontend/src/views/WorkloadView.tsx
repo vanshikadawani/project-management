@@ -112,16 +112,16 @@ export const WorkloadView: React.FC = () => {
       )}
 
       {/* Header — title + week */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex items-start sm:items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
             Workload
           </h1>
-          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5">
+          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5 break-words">
             Capacity allocation vs 37-hour standard reference for the active week.
           </p>
         </div>
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-[#5A524A] bg-[#FAF6EE] px-3.5 py-1.5 rounded-full border border-[#EAE3D5] shrink-0 self-end sm:self-auto -mt-8 sm:mt-0 shadow-2xs">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-[#5A524A] bg-[#FAF6EE] px-3.5 py-1.5 rounded-full border border-[#EAE3D5] shrink-0 shadow-2xs">
           <Calendar className="w-3.5 h-3.5 text-[#C85A32]" />
           <span>Week of Sep 14, 2026</span>
         </div>

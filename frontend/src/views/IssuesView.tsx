@@ -31,6 +31,12 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
   const [stateFilter, setStateFilter] = useState<string>('OPEN');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  const activeMobileFilterCount =
+    (stateFilter !== 'OPEN' ? 1 : 0) +
+    (severityFilter !== 'ALL' ? 1 : 0) +
+    (selectedProjectId !== 'ALL' ? 1 : 0);
 
   // Modals & Toast
   const [showRaiseModal, setShowRaiseModal] = useState(false);
@@ -206,12 +212,12 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
       )}
 
       {/* Header — title + action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex items-start sm:items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
             Issues
           </h1>
-          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5">
+          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5 break-words">
             Events that have already occurred and require operational response.
           </p>
         </div>
@@ -219,7 +225,7 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
         <button
           id="raise-issue-main-btn"
           onClick={() => setShowRaiseModal(true)}
-          className="shrink-0 self-end sm:self-auto -mt-8 sm:mt-0 px-3.5 py-2 sm:px-4 lg:py-2 rounded-xl bg-[#C85A32] hover:bg-[#AD4722] active:scale-95 text-white text-xs lg:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer min-h-[36px] sm:min-h-[44px] transition-all"
+          className="shrink-0 px-3.5 py-2 sm:px-4 lg:py-2 rounded-xl bg-[#C85A32] hover:bg-[#AD4722] active:scale-95 text-white text-xs lg:text-sm font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer min-h-[36px] sm:min-h-[44px] transition-all"
         >
           <Plus className="w-4 h-4" />
           <span className="sm:hidden">Raise</span>
@@ -229,54 +235,119 @@ export const IssuesView: React.FC<IssuesViewProps> = ({ onSelectProject }) => {
 
       {/* Filters & Controls */}
       <div className="space-y-2.5 sm:space-y-3">
-        {/* Search input */}
-        <div className="relative w-full">
-          <Search className="w-4 h-4 text-[#8C8275] absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            id="issues-search-input"
-            type="text"
-            placeholder="Search issues, summaries, blockers..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-full bg-white border border-[#DDD6C8] text-xs sm:text-sm text-[#231E1B] placeholder-[#8F867A] focus:outline-none focus:border-[#C85A32] shadow-2xs min-h-[36px] sm:min-h-[44px]"
-          />
+        {/* Row 1: Search input + FILTERS button on mobile */}
+        <div className="flex flex-row items-center gap-2 sm:gap-3">
+          <div className="relative flex-1 min-w-0">
+            <Search className="w-4 h-4 text-[#8C8275] absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              id="issues-search-input"
+              type="text"
+              placeholder="Search issues, summaries..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 rounded-full bg-white border border-[#DDD6C8] text-xs sm:text-sm text-[#231E1B] placeholder-[#8F867A] focus:outline-none focus:border-[#C85A32] shadow-2xs min-h-[36px] sm:min-h-[44px]"
+            />
+          </div>
+
+          {/* FILTERS button — mobile only */}
+          <button
+            type="button"
+            id="issues-mobile-filters-btn"
+            onClick={() => setShowMobileFilters((prev) => !prev)}
+            className={`sm:hidden shrink-0 px-3.5 py-2 rounded-full border text-xs font-bold transition-all min-h-[36px] cursor-pointer flex items-center gap-1.5 shadow-2xs ${
+              showMobileFilters || activeMobileFilterCount > 0
+                ? 'bg-[#C85A32] text-white border-[#C85A32]'
+                : 'bg-white text-[#231E1B] border-[#DDD6C8] hover:bg-[#FAF7F2]'
+            }`}
+          >
+            <Filter className="w-3.5 h-3.5" />
+            <span>FILTERS</span>
+            {activeMobileFilterCount > 0 && (
+              <span className="w-4 h-4 rounded-full bg-white text-[#C85A32] text-[10px] font-bold flex items-center justify-center -mr-0.5">
+                {activeMobileFilterCount}
+              </span>
+            )}
+          </button>
         </div>
 
-        {/* Row 2: Filter dropdowns — native selects on mobile, pills on desktop */}
-        <div className="flex items-center gap-2 sm:hidden">
-          {/* State */}
-          <select
-            className="flex-1 px-2 py-2 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
-            value={stateFilter}
-            onChange={(e) => setStateFilter(e.target.value as any)}
-          >
-            <option value="OPEN">Active</option>
-            <option value="CLOSED">Closed</option>
-            <option value="ALL">All Status</option>
-          </select>
-          {/* Severity */}
-          <select
-            className="flex-1 px-2 py-2 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
-            value={severityFilter}
-            onChange={(e) => setSeverityFilter(e.target.value)}
-          >
-            <option value="ALL">All Severity</option>
-            <option value="Critical">Critical</option>
-            <option value="Major">Major</option>
-            <option value="Minor">Minor</option>
-          </select>
-          {/* Project */}
-          <select
-            value={selectedProjectId}
-            onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="flex-1 px-2 py-2 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-none min-h-[36px] cursor-pointer"
-          >
-            <option value="ALL">All Projects</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </div>
+        {/* Compact Mobile Filter Panel */}
+        {showMobileFilters && (
+          <div className="sm:hidden p-3.5 rounded-2xl bg-white border border-[#DDD6C8] shadow-xs space-y-3 animate-in fade-in duration-150">
+            <div className="flex items-center justify-between pb-2 border-b border-[#F2ECE1]">
+              <span className="text-xs font-bold text-[#231E1B] uppercase tracking-wider flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-[#C85A32]" />
+                Filter Issues
+              </span>
+              {activeMobileFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStateFilter('OPEN');
+                    setSeverityFilter('ALL');
+                    setSelectedProjectId('ALL');
+                  }}
+                  className="text-[11px] font-semibold text-[#C85A32] hover:underline cursor-pointer"
+                >
+                  Reset all
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-2.5">
+              {/* Status Filter */}
+              <div>
+                <label className="block text-[10px] font-bold text-[#70675D] uppercase tracking-wider mb-1">
+                  Status
+                </label>
+                <select
+                  value={stateFilter}
+                  onChange={(e) => setStateFilter(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#DDD6C8] bg-[#FBF9F4] text-xs font-semibold text-[#231E1B] focus:outline-none focus:border-[#C85A32] min-h-[38px] cursor-pointer"
+                >
+                  <option value="OPEN">Active Issues</option>
+                  <option value="CLOSED">Closed Issues</option>
+                  <option value="ALL">All Status</option>
+                </select>
+              </div>
+
+              {/* Severity Filter */}
+              <div>
+                <label className="block text-[10px] font-bold text-[#70675D] uppercase tracking-wider mb-1">
+                  Severity
+                </label>
+                <select
+                  value={severityFilter}
+                  onChange={(e) => setSeverityFilter(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#DDD6C8] bg-[#FBF9F4] text-xs font-semibold text-[#231E1B] focus:outline-none focus:border-[#C85A32] min-h-[38px] cursor-pointer"
+                >
+                  <option value="ALL">All Severity Levels</option>
+                  <option value="Critical">Critical</option>
+                  <option value="Major">Major</option>
+                  <option value="Minor">Minor</option>
+                </select>
+              </div>
+
+              {/* Project Filter */}
+              <div>
+                <label className="block text-[10px] font-bold text-[#70675D] uppercase tracking-wider mb-1">
+                  Project
+                </label>
+                <select
+                  value={selectedProjectId}
+                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#DDD6C8] bg-[#FBF9F4] text-xs font-semibold text-[#231E1B] focus:outline-none focus:border-[#C85A32] min-h-[38px] cursor-pointer"
+                >
+                  <option value="ALL">All Projects</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Desktop: pill chips */}
         <div className="hidden sm:flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">

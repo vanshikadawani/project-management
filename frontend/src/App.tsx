@@ -4,9 +4,11 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Routes, Route, useNavigate, useLocation, useParams, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { TopNav } from './components/TopNav.tsx';
-import { BottomNav, NavTab } from './components/BottomNav.tsx';
+import { BottomNav } from './components/BottomNav.tsx';
+import type { NavTab } from './components/BottomNav.tsx';
 import { NotificationsModal } from './components/NotificationsModal.tsx';
 import { AuthView } from './views/AuthView.tsx';
 import { AlertsView } from './views/AlertsView.tsx';
@@ -19,26 +21,106 @@ import { CalendarView } from './views/CalendarView.tsx';
 import { getSocket } from './lib/socket.ts';
 import { apiFetch } from './lib/api.ts';
 
+// Map URL pathnames to NavTab values
+const pathToTab: Record<string, NavTab> = {
+  '/alerts': 'alerts',
+  '/projects': 'projects',
+  '/issues': 'issues',
+  '/workload': 'workload',
+  '/chat': 'chat',
+};
+
+const tabToPath: Record<NavTab, string> = {
+  alerts: '/alerts',
+  projects: '/projects',
+  issues: '/issues',
+  workload: '/workload',
+  chat: '/chat',
+};
+
+// ─── Project Detail Page ─────────────────────────────────────────────────────
+function ProjectDetailPage({
+  onSelectProject,
+  mainScrollRef,
+}: {
+  onSelectProject: (id: string, tab?: string) => void;
+  mainScrollRef: React.RefObject<HTMLElement>;
+}) {
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const initialTab = (location.state as { initialTab?: string } | null)?.initialTab ?? 'phases';
+
+  const scrollToTop = () => {
+    if (mainScrollRef.current) mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (!projectId) return <Navigate to="/projects" replace />;
+
+  return (
+    <ProjectDetailView
+      projectId={projectId}
+      initialTab={initialTab}
+      onBack={() => {
+        navigate('/projects');
+        scrollToTop();
+      }}
+    />
+  );
+}
+
+// ─── Calendar Page ────────────────────────────────────────────────────────────
+function CalendarPage({
+  onSelectProject,
+  mainScrollRef,
+}: {
+  onSelectProject: (id: string, tab?: string) => void;
+  mainScrollRef: React.RefObject<HTMLElement>;
+}) {
+  const navigate = useNavigate();
+  const scrollToTop = () => {
+    if (mainScrollRef.current) mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  return (
+    <CalendarView
+      onSelectProject={(id, tab) => {
+        onSelectProject(id, tab);
+        navigate(`/projects/${id}`);
+        scrollToTop();
+      }}
+      onBack={() => {
+        navigate('/alerts');
+        scrollToTop();
+      }}
+    />
+  );
+}
+
+// ─── Main App Shell ───────────────────────────────────────────────────────────
 function MainApp() {
   const { currentUser, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<NavTab>('alerts');
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [projectInitialTab, setProjectInitialTab] = useState<string>('phases');
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [alertsBadge, setAlertsBadge] = useState<number>(0);
   const [criticalIssuesBadge, setCriticalIssuesBadge] = useState<number>(0);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState<number>(0);
-  const [showCalendar, setShowCalendar] = useState(false);
-  // Ref to the main scroll container for programmatic scroll-to-top
   const mainScrollRef = useRef<HTMLElement>(null);
 
   const scrollToTop = () => {
-    if (mainScrollRef.current) {
-      mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    if (mainScrollRef.current) mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    else window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // Derive active tab from current URL
+  const currentPath = location.pathname;
+  const isProjectDetail = currentPath.startsWith('/projects/');
+  const activeTab: NavTab = isProjectDetail
+    ? 'projects'
+    : pathToTab[currentPath] ?? 'alerts';
 
   // Fetch unread notifications count
   const fetchNotificationCount = async () => {
@@ -64,19 +146,12 @@ function MainApp() {
   useEffect(() => {
     if (!currentUser) return;
     const socket = getSocket(currentUser.id);
-
-    const handleNewNotification = () => {
-      setUnreadNotificationsCount((prev) => prev + 1);
-    };
-
+    const handleNewNotification = () => setUnreadNotificationsCount((prev) => prev + 1);
     socket.on('notification:new', handleNewNotification);
-
-    return () => {
-      socket.off('notification:new', handleNewNotification);
-    };
+    return () => { socket.off('notification:new', handleNewNotification); };
   }, [currentUser]);
 
-  // Poll / fetch active badges for bottom navigation
+  // Poll badges
   useEffect(() => {
     if (!currentUser) return;
     const fetchBadges = async () => {
@@ -87,33 +162,27 @@ function MainApp() {
           setAlertsBadge(data.alerts?.length || 0);
           setCriticalIssuesBadge(data.summary?.criticalIssuesCount || 0);
         }
-      } catch (err) {
+      } catch {
         // silent badge fallback
       }
     };
     fetchBadges();
-  }, [currentUser, activeTab, selectedProjectId]);
+  }, [currentUser, location.pathname]);
 
-  const handleSelectProject = (projectId: string, initialTab: string = 'phases') => {
-    setSelectedProjectId(projectId);
-    setProjectInitialTab(initialTab);
-    setIsNotificationsOpen(false);
-    setShowCalendar(false);
+  const handleTabChange = (tab: NavTab) => {
+    navigate(tabToPath[tab]);
     scrollToTop();
   };
 
-  const handleTabChange = (tab: NavTab) => {
-    setActiveTab(tab);
-    // If switching tabs, clear selected project drilldown
-    setSelectedProjectId(null);
-    setShowCalendar(false);
+  const handleSelectProject = (projectId: string, initialTab: string = 'phases') => {
+    setIsNotificationsOpen(false);
+    navigate(`/projects/${projectId}`, { state: { initialTab } });
     scrollToTop();
   };
 
   const handleShowCalendar = () => {
-    setShowCalendar(true);
-    setSelectedProjectId(null);
     setIsNotificationsOpen(false);
+    navigate('/calendar');
     scrollToTop();
   };
 
@@ -130,7 +199,6 @@ function MainApp() {
     );
   }
 
-  // If unauthenticated, redirect / render AuthView
   if (!currentUser) {
     return <AuthView />;
   }
@@ -151,41 +219,55 @@ function MainApp() {
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-3 sm:pt-6 pb-24 sm:pb-28">
-          {selectedProjectId ? (
-            <ProjectDetailView
-              projectId={selectedProjectId}
-              initialTab={projectInitialTab}
-              onBack={() => setSelectedProjectId(null)}
-            />
-          ) : showCalendar ? (
-            <CalendarView
-              onSelectProject={handleSelectProject}
-              onBack={() => setShowCalendar(false)}
-            />
-          ) : (
-            <>
-              {activeTab === 'alerts' && (
-                <AlertsView 
-                  onSelectProject={handleSelectProject} 
+          <Routes>
+            {/* Default redirect */}
+            <Route path="/" element={<Navigate to="/alerts" replace />} />
+
+            {/* Main tabs */}
+            <Route
+              path="/alerts"
+              element={
+                <AlertsView
+                  onSelectProject={handleSelectProject}
                   onShowCalendar={handleShowCalendar}
                 />
-              )}
-              {activeTab === 'projects' && (
-                <ProjectsView onSelectProject={handleSelectProject} />
-              )}
-              {activeTab === 'issues' && (
-                <IssuesView onSelectProject={handleSelectProject} />
-              )}
-              {activeTab === 'workload' && <WorkloadView />}
-              {activeTab === 'chat' && <ChatView />}
-            </>
-          )}
+              }
+            />
+            <Route
+              path="/projects"
+              element={<ProjectsView onSelectProject={handleSelectProject} />}
+            />
+            <Route path="/projects/:projectId" element={
+              <ProjectDetailPage
+                onSelectProject={handleSelectProject}
+                mainScrollRef={mainScrollRef}
+              />
+            } />
+            <Route
+              path="/issues"
+              element={<IssuesView onSelectProject={handleSelectProject} />}
+            />
+            <Route path="/workload" element={<WorkloadView />} />
+            <Route path="/chat" element={<ChatView />} />
+            <Route
+              path="/calendar"
+              element={
+                <CalendarPage
+                  onSelectProject={handleSelectProject}
+                  mainScrollRef={mainScrollRef}
+                />
+              }
+            />
+
+            {/* Catch-all fallback */}
+            <Route path="*" element={<Navigate to="/alerts" replace />} />
+          </Routes>
         </div>
       </main>
 
       {/* Fixed Bottom 5-Tab Navigation */}
       <BottomNav
-        activeTab={selectedProjectId ? 'projects' : activeTab}
+        activeTab={activeTab}
         onTabChange={handleTabChange}
         alertsCount={alertsBadge}
         criticalIssuesCount={criticalIssuesBadge}

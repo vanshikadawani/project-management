@@ -82,18 +82,18 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
   return (
     <div className="space-y-5 sm:space-y-6 pb-20 sm:pb-24 max-w-full overflow-hidden sm:overflow-visible">
       {/* Header — title + Refresh */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex items-start sm:items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
           <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
             Attention Stream
           </h1>
-          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5">
+          <p className="text-xs lg:text-sm text-[#70675D] mt-0.5 break-words">
             Live operational pulse, critical blockers, and action items for {currentUser?.name}.
           </p>
         </div>
         <button
           onClick={fetchAlerts}
-          className="shrink-0 self-end sm:self-auto -mt-8 sm:mt-0 px-3.5 py-2 sm:px-4 rounded-full text-xs lg:text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] active:scale-95 border border-[#DDD6C8] text-[#5A524A] transition-all cursor-pointer min-h-[36px] sm:min-h-[44px] flex items-center gap-1.5 shadow-2xs"
+          className="shrink-0 px-3.5 py-2 sm:px-4 rounded-full text-xs lg:text-xs font-semibold bg-[#F5F1E8] hover:bg-[#EAE4D6] active:scale-95 border border-[#DDD6C8] text-[#5A524A] transition-all cursor-pointer min-h-[36px] sm:min-h-[44px] flex items-center gap-1.5 shadow-2xs"
         >
           <Clock className="w-3.5 h-3.5" />
           <span className="sm:hidden">Refresh</span>

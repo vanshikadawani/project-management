@@ -34,18 +34,18 @@ export const ChatView: React.FC = () => {
   return (
     <div className="space-y-6 pb-24">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#E8E2D5]">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
+      <div className="flex items-start justify-between gap-2 pb-2 border-b border-[#E8E2D5]">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
             <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#231E1B]">
               <span className="sm:hidden">Chat</span>
               <span className="hidden sm:inline">Team Collaboration &amp; Chat</span>
             </h2>
-            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#EAE3D5] text-[#60564C]">
+            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#EAE3D5] text-[#60564C] shrink-0">
               Real-time
             </span>
           </div>
-          <p className="text-xs lg:text-sm text-[#70685F] mt-0.5">
+          <p className="text-xs lg:text-sm text-[#70685F] mt-0.5 break-words">
             Dedicated project channels, typing indicators, and @mentions
           </p>
         </div>

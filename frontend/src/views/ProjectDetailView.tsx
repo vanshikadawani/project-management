@@ -928,11 +928,11 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       </button>
 
       {/* Project Master Header Card */}
-      <div className="p-4 sm:p-6 rounded-2xl lg:rounded-3xl bg-white border border-[#E8E2D5] shadow-xs lg:shadow-sm space-y-3 sm:space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[10px] sm:text-xs font-semibold text-[#8C6D58] uppercase tracking-wider bg-[#F5F1E8] sm:bg-transparent px-2.5 py-0.5 sm:px-0 sm:py-0 rounded-full">
+      <div className="p-3.5 sm:p-6 rounded-2xl lg:rounded-3xl bg-white border border-[#E8E2D5] shadow-xs lg:shadow-sm space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-3">
+          <div className="space-y-1 min-w-0">
+            <div className="flex items-center justify-between sm:justify-start gap-2 flex-wrap">
+              <span className="text-[10px] sm:text-xs font-semibold text-[#8C6D58] uppercase tracking-wider bg-[#F5F1E8] sm:bg-transparent px-2 py-0.5 sm:px-0 sm:py-0 rounded-full">
                 {project.sponsor} Sponsor
               </span>
               <StatusBadge
@@ -941,10 +941,10 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                 size="md"
               />
             </div>
-            <h1 className="font-display text-lg sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight">
+            <h1 className="font-display text-lg sm:text-2xl lg:text-3xl font-bold text-[#231E1B] tracking-tight leading-snug break-words">
               {project.name}
             </h1>
-            <p className="text-xs sm:text-sm text-[#70675D] max-w-3xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#70675D] max-w-3xl leading-relaxed break-words">
               {project.goal}
             </p>
           </div>
@@ -954,7 +954,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
             <button
               id="status-override-button"
               onClick={() => setShowOverrideModal(true)}
-              className="self-start px-3.5 py-2 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#ECE5D6] active:scale-95 border border-[#DDD6C8] text-[#554E44] flex items-center gap-1.5 transition-all cursor-pointer min-h-[44px]"
+              className="self-start px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-xs font-semibold bg-[#F5F1E8] hover:bg-[#ECE5D6] active:scale-95 border border-[#DDD6C8] text-[#554E44] flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[36px] sm:min-h-[44px] shrink-0"
               title="Override automatic status with recorded reason"
             >
               <Edit2 className="w-3.5 h-3.5 text-[#C85A32]" />
@@ -964,7 +964,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         </div>
 
         {/* Progress vs Plan Dual Visual Bar */}
-        <div className="pt-2.5 sm:pt-3 border-t border-[#F2ECE1] space-y-2">
+        <div className="pt-2 sm:pt-3 border-t border-[#F2ECE1] space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-[#231E1B]">
               <span className="sm:hidden">Actual: </span>
@@ -1008,32 +1008,32 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
         </div>
 
         {/* Executive Meta Strip */}
-        <div className="pt-2.5 sm:pt-3 border-t border-[#F2ECE1] grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs">
-          <div>
+        <div className="pt-2 sm:pt-3 border-t border-[#F2ECE1] grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs">
+          <div className="min-w-0">
             <span className="text-[10px] sm:text-xs text-[#8C8275] block">Project Owner</span>
             <span className="font-semibold text-[#231E1B] truncate block">{project.owner?.name}</span>
           </div>
-          <div>
+          <div className="min-w-0">
             <span className="text-[10px] sm:text-xs text-[#8C8275] block">Sponsor</span>
             <span className="font-semibold text-[#231E1B] truncate block">{project.sponsor}</span>
           </div>
           {!isEmployee ? (
             <>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] sm:text-xs text-[#8C8275] block">Planned Budget</span>
-                <span className="font-semibold text-[#231E1B]">
+                <span className="font-semibold text-[#231E1B] truncate block">
                   £{project.plannedBudget.toLocaleString()}
                 </span>
               </div>
-              <div>
+              <div className="min-w-0">
                 <span className="text-[10px] sm:text-xs text-[#8C8275] block">Spend to Date</span>
-                <span className="font-semibold text-[#C85A32]">
+                <span className="font-semibold text-[#C85A32] truncate block">
                   £{project.spendToDate.toLocaleString()}
                 </span>
               </div>
             </>
           ) : (
-            <div className="col-span-2 flex items-center gap-1.5 text-[#8C8275] italic text-[11px]">
+            <div className="col-span-2 flex items-center gap-1.5 text-[#8C8275] italic text-[10px] sm:text-[11px]">
               <span>Financial figures confidential to Owner &amp; CEO</span>
             </div>
           )}
@@ -1041,7 +1041,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
       </div>
 
       {/* Tabs Bar - Smooth Edge-to-Edge Touch Scroll */}
-      <div className="flex items-center gap-1 border-b border-[#E8E2D5] overflow-x-auto no-scrollbar  pb-px">
+      <div className="flex items-center gap-1 border-b border-[#E8E2D5] overflow-x-auto no-scrollbar pb-px max-w-full">
         {[
           { key: 'phases', label: 'Phases & Tasks', count: project.phases.length },
           { key: 'overview', label: 'Overview & Charter' },
@@ -1059,7 +1059,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
             key={tab.key}
             id={`tab-btn-${tab.key}`}
             onClick={() => setActiveTab(tab.key as any)}
-            className={`px-3.5 sm:px-4 py-2.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
+            className={`px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 min-h-[38px] sm:min-h-[44px] cursor-pointer flex items-center gap-1.5 shrink-0 ${
               activeTab === tab.key
                 ? 'border-[#C85A32] text-[#C85A32]'
                 : 'border-transparent text-[#70685F] hover:text-[#231E1B]'
@@ -1083,16 +1083,16 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
       {/* TAB 1: PHASES & TASKS */}
       {activeTab === 'phases' && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="font-serif text-lg font-bold text-[#231E1B]">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-serif text-base sm:text-lg font-bold text-[#231E1B]">
               Execution Phases ({project.phases.length})
             </h3>
             {canManage && (
               <button
                 id="add-phase-button"
                 onClick={() => setShowNewPhaseModal(true)}
-                className="px-3.5 py-2 rounded-full bg-[#C85A32] hover:bg-[#AD4722] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer min-h-[44px]"
+                className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full bg-[#C85A32] hover:bg-[#AD4722] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer min-h-[36px] sm:min-h-[44px] shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Phase
@@ -1106,7 +1106,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className="space-y-3.5 sm:space-y-4">
             {project.phases.map((phase) => {
               const completedTasksCount = phase.tasks.filter((t) => t.state === 'Completed').length;
               const totalTasksCount = phase.tasks.length;
@@ -1119,29 +1119,32 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                   className="rounded-2xl bg-white border border-[#EAE3D5] overflow-hidden shadow-xs"
                 >
                   {/* Phase Header */}
-                  <div className="p-4 bg-[#FAF7F0] border-b border-[#EAE3D5] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-[#C85A32] bg-[#FBECE6] px-2 py-0.5 rounded-md">
+                  <div className="p-3 sm:p-4 bg-[#FAF7F0] border-b border-[#EAE3D5] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] sm:text-xs font-bold text-[#C85A32] bg-[#FBECE6] px-2 py-0.5 rounded-md shrink-0">
                           Phase {phase.order}
                         </span>
-                        <h4 className="font-serif font-bold text-base text-[#231E1B]">
+                        <h4 className="font-serif font-bold text-sm sm:text-base text-[#231E1B] truncate">
                           {phase.name}
                         </h4>
                         {phase.isArchived && (
-                          <span className="text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
+                          <span className="text-[10px] bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full shrink-0">
                             Archived
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-[#70675D]">
-                        Dates: {new Date(phase.plannedStart).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} –{' '}
-                        {new Date(phase.plannedEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        {' · '}{completedTasksCount} of {totalTasksCount} tasks completed ({phasePct}%)
+                      <div className="text-[11px] sm:text-xs text-[#70675D] flex items-center gap-1 flex-wrap">
+                        <span>
+                          {new Date(phase.plannedStart).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} –{' '}
+                          {new Date(phase.plannedEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <span>&bull;</span>
+                        <span>{completedTasksCount}/{totalTasksCount} tasks ({phasePct}%)</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 shrink-0 self-start sm:self-auto pt-1 sm:pt-0">
                       {canManage && (
                         <>
                           <button
@@ -1149,13 +1152,12 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                             onClick={() => {
                               setSelectedPhaseId(phase.id);
                               setShowNewTaskModal(true);
-                              // Fetch all assignable users when the modal opens
                               apiFetch('/api/users')
                                 .then((r) => r.json())
                                 .then((users) => setAssignableUsers(users))
                                 .catch(() => setAssignableUsers([]));
                             }}
-                            className="px-3 py-1.5 rounded-full bg-white border border-[#D5CCBC] hover:border-[#C85A32] text-xs font-medium text-[#231E1B] flex items-center gap-1 min-h-[38px] cursor-pointer"
+                            className="px-2.5 py-1.5 rounded-full bg-white border border-[#D5CCBC] hover:border-[#C85A32] text-xs font-semibold text-[#231E1B] flex items-center gap-1 min-h-[34px] sm:min-h-[38px] cursor-pointer"
                           >
                             <Plus className="w-3.5 h-3.5 text-[#C85A32]" />
                             Add Task
@@ -1163,14 +1165,14 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                           <button
                             onClick={() => handleArchivePhase(phase.id)}
                             title="Archive Phase"
-                            className="p-2 rounded-full hover:bg-[#EFECE4] text-[#7A7165]"
+                            className="p-1.5 sm:p-2 rounded-full hover:bg-[#EFECE4] text-[#7A7165] min-h-[34px] min-w-[34px] flex items-center justify-center cursor-pointer"
                           >
                             <Archive className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeletePhase(phase.id)}
                             title="Delete Phase (only allowed if empty)"
-                            className="p-2 rounded-full hover:bg-[#FDE8E8] text-[#991B1B]"
+                            className="p-1.5 sm:p-2 rounded-full hover:bg-[#FDE8E8] text-[#991B1B] min-h-[34px] min-w-[34px] flex items-center justify-center cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -1197,12 +1199,13 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                           <div
                             key={task.id}
                             id={`task-row-${task.id}`}
-                            className="p-4 hover:bg-[#FDFBF7] transition-colors"
+                            className="p-3.5 sm:p-4 hover:bg-[#FDFBF7] transition-colors space-y-2"
                           >
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                              {/* Task Info */}
-                              <div className="space-y-1 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
+                              {/* Task Info: Badges -> Title -> Meta */}
+                              <div className="space-y-1.5 flex-1 min-w-0">
+                                {/* Badges */}
+                                <div className="flex items-center gap-1.5 flex-wrap">
                                   <TaskStateBadge state={task.state} />
                                   <PriorityBadge priority={task.priority} />
                                   {task.hasRiskFlag && (
@@ -1218,22 +1221,26 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                                   )}
                                 </div>
 
-                                <div className="font-semibold text-sm text-[#231E1B]">
+                                {/* Title */}
+                                <div className="font-semibold text-sm sm:text-base text-[#231E1B] leading-snug break-words">
                                   {task.title}
                                 </div>
 
-                                <div className="text-xs text-[#70675D] flex items-center gap-3 flex-wrap">
+                                {/* Meta: Assignee, Hours, Due date */}
+                                <div className="text-xs text-[#70675D] flex items-center gap-2 sm:gap-3 flex-wrap pt-0.5">
                                   <span>
                                     Assigned: <strong>{task.assignee?.name || 'Unassigned'}</strong>
                                   </span>
+                                  <span>&bull;</span>
                                   <span>
                                     Planned: <strong>{task.plannedHours} hrs</strong>
                                   </span>
+                                  <span>&bull;</span>
                                   <span>
                                     Due: {new Date(task.plannedEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                   </span>
                                   {task.qualityChecks && task.qualityChecks.length > 0 && (
-                                    <span className="text-[#526E55] flex items-center gap-1">
+                                    <span className="text-[#526E55] flex items-center gap-1 w-full sm:w-auto mt-0.5 sm:mt-0">
                                       <ShieldCheck className="w-3.5 h-3.5" />
                                       {task.qualityChecks.filter((q) => q.checkedAt).length}/{task.qualityChecks.length} checks
                                     </span>
@@ -1241,15 +1248,15 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                                 </div>
                               </div>
 
-                              {/* Task State Actions */}
-                              <div className="flex items-center gap-2">
+                              {/* Task Action Controls Row */}
+                              <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#F5F1E8]">
                                 {canEditTask && (
                                   <>
                                     <select
                                       id={`task-state-select-${task.id}`}
                                       value={task.state}
                                       onChange={(e) => handleTaskStateChange(task.id, e.target.value)}
-                                      className="px-2.5 py-1.5 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-hidden focus:border-[#C85A32] cursor-pointer min-h-[44px]"
+                                      className="flex-1 sm:flex-none px-2.5 py-1.5 rounded-xl border border-[#DDD6C8] bg-white text-xs font-semibold text-[#231E1B] focus:outline-hidden focus:border-[#C85A32] cursor-pointer min-h-[36px] sm:min-h-[44px]"
                                     >
                                       <option value="Not started">Not started</option>
                                       <option value="In progress">In progress</option>
@@ -1259,7 +1266,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
                                     <button
                                       onClick={() => handleToggleRiskFlag(task)}
-                                      className={`p-2 rounded-xl border min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer ${
+                                      className={`p-2 rounded-xl border min-h-[36px] min-w-[36px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center cursor-pointer shrink-0 ${
                                         task.hasRiskFlag
                                           ? 'bg-[#FEE2E2] border-[#FECACA] text-[#B3261E]'
                                           : 'bg-white border-[#E0D9CC] text-[#7A7165] hover:text-[#B3261E]'
@@ -1278,7 +1285,7 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                                       [task.id]: !prev[task.id],
                                     }))
                                   }
-                                  className="p-2 rounded-xl bg-white border border-[#E0D9CC] text-[#7A7165] hover:bg-[#F5F1E8] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+                                  className="p-2 rounded-xl bg-white border border-[#E0D9CC] text-[#7A7165] hover:bg-[#F5F1E8] min-h-[36px] min-w-[36px] sm:min-h-[44px] sm:min-w-[44px] flex items-center justify-center cursor-pointer shrink-0"
                                   title="Expand quality checks and details"
                                 >
                                   {isExpanded ? (

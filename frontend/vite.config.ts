@@ -13,36 +13,35 @@ customLogger.error = (msg, options) => {
   originalError(msg, options);
 };
 
-export default defineConfig(() => {
-  return {
-    customLogger,
-    root: path.resolve(__dirname),
-    plugins: [react(), tailwindcss()],
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, 'src'),
+export default defineConfig({
+  appType: 'spa',
+  customLogger,
+  root: path.resolve(__dirname),
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
+  build: {
+    outDir: path.resolve(__dirname, 'dist'),
+    emptyOutDir: true,
+  },
+  server: {
+    host: true,
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true,
+      },
+      '/socket.io': {
+        target: 'http://127.0.0.1:5000',
+        ws: true,
+        changeOrigin: true,
       },
     },
-    build: {
-      outDir: path.resolve(__dirname, 'dist'),
-      emptyOutDir: true,
-    },
-    server: {
-      host: true,
-      port: 3000,
-      proxy: {
-        '/api': {
-          target: 'http://127.0.0.1:5000',
-          changeOrigin: true,
-        },
-        '/socket.io': {
-          target: 'http://127.0.0.1:5000',
-          ws: true,
-          changeOrigin: true,
-        },
-      },
-      hmr: process.env.DISABLE_HMR !== 'true',
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
-    },
-  };
+    hmr: process.env.DISABLE_HMR !== 'true',
+    watch: process.env.DISABLE_HMR === 'true' ? null : undefined,
+  },
 });
