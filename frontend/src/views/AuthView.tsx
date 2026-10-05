@@ -80,11 +80,16 @@ export const AuthView: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#FBF9F4] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-2">
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-[#C85A32] flex items-center justify-center text-white shadow-md">
-          <span className="font-serif font-bold text-2xl leading-none">F</span>
+        <div className="flex justify-center">
+          <img
+            src="/src/assets/pugarch-logo.png"
+            alt="PugArch"
+            className="h-20 w-auto object-contain"
+            style={{ mixBlendMode: 'multiply' }}
+          />
         </div>
         <h2 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight text-[#231E1B]">
-          Fern &amp; Foley — Projects
+          PugArch &mdash; Projects
         </h2>
         <p className="text-xs text-[#70685F]">
           Mobile-First Project Operations &amp; Execution System
@@ -192,7 +197,7 @@ export const AuthView: React.FC = () => {
                     id="login-email-input"
                     type="email"
                     required
-                    placeholder="e.g. sarah.chen@fernandfoley.internal"
+                    placeholder="e.g. sarah.chen@pugarch.internal"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#DDD6C8] bg-white text-xs text-[#231E1B] placeholder-[#8F867A] focus:outline-hidden focus:border-[#C85A32] min-h-[44px]"
@@ -238,7 +243,7 @@ export const AuthView: React.FC = () => {
                   id="signup-email-input"
                   type="email"
                   required
-                  placeholder="e.g. alex.morgan@fernandfoley.internal"
+                  placeholder="e.g. alex.morgan@pugarch.internal"
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-[#DDD6C8] bg-white text-xs text-[#231E1B] placeholder-[#8F867A] focus:outline-hidden focus:border-[#C85A32] min-h-[44px]"

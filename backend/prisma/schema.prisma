@@ -26,6 +26,8 @@ model User {
   documentVersionsUploaded  DocumentVersion[]   @relation("DocVersionUploader")
   issuesOwned               Issue[]             @relation("IssueOwner")
   issuesRaised              Issue[]             @relation("IssueRaiser")
+  leaveRequests             LeaveRequest[]      @relation("LeaveRequester")
+  leaveReviews              LeaveRequest[]      @relation("LeaveReviewer")
   notifications             Notification[]
   ownedProjects             Project[]           @relation("ProjectOwner")
   memberships               ProjectMembership[]
@@ -339,4 +341,22 @@ model Reminder {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LeaveRequest {
+  id          String    @id @default(cuid())
+  requestedBy String
+  startDate   DateTime
+  endDate     DateTime
+  dayType     String    @default("Full day") // "Full day" | "Half day"
+  leaveType   String    // "Annual Leave" | "Sick Leave" | "Personal Leave" | "Unpaid Leave" | "Other"
+  reason      String?
+  status      String    @default("Pending") // "Pending" | "Approved" | "Sent back" | "Declined"
+  reviewNote  String?
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  requester   User      @relation("LeaveRequester", fields: [requestedBy], references: [id], onDelete: Cascade)
+  reviewer    User?     @relation("LeaveReviewer", fields: [reviewedBy], references: [id])
 }

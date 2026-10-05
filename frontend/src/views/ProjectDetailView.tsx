@@ -892,6 +892,9 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
 
   const metrics = project.metrics!;
   const canManage = isCEO || (isProjectOwner && project.ownerId === currentUser?.id);
+  // Any authenticated project member can create tasks (Employee, ProjectOwner, CEO)
+  const isProjectMember = project.memberships?.some((m) => m.user.id === currentUser?.id) ?? false;
+  const canCreateTask = isCEO || (isProjectOwner && project.ownerId === currentUser?.id) || isProjectMember;
 
   return (
     <div className="space-y-6 pb-24">
@@ -1145,23 +1148,25 @@ export const ProjectDetailView: React.FC<ProjectDetailViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0 self-start sm:self-auto pt-1 sm:pt-0">
+                      {canCreateTask && (
+                        <button
+                          id={`add-task-btn-${phase.id}`}
+                          onClick={() => {
+                            setSelectedPhaseId(phase.id);
+                            setShowNewTaskModal(true);
+                            apiFetch('/api/users')
+                              .then((r) => r.json())
+                              .then((users) => setAssignableUsers(users))
+                              .catch(() => setAssignableUsers([]));
+                          }}
+                          className="px-2.5 py-1.5 rounded-full bg-white border border-[#D5CCBC] hover:border-[#C85A32] text-xs font-semibold text-[#231E1B] flex items-center gap-1 min-h-[34px] sm:min-h-[38px] cursor-pointer"
+                        >
+                          <Plus className="w-3.5 h-3.5 text-[#C85A32]" />
+                          Add Task
+                        </button>
+                      )}
                       {canManage && (
                         <>
-                          <button
-                            id={`add-task-btn-${phase.id}`}
-                            onClick={() => {
-                              setSelectedPhaseId(phase.id);
-                              setShowNewTaskModal(true);
-                              apiFetch('/api/users')
-                                .then((r) => r.json())
-                                .then((users) => setAssignableUsers(users))
-                                .catch(() => setAssignableUsers([]));
-                            }}
-                            className="px-2.5 py-1.5 rounded-full bg-white border border-[#D5CCBC] hover:border-[#C85A32] text-xs font-semibold text-[#231E1B] flex items-center gap-1 min-h-[34px] sm:min-h-[38px] cursor-pointer"
-                          >
-                            <Plus className="w-3.5 h-3.5 text-[#C85A32]" />
-                            Add Task
-                          </button>
                           <button
                             onClick={() => handleArchivePhase(phase.id)}
                             title="Archive Phase"

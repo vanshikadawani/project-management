@@ -1,5 +1,5 @@
 /**
- * Centralized API utility for Fern & Foley Project Management System.
+ * Centralized API utility for PugArch Project Management System.
  * Supports VITE_API_URL configuration for cross-origin backend deployments
  * as well as same-domain / relative proxy deployments.
  */

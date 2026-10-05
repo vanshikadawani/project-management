@@ -417,3 +417,34 @@ export interface CEOPortfolioProject {
   openRisksCount: number;
 }
 
+export type LeaveStatus = 'Pending' | 'Approved' | 'Sent back' | 'Declined';
+export type LeaveType = 'Annual Leave' | 'Sick Leave' | 'Personal Leave' | 'Unpaid Leave' | 'Other';
+export type DayType = 'Full day' | 'Half day';
+
+export interface LeaveRequest {
+  id: string;
+  requestedBy: string;
+  startDate: string;
+  endDate: string;
+  dayType: DayType;
+  leaveType: LeaveType;
+  reason: string | null;
+  status: LeaveStatus;
+  reviewNote: string | null;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  requester?: {
+    id: string;
+    name: string;
+    role: Role;
+    department: string | null;
+    avatarUrl: string | null;
+  };
+  reviewer?: {
+    id: string;
+    name: string;
+    role: Role;
+  } | null;
+}

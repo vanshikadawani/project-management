@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { apiFetch } from '../lib/api.ts';
-import { AlertItem } from '../types.ts';
+import { AlertItem, LeaveRequest } from '../types.ts';
 import { StatusBadge, SeverityBadge } from '../components/StatusBadge.tsx';
 import {
   AlertTriangle,
@@ -15,7 +15,25 @@ import {
   CheckSquare,
   Sparkles,
   Calendar,
+  Plane,
+  ChevronDown,
+  X,
+  CheckCheck,
+  RotateCcw,
+  Ban,
 } from 'lucide-react';
+
+const leaveStatusStyle = (status: string) => {
+  switch (status) {
+    case 'Approved': return 'bg-[#EBF2EB] text-[#2D5A34] border-[#C6DEC7]';
+    case 'Sent back': return 'bg-[#FFF8E6] text-[#B45309] border-[#FDE68A]';
+    case 'Declined': return 'bg-[#FEE2E2] text-[#991B1B] border-[#FECACA]';
+    default: return 'bg-[#F2EDE2] text-[#70685F] border-[#DDD6C8]';
+  }
+};
+
+const fmtDate = (date: string) =>
+  new Date(date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
 interface AlertsViewProps {
   onSelectProject: (projectId: string, initialTab?: string) => void;
@@ -24,7 +42,7 @@ interface AlertsViewProps {
 }
 
 export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowCalendar }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, isCEO } = useAuth();
   const [data, setData] = useState<{
     summary: any;
     groupedByProject: Record<string, { projectName: string; alerts: AlertItem[] }>;
@@ -36,6 +54,17 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
   const [todayEventsLoading, setTodayEventsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'CRITICAL' | 'RISKS' | 'MY_TASKS'>('ALL');
+
+  // Leave requests (CEO only)
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
+  const [leaveLoading, setLeaveLoading] = useState(false);
+  const [showLeaveSection, setShowLeaveSection] = useState(true);
+  const [decidingLeave, setDecidingLeave] = useState<LeaveRequest | null>(null);
+  const [leaveDecisionAction, setLeaveDecisionAction] = useState<'APPROVE' | 'SEND_BACK' | 'REJECT'>('APPROVE');
+  const [leaveReviewNote, setLeaveReviewNote] = useState('');
+  const [leaveDeciding, setLeaveDeciding] = useState(false);
+  const [leaveToast, setLeaveToast] = useState<string | null>(null);
+  const submittingRef = useRef(false);
 
   const fetchAlerts = async () => {
     try {
@@ -67,9 +96,63 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
     }
   };
 
+  const fetchLeaveRequests = async () => {
+    if (!isCEO) return;
+    try {
+      setLeaveLoading(true);
+      const res = await apiFetch('/api/leave');
+      if (res.ok) {
+        const data = await res.json();
+        setLeaveRequests(data);
+      }
+    } catch {
+      // silent
+    } finally {
+      setLeaveLoading(false);
+    }
+  };
+
+  const handleLeaveDecision = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!decidingLeave) return;
+    if (submittingRef.current || leaveDeciding) return;
+    submittingRef.current = true;
+    setLeaveDeciding(true);
+
+    try {
+      const res = await apiFetch(`/api/leave/${decidingLeave.id}/decide`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: leaveDecisionAction,
+          reviewNote: leaveReviewNote.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to process decision');
+      }
+
+      setDecidingLeave(null);
+      setLeaveReviewNote('');
+      const actionLabel = leaveDecisionAction === 'APPROVE' ? 'approved' : leaveDecisionAction === 'SEND_BACK' ? 'sent back' : 'declined';
+      setLeaveToast(`Leave request ${actionLabel} successfully`);
+      setTimeout(() => setLeaveToast(null), 4000);
+      fetchLeaveRequests();
+    } catch (err: any) {
+      setLeaveToast(err.message || 'Failed to process decision');
+      setTimeout(() => setLeaveToast(null), 4000);
+    } finally {
+      submittingRef.current = false;
+      setLeaveDeciding(false);
+    }
+  };
+
   useEffect(() => {
     fetchAlerts();
     fetchTodayEvents();
+    fetchLeaveRequests();
   }, [currentUser]);
 
   const filteredAlerts = (data?.alerts || []).filter((item) => {
@@ -79,8 +162,17 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
     return true;
   });
 
+  const pendingLeave = leaveRequests.filter((l) => l.status === 'Pending');
+
   return (
     <div className="space-y-5 sm:space-y-6 pb-20 sm:pb-24 max-w-full overflow-hidden sm:overflow-visible">
+      {/* Leave toast */}
+      {leaveToast && (
+        <div className="fixed top-16 right-4 left-4 sm:left-auto z-50 p-4 rounded-2xl bg-[#231E1B] text-white text-xs font-semibold shadow-xl animate-in fade-in">
+          {leaveToast}
+        </div>
+      )}
+
       {/* Header — title + Refresh */}
       <div className="flex items-start sm:items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -255,6 +347,248 @@ export const AlertsView: React.FC<AlertsViewProps> = ({ onSelectProject, onShowC
           </button>
         </div>
       </div>
+
+      {/* ─── CEO: Leave Approvals ──────────────────────────────────────────────── */}
+      {isCEO && (
+        <div className="bg-white border border-[#EAE3D5] rounded-2xl shadow-xs overflow-hidden">
+          <button
+            onClick={() => setShowLeaveSection(!showLeaveSection)}
+            className="w-full flex items-center justify-between px-4 sm:px-5 py-3.5 cursor-pointer hover:bg-[#FAF8F4] transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <Plane className="w-4 h-4 text-[#C85A32]" />
+              <span className="font-serif font-bold text-sm text-[#231E1B]">Leave Requests</span>
+              {pendingLeave.length > 0 && (
+                <span className="text-[10px] font-bold bg-[#C85A32] text-white px-2 py-0.5 rounded-full">
+                  {pendingLeave.length} pending
+                </span>
+              )}
+            </div>
+            <ChevronDown
+              className={`w-4 h-4 text-[#70685F] transition-transform duration-200 ${showLeaveSection ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {showLeaveSection && (
+            <div className="border-t border-[#EAE3D5] px-4 sm:px-5 py-4 space-y-3">
+              {leaveLoading ? (
+                <div className="space-y-2">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="h-14 bg-[#FAF7F2] rounded-xl animate-pulse" />
+                  ))}
+                </div>
+              ) : leaveRequests.length === 0 ? (
+                <div className="py-6 text-center space-y-1">
+                  <Plane className="w-8 h-8 text-[#DDD6C8] mx-auto" />
+                  <p className="text-xs text-[#70685F]">No leave requests have been submitted.</p>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {leaveRequests.map((leave) => (
+                    <div
+                      key={leave.id}
+                      className={`p-3.5 rounded-xl border space-y-2 ${
+                        leave.status === 'Pending'
+                          ? 'bg-[#FFFDF9] border-[#F5DDB8]'
+                          : 'bg-[#FAF8F4] border-[#EDE7DC]'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <img
+                            src={
+                              leave.requester?.avatarUrl ||
+                              `https://api.dicebear.com/7.x/initials/svg?seed=${leave.requester?.name || 'User'}`
+                            }
+                            alt={leave.requester?.name}
+                            className="w-8 h-8 rounded-full border border-white shadow-2xs shrink-0"
+                            referrerPolicy="no-referrer"
+                          />
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-[#231E1B] truncate">
+                              {leave.requester?.name}
+                            </div>
+                            <div className="text-[10px] text-[#70685F]">
+                              {leave.requester?.department || leave.requester?.role}
+                            </div>
+                          </div>
+                        </div>
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-1 rounded-full border whitespace-nowrap shrink-0 ${leaveStatusStyle(leave.status)}`}
+                        >
+                          {leave.status}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                        <span className="font-semibold text-[#231E1B]">{leave.leaveType}</span>
+                        <span className="text-[#70685F]">·</span>
+                        <span className="text-[#70685F]">{leave.dayType}</span>
+                        <span className="text-[#70685F]">·</span>
+                        <span className="text-[#70685F]">
+                          {fmtDate(leave.startDate)}
+                          {leave.startDate !== leave.endDate ? ` – ${fmtDate(leave.endDate)}` : ''}
+                        </span>
+                      </div>
+
+                      {leave.reason && (
+                        <p className="text-[11px] text-[#8C8275] italic line-clamp-2">"{leave.reason}"</p>
+                      )}
+
+                      {leave.reviewNote && leave.status !== 'Pending' && (
+                        <div className={`text-[11px] rounded-lg px-3 py-2 ${
+                          leave.status === 'Declined'
+                            ? 'bg-[#FEE2E2] text-[#991B1B]'
+                            : leave.status === 'Sent back'
+                            ? 'bg-[#FFF8E6] text-[#92400E]'
+                            : 'bg-[#EBF2EB] text-[#2D5A34]'
+                        }`}>
+                          <strong>Note:</strong> {leave.reviewNote}
+                        </div>
+                      )}
+
+                      {/* Decision Buttons (only for Pending) */}
+                      {leave.status === 'Pending' && (
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <button
+                            id={`leave-approve-${leave.id}`}
+                            onClick={() => {
+                              setDecidingLeave(leave);
+                              setLeaveDecisionAction('APPROVE');
+                              setLeaveReviewNote('');
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#2D5A34] hover:bg-[#1E3E23] text-white text-[11px] font-semibold transition-all active:scale-95 cursor-pointer min-h-[36px]"
+                          >
+                            <CheckCheck className="w-3.5 h-3.5" />
+                            Approve
+                          </button>
+                          <button
+                            id={`leave-sendback-${leave.id}`}
+                            onClick={() => {
+                              setDecidingLeave(leave);
+                              setLeaveDecisionAction('SEND_BACK');
+                              setLeaveReviewNote('');
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#FAF7F2] hover:bg-[#EDE7DC] text-[#70685F] text-[11px] font-semibold border border-[#DDD6C8] transition-all active:scale-95 cursor-pointer min-h-[36px]"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            Send Back
+                          </button>
+                          <button
+                            id={`leave-reject-${leave.id}`}
+                            onClick={() => {
+                              setDecidingLeave(leave);
+                              setLeaveDecisionAction('REJECT');
+                              setLeaveReviewNote('');
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#FEE2E2] hover:bg-[#FECACA] text-[#991B1B] text-[11px] font-semibold border border-[#FECACA] transition-all active:scale-95 cursor-pointer min-h-[36px]"
+                          >
+                            <Ban className="w-3.5 h-3.5" />
+                            Decline
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── CEO Leave Decision Modal ────────────────────────────────────────────── */}
+      {decidingLeave && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200"
+          onClick={() => setDecidingLeave(null)}
+        >
+          <div
+            className="w-full max-w-md bg-white rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl border-t sm:border border-[#E8E2D5] space-y-4 max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-1.5 bg-[#DDD6C8] rounded-full mx-auto sm:hidden" />
+
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-serif font-bold text-base sm:text-lg text-[#231E1B]">
+                  {leaveDecisionAction === 'APPROVE'
+                    ? 'Approve Leave Request'
+                    : leaveDecisionAction === 'SEND_BACK'
+                    ? 'Send Back for Clarification'
+                    : 'Decline Leave Request'}
+                </h3>
+                <p className="text-xs text-[#70685F] mt-0.5">
+                  {decidingLeave.requester?.name} · {decidingLeave.leaveType} · {decidingLeave.dayType}
+                </p>
+                <p className="text-[11px] text-[#8C8275] mt-0.5">
+                  {fmtDate(decidingLeave.startDate)}
+                  {decidingLeave.startDate !== decidingLeave.endDate ? ` – ${fmtDate(decidingLeave.endDate)}` : ''}
+                </p>
+              </div>
+              <button
+                onClick={() => setDecidingLeave(null)}
+                className="p-2 text-gray-400 hover:text-black rounded-xl hover:bg-[#F5F1E8] min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer shrink-0"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleLeaveDecision} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-[#231E1B] mb-1">
+                  {leaveDecisionAction === 'APPROVE'
+                    ? 'Note (optional)'
+                    : 'Note (required) *'}
+                </label>
+                <textarea
+                  rows={3}
+                  required={leaveDecisionAction !== 'APPROVE'}
+                  value={leaveReviewNote}
+                  onChange={(e) => setLeaveReviewNote(e.target.value)}
+                  placeholder={
+                    leaveDecisionAction === 'APPROVE'
+                      ? 'Any notes for the employee...'
+                      : leaveDecisionAction === 'SEND_BACK'
+                      ? 'Specify what clarification or change is needed...'
+                      : 'Reason for declining this leave request...'
+                  }
+                  className="w-full bg-[#FAF7F2] border border-[#DDD6C8] rounded-xl px-3.5 py-2.5 text-sm text-[#231E1B] focus:ring-1 focus:ring-[#C85A32] resize-none"
+                />
+              </div>
+
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDecidingLeave(null)}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#DDD6C8] text-xs font-semibold text-[#70685F] hover:bg-[#EDE7DC] active:scale-95 transition-all cursor-pointer min-h-[44px]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={leaveDeciding}
+                  className={`w-full sm:w-auto px-5 py-2.5 rounded-xl text-white text-xs font-semibold shadow-xs cursor-pointer active:scale-95 transition-all min-h-[44px] disabled:opacity-60 ${
+                    leaveDecisionAction === 'APPROVE'
+                      ? 'bg-[#2D5A34] hover:bg-[#1E3E23]'
+                      : leaveDecisionAction === 'SEND_BACK'
+                      ? 'bg-[#B45309] hover:bg-[#92400E]'
+                      : 'bg-[#991B1B] hover:bg-[#7F1D1D]'
+                  }`}
+                >
+                  {leaveDeciding
+                    ? 'Processing...'
+                    : leaveDecisionAction === 'APPROVE'
+                    ? 'Confirm Approval'
+                    : leaveDecisionAction === 'SEND_BACK'
+                    ? 'Send Back'
+                    : 'Decline Request'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Filter — compact select on mobile, chips on sm+ */}
       <div className="flex items-center gap-2">

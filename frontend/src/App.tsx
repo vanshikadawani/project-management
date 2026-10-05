@@ -189,11 +189,14 @@ function MainApp() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#FBF9F4] flex flex-col items-center justify-center space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-[#C85A32] flex items-center justify-center text-white font-serif font-bold text-2xl shadow-md animate-pulse">
-          F
-        </div>
+        <img
+          src="/src/assets/pugarch-logo.png"
+          alt="PugArch"
+          className="h-16 w-auto object-contain animate-pulse"
+          style={{ mixBlendMode: 'multiply' }}
+        />
         <p className="font-serif text-sm font-semibold text-[#5A524A] tracking-wide">
-          Loading Fern &amp; Foley Projects...
+          Loading PugArch Projects...
         </p>
       </div>
     );

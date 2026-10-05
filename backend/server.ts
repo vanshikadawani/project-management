@@ -33,6 +33,7 @@ import portfolioRouter from './server/routes/portfolio.js';
 import documentsRouter from './server/routes/documents.js';
 import calendarRouter from './server/routes/calendar.js';
 import usersRouter from './server/routes/users.js';
+import leaveRouter from './server/routes/leave.js';
 
 const app = express();
 
@@ -130,6 +131,7 @@ app.use('/api/projects', changelogRouter);
 app.use('/api/projects', budgetRouter);
 app.use('/api/portfolio', portfolioRouter);
 app.use('/api', documentsRouter);
+app.use('/api/leave', leaveRouter);
 
 // Local development only (skip auto-listen in test runner or on Vercel)
 if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {

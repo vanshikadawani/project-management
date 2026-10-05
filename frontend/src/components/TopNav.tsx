@@ -44,28 +44,26 @@ export const TopNav: React.FC<TopNavProps> = ({ onOpenNotifications, onOpenCalen
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
           {/* Logo & Brand */}
           <div className="flex items-center gap-2.5 lg:gap-3 min-w-0 shrink-0">
-            <div className="w-8 h-8 rounded-xl bg-[#C85A32] flex items-center justify-center text-white shadow-xs shrink-0">
-              <span className="font-serif font-bold text-base leading-none">F</span>
-            </div>
             {/* Desktop brand */}
-            <div className="hidden sm:block">
-              <div className="flex items-center gap-2">
-                <span className="font-serif text-base sm:text-lg lg:text-xl font-bold tracking-tight text-[#231E1B]">
-                  FERN &amp; FOLEY
-                </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#EAE3D5] text-[#60564C]">
-                  PROJECTS
-                </span>
-              </div>
-              <p className="text-[11px] lg:text-xs text-[#7A7165]">
-                Project Operations &amp; Execution System
-              </p>
-            </div>
-            {/* Mobile brand text */}
-            <div className="sm:hidden flex items-center gap-1.5">
-              <span className="font-serif text-sm font-bold tracking-tight text-[#231E1B]">
-                F&amp;F
+            <div className="hidden sm:flex items-center gap-2">
+              <img
+                src="/src/assets/pugarch-logo.png"
+                alt="PugArch"
+                className="h-10 w-auto object-contain shrink-0"
+                style={{ mixBlendMode: 'multiply' }}
+              />
+              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#EAE3D5] text-[#60564C]">
+                PROJECTS
               </span>
+            </div>
+            {/* Mobile brand */}
+            <div className="sm:hidden flex items-center gap-1.5">
+              <img
+                src="/src/assets/pugarch-logo.png"
+                alt="PugArch"
+                className="h-8 w-auto object-contain shrink-0"
+                style={{ mixBlendMode: 'multiply' }}
+              />
               <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-[#EAE3D5] text-[#60564C]">
                 PROJECTS
               </span>

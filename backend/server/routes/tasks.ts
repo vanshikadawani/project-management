@@ -74,18 +74,12 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/tasks - Create task
-// RBAC: Employee CANNOT create tasks. Only Project Owner and CEO.
+// RBAC: Any authenticated project member (Employee, Project Owner, CEO) can create tasks.
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    if (user.role === 'Employee') {
-      return res.status(403).json({
-        error: 'Forbidden: Employees cannot create tasks. Tasks can only be created by Project Owners or CEO.',
-      });
     }
 
     const validation = TaskCreateSchema.safeParse(req.body);
@@ -102,10 +96,26 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Phase does not exist.' });
     }
 
-    if (user.role !== 'CEO' && phase.project.ownerId !== user.id) {
-      return res.status(403).json({
-        error: 'Forbidden: You can only create tasks on projects you own.',
-      });
+    // CEO can create tasks on any project.
+    // Project owners can create tasks on their own projects.
+    // Employees (and project owners) must be a project member.
+    if (user.role !== 'CEO') {
+      const isOwner = phase.project.ownerId === user.id;
+      if (!isOwner) {
+        const membership = await prisma.projectMembership.findUnique({
+          where: {
+            projectId_userId: {
+              projectId: phase.projectId,
+              userId: user.id,
+            },
+          },
+        });
+        if (!membership) {
+          return res.status(403).json({
+            error: 'Forbidden: You must be a member of this project to create tasks.',
+          });
+        }
+      }
     }
 
     const isPostBaseline = !!phase.project.baselineId;
